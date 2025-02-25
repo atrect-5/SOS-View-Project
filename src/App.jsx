@@ -6,6 +6,7 @@ import { BrowserRouter as Router } from "react-router-dom"
 //import reactLogo from './assets/react.svg'
 //import viteLogo from '/vite.svg'
 
+import { UserProvider } from './providers/userProvider'
 import RoutesOfApp from './routes/appRoutes'
 
 import 'react-toastify/ReactToastify.css'
@@ -16,12 +17,14 @@ function App() {
 
   return (
     <>
+    <UserProvider>
       <Router>
         <div className="main-container">
           <RoutesOfApp/>
         </div>
         <ToastContainer/>
       </Router>
+    </UserProvider>
     </>
   )
 }
