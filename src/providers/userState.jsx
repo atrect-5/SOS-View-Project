@@ -15,10 +15,10 @@ export const guardaLogin = (user, setUser) => {
     } else {
         setUser({
             name: 'Alejandro',
+            email: user.email,
             /*
             lastName: user.lastName,
             workingAt: user.workingAt,
-            email: user.email,
             phone: user.phone,
             userType: user.userType,
             accountStatus: user.accountStatus

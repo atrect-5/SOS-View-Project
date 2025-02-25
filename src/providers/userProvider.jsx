@@ -11,7 +11,7 @@ export function UserProvider(props) {
 
     const [user, setUser] = useState(userInitialState)
 
-    const handleLoginChange = () => guardaLogin(user, setUser)
+    const handleLoginChange = (user) => guardaLogin(user, setUser)
 
     return (
         <userContext.Provider value={user}>
