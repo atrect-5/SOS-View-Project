@@ -1,9 +1,10 @@
 
 import { useState } from 'react'
 import { useUserToggleContext } from '../../providers/userContext'
+import { toast } from 'react-toastify'
+import { Link, useNavigate } from 'react-router-dom'
 
 import { getUserLoginService } from '../../services/services'
-import { useNavigate } from 'react-router-dom'
 
 function UserLogin() {
     const navigate = useNavigate()
@@ -25,6 +26,7 @@ function UserLogin() {
         if (!email || !password){
             setHasError(true)
             setError('Usuario y contraseña requeridos')
+            toast.error('Usuario y contraseña requeridos')
             return
         }
 
@@ -34,11 +36,13 @@ function UserLogin() {
         if(userLogged.error){
             setHasError(true)
             setError(userLogged.error)
+            toast.error(`Hubo un error ${userLogged.error}`)
             setIsReady(false)
         }else{
             setHasError(false)
             setIsReady(true)
             toggleUser(userLogged)
+            toast.success('Sesion iniciada')
             navigate('/')
         }
 
@@ -70,6 +74,8 @@ function UserLogin() {
             }
             <br />
             <button onClick={handleLogin}>Login</button>
+            <br />
+            <Link to={'/user/create'}>No registrado aun</Link>
         </div>
         </>
     )
