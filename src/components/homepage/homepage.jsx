@@ -1,40 +1,22 @@
 
-import { useState } from 'react'
-import { useUserContext, useUserToggleContext } from '../../providers/userContext'
+import { useEffect } from "react"
+import { useNavigate } from "react-router-dom"
+import { useUserContext } from "../../providers/userContext"
 
-function UserProfile() {
-    const user = useUserContext()
-    const toggleUser = useUserToggleContext()
+export default function HomePage() {
+    const user = useUserContext() // Accede al estado global del usuario
 
-    const [email, setEmail] = useState('')
+    const navigate = useNavigate()
 
-    const handleLogin = () => {
-        const name = user.name
-        toggleUser({email, name})
-      }
+    useEffect(() => {
+        if (!user.name) {
+          navigate('/login'); // Redirige a la página de login si el usuario no está registrado
+        }
+      }, [user, navigate]);
 
     return (
         <>
-        <div>
-            <h1>User Profile</h1>
-            <input type="text" 
-                name='email' 
-                value={email} 
-                onChange={(e) => setEmail(e.target.value)} 
-                />
-            <br />
-            {user.name ? (
-                <div>
-                    <p>Name: {user.name}</p>
-                    <p>Email: {user.email}</p>
-                    <button onClick={handleLogin}>Logout</button>
-                </div>
-            ) : (
-                <button onClick={handleLogin}>Login</button>
-            )}
-        </div>
+        <p>Welcome to home page, {user.name}</p>
         </>
     )
 }
-
-export default UserProfile

@@ -3,15 +3,20 @@ import { useState } from "react";
 import PropTypes from 'prop-types'; 
 
 // Importamos nuestra funcion y los valores del state del usuario
-import { userInitialState, guardaLogin} from './userState'
 import {  userContext, userToggleContext } from "./userContext";
 
 
 export function UserProvider(props) {
 
-    const [user, setUser] = useState(userInitialState)
+    const [user, setUser] = useState({})
 
-    const handleLoginChange = (user) => guardaLogin(user, setUser)
+    const handleLoginChange = (userData) => {
+        if (user.name) {
+            setUser({})
+        } else {
+            setUser(userData)
+        }
+    }
 
     return (
         <userContext.Provider value={user}>

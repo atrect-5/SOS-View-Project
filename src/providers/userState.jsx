@@ -1,5 +1,7 @@
 
-export const userInitialState ={
+export const userInitialState = {}
+/*
+{
     name:'',
     lastName:'',
     workingAt:'',
@@ -8,21 +10,22 @@ export const userInitialState ={
     userType:'',
     accountStatus:''
 }
+*/
 
-export const guardaLogin = (user, setUser) => {
-    if (user.name) {
+export const toggleLogin = (user, setUser) => {
+    if (user) {
         setUser(userInitialState)
     } else {
-        setUser({
-            name: 'Alejandro',
+        setUser(user)
+            /*{
+            name: 'user.name',
             email: user.email,
-            /*
             lastName: user.lastName,
             workingAt: user.workingAt,
             phone: user.phone,
             userType: user.userType,
             accountStatus: user.accountStatus
-            */
-        })
+            
+        }*/
     }
 }
