@@ -1,6 +1,6 @@
 
-import { useState } from 'react'
-import { useUserToggleContext } from '../../providers/userContext'
+import { useState, useEffect } from 'react'
+import { useUserToggleContext, useUserContext } from '../../providers/userContext'
 import { toast } from 'react-toastify'
 import { Link, useNavigate } from 'react-router-dom'
 
@@ -8,6 +8,7 @@ import { getUserLoginService } from '../../services/services'
 
 function UserLogin() {
     const navigate = useNavigate()
+    const globalUser = useUserContext()
 
     const toggleUser = useUserToggleContext()
 
@@ -16,6 +17,12 @@ function UserLogin() {
     const [hasError, setHasError] = useState(false)
     const [isReady, setIsReady] = useState(false)
     const [error, setError] = useState('')
+
+    useEffect(() => {
+        if (globalUser.name) {
+            navigate('/') // Redirige a la página de login si el usuario no está registrado
+        }
+    }, [globalUser, navigate]) // Esto indica que se actualizara cada que cambie el stateGlobal de user o cada que se monta el componente
 
     const handleLogin = async () => {
 
@@ -33,7 +40,7 @@ function UserLogin() {
         const userData = {email, password}
         const userLogged = await getUserLoginService(userData)
 
-        if(userLogged.error){
+        if(userLogged.error || !userLogged){
             setHasError(true)
             setError(userLogged.error)
             toast.error(`Hubo un error ${userLogged.error}`)

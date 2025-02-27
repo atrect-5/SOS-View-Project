@@ -132,7 +132,7 @@ function UserRegister() {
             <input
                 type="text"
                 name="phone"
-                placeholder="Phone"
+                placeholder="Telefono"
                 value={user.phone}
                 onChange={handleChange}
             />

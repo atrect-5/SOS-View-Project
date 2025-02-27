@@ -19,9 +19,20 @@ export default function HomePage() {
         toggleUser()
       }
 
+      const handleCreateCompany = () => {
+        navigate('/company/create')
+      }
+
     return (
         <>
         <p>Welcome to home page, {user.name}</p>
+        {
+          user.userType === 'admin' && (
+            <>
+              <button onClick={handleCreateCompany}>Crear Compañia</button><br />
+            </>
+          )
+        }
         <button onClick={handleCloseSesion}>Cerrar Sesion</button>
         </>
     )
