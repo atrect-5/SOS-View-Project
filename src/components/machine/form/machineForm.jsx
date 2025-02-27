@@ -119,7 +119,7 @@ function MachineRegister() {
             <input 
                 type="datetime-local"
                 name="installationDate"
-                value={formatDateTimeForInput(machine.installationDate)}
+                value={machine.installationDate ? formatDateTimeForInput(machine.installationDate) : ''}
                 onChange={handleChange} 
             />
             
