@@ -1,6 +1,6 @@
 
 import { Routes, Route, Navigate } from "react-router-dom"
-import { UserLogin, HomePage, UserRegister, CompanyRegister } from "../components/components"
+import { UserLogin, HomePage, UserRegister, CompanyRegister, MachineRegister } from "../components/components"
 
 
 // Declaramos las rutas de la app
@@ -10,6 +10,7 @@ const RoutesOfApp = () => (
         <Route exact path="/login" element={<UserLogin/>}/>
         <Route exact path="/user/create" element={<UserRegister/>}/>
         <Route exact path="/company/create" element={<CompanyRegister/>}/>
+        <Route exact path="/machine/create" element={<MachineRegister/>}/>
         <Route path ="*" element = {<Navigate to='/'/>}/>
     </Routes>
 )

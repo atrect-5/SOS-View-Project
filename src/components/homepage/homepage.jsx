@@ -19,6 +19,10 @@ export default function HomePage() {
         toggleUser()
       }
 
+      const handleCreateMachine = () => {
+        navigate('/machine/create')
+      }
+
       const handleCreateCompany = () => {
         navigate('/company/create')
       }
@@ -29,10 +33,11 @@ export default function HomePage() {
         {
           user.userType === 'admin' && (
             <>
-              <button onClick={handleCreateCompany}>Crear Compañia</button><br />
+              <button onClick={handleCreateCompany}>Registrar Compañia</button><br />
             </>
           )
         }
+        <button onClick={handleCreateMachine}>Registrar Maquina</button><br />
         <button onClick={handleCloseSesion}>Cerrar Sesion</button>
         </>
     )

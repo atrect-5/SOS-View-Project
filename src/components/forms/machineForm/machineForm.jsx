@@ -4,21 +4,21 @@ import { useUserContext } from '../../../providers/userContext'
 import { toast } from 'react-toastify'
 import { Link, useNavigate } from 'react-router-dom'
 
-import { createCompanyService } from '../../../services/services'
+import { createMachineService } from '../../../services/services'
 
-function CompanyRegister() {
+function MachineRegister() {
     const navigate = useNavigate()
     const globalUser = useUserContext()
 
     const initialState = {
+        belongsTo: globalUser.workingAt,
+        installationDate: '',
         name: '',
         description: '',
-        address: '',
-        email: '',
-        phone: ''
+        location: ''
     }
 
-    const [company, setCompany] = useState(initialState)
+    const [machine, setMachine] = useState(initialState)
 
     const [hasError, setHasError] = useState(false)
     const [isReady, setIsReady] = useState(false)
@@ -26,51 +26,61 @@ function CompanyRegister() {
 
 
     useEffect(() => {
-        if (!globalUser.name || globalUser.userType !== 'admin') {
+        if (!globalUser.name) {
             navigate('/') // Redirige a la página principal si el usuario no está registrado
         }
     }, [globalUser, navigate]) // Esto indica que se actualizara cada que cambie el stateGlobal de user o cada que se monta el componente
 
-
-
+    // Funcion que hace el cambio en el state cuando se edita algun input
     const handleChange = e => {
         const { name, value } = e.target
-        setCompany({
-            ...company,
+        setMachine({
+            ...machine,
             [name]:value
         })
     }
 
+    // Función para convertir la fecha al formato requerido por el campo datetime-local
+    const formatDateTimeForInput = (datetime) => {
+        const date = new Date(datetime);
+        const offset = date.getTimezoneOffset();
+        const adjustedDate = new Date(date.getTime() - (offset * 60 * 1000));
+        return adjustedDate.toISOString().slice(0, 16);
+    }
+
+    // Funcion que redirije a la lista de todas las maquinas registradas
     const handleListCompanies = () =>{
-        navigate('/company/list')
+        navigate('/machine/list')
     } 
 
+
+    // Funcion que crea la maquina
     const handleCreate = async () => {
 
         setError(false)
         setIsReady(false)
         setError('')
 
-        if (!company.name || !company.description || !company.address || !company.email || !company.phone){
+        if (!machine.name || !machine.description || !machine.location){
             setHasError(true)
             setError('Faltan datos')
             toast.error('Faltan datos')
             return
         }
         
-        const companyData = company
-        const createdCompany = await createCompanyService(companyData)
+        const machineData = machine
+        const createdMachine = await createMachineService(machineData)
         
-        if(createdCompany.error || !createdCompany){
+        if(createdMachine.error || !createdMachine){
             setHasError(true)
-            setError(createdCompany.error)
-            toast.error(`Hubo un error ${createdCompany.error}`)
+            setError(createdMachine.error)
+            toast.error(`Hubo un error ${createdMachine.error}`)
             setIsReady(false)
         }else{
             setHasError(false)
             setIsReady(true)
-            toast.success(`Compañia registrada con id: ${createdCompany._id}`)
-            setCompany(createdCompany)
+            toast.success(`Maquina registrada con id: ${createdMachine._id}`)
+            setMachine(createdMachine)
         }
         
 
@@ -80,12 +90,12 @@ function CompanyRegister() {
         <>
         <div>
         <form>
-            <h1>Resgistrar Compañia</h1>
+            <h1>Resgistrar Maquina</h1>
             <input
                 type="text"
                 name='name'
                 placeholder='Nombre'
-                value={company.name}
+                value={machine.name}
                 onChange={handleChange}
             />
             <br />
@@ -93,43 +103,36 @@ function CompanyRegister() {
                 type="text"
                 name="description"
                 placeholder="Descripcion"
-                value={company.lastName}
+                value={machine.lastName}
                 onChange={handleChange}
             />
             <br />
             <input
                 type="text"
-                name='address'
-                placeholder='Direccion'
-                value={company.password}
+                name='location'
+                placeholder='Locacion'
+                value={machine.password}
                 onChange={handleChange}
             />
             <br />
-            <input
-                type="email"
-                name='email'
-                placeholder='Email'
-                value={company.email}
-                onChange={handleChange}
+            <p>Fecha de instalacion</p>
+            <input 
+                type="datetime-local"
+                name="installationDate"
+                value={formatDateTimeForInput(machine.installationDate)}
+                onChange={handleChange} 
             />
-            <br />
-            <input
-                type="text"
-                name="phone"
-                placeholder="Telefono"
-                value={company.phone}
-                onChange={handleChange}
-            />
+            
         </form>
             {
                 hasError ? 
                     <p>{error}</p> :
-                    isReady && (<p>Id al crearse: {company._id}</p>)
+                    isReady && (<p>Id al crearse: {machine._id}</p>)
             }
             <br />
             <button onClick={handleCreate}>Registrar</button>
             <br />
-            <button onClick={handleListCompanies}>Ver compañias registradas</button>
+            <button onClick={handleListCompanies}>Ver maquinas registradas</button>
             <br />
             <Link to={'/'}>Volver</Link>
         </div>
@@ -137,4 +140,4 @@ function CompanyRegister() {
     )
 }
 
-export default CompanyRegister
+export default MachineRegister
