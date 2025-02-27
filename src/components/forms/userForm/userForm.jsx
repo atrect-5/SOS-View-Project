@@ -4,7 +4,7 @@ import { useUserToggleContext } from '../../../providers/userContext'
 import { toast } from 'react-toastify'
 import { Link, useNavigate } from 'react-router-dom'
 
-//import { getUserLoginService } from '../../../services/services'
+import { createUserService } from '../../../services/services'
 
 function UserRegister() {
     const navigate = useNavigate()
@@ -17,8 +17,9 @@ function UserRegister() {
         workingAt:'',
         email:'',
         phone:'',
-        userType:'',
-        accountStatus:''
+        userType: '',
+        accountStatus: '',
+        password:''
     }
 
     const [user, setUser] = useState(initialState)
@@ -42,7 +43,7 @@ function UserRegister() {
         setIsReady(false)
         setError('')
 
-        if (!user.name || !user.lastName || !user.workingAt || !user.email || !user.password || !user.phone){
+        if (!user.name || !user.lastName || !user.workingAt || !user.email || !user.password){
             setHasError(true)
             setError('Faltan datos')
             toast.error('Faltan datos')
@@ -55,25 +56,30 @@ function UserRegister() {
             toast.error('Contraseña y confirmar contraseña deben ser iguales')
             return
         }
-
-        toast.success('Creado el usuario')
-
-        /*
-        const userData = user
-        const userLogged = await getUserLoginService(userData)
         
+        if(!user.userType){
+            delete user.userType
+        }
 
+        if(!user.accountStatus){
+            delete user.accountStatus
+        }
+        
+        const userData = user
+        const userLogged = await createUserService(userData)
+        
         if(userLogged.error){
             setHasError(true)
             setError(userLogged.error)
             toast.error(`Hubo un error ${userLogged.error}`)
             setIsReady(false)
-        }else{*/
+        }else{
             setHasError(false)
             setIsReady(true)
-            toggleUser(user)
+            toggleUser(userLogged)
+            toast.success('Usuario creado')
             navigate('/')
-        //}
+        }
         
 
       }
@@ -94,7 +100,7 @@ function UserRegister() {
             <input
                 type="text"
                 name="lastName"
-                placeholder="Last Name"
+                placeholder="Apellido"
                 value={user.lastName}
                 onChange={handleChange}
             />
