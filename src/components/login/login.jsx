@@ -1,8 +1,9 @@
 
 import { useState, useEffect } from 'react'
-import { useUserToggleContext, useUserContext } from '../../providers/userContext'
 import { toast } from 'react-toastify'
 import { Link, useNavigate } from 'react-router-dom'
+
+import { useUserToggleContext, useUserContext } from '../../providers/userContext'
 
 import { getUserLoginService } from '../../services/services'
 
@@ -10,7 +11,7 @@ function UserLogin() {
     const navigate = useNavigate()
     const globalUser = useUserContext()
 
-    const toggleUser = useUserToggleContext()
+    const { handleLoginChange: toggleUser } = useUserToggleContext()
 
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')

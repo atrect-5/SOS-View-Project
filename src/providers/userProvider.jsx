@@ -8,19 +8,26 @@ import {  userContext, userToggleContext } from "./userContext";
 
 export function UserProvider(props) {
 
-    const [user, setUser] = useState({})
+    const [user, setGlobalUser] = useState({})
 
     const handleLoginChange = (userData) => {
         if (user.name) {
-            setUser({})
+            setGlobalUser({})
         } else {
-            setUser(userData)
+            setGlobalUser(userData)
         }
     }
 
+    const handleDataUpdated = (userData) => {
+        setGlobalUser(prevUser => ({
+            ...prevUser,
+            ...userData
+        }))
+    } 
+
     return (
         <userContext.Provider value={user}>
-            <userToggleContext.Provider value={handleLoginChange}>
+            <userToggleContext.Provider value={{handleLoginChange, handleDataUpdated}}>
                 {props.children}
             </userToggleContext.Provider>
         </userContext.Provider>

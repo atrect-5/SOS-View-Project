@@ -1,20 +1,31 @@
 
-import { useState } from 'react'
-import { useUserToggleContext } from '../../../providers/userContext'
+import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 
-import { createUserService } from '../../../services/services'
+import { useUserContext, useUserToggleContext } from '../../../providers/userContext'
+
+import { userTypes } from '../../../consts'
+import { createUserService, updateUserService } from '../../../services/services'
 
 function UserRegister() {
     const navigate = useNavigate()
+    const location = useLocation()
 
-    const toggleUser = useUserToggleContext()
+    const { handleLoginChange: toggleUser, handleDataUpdated: saveUser } = useUserToggleContext()
+    const globalUser = useUserContext()
+
+    useEffect(() => {
+        if (!globalUser.name && location.pathname === '/user/edit') {
+            navigate('/user/create') // Redirige a la página de login si el usuario no está registrado
+        }
+    }, [globalUser, navigate, location]) // Esto indica que se actualizara cada que cambie el stateGlobal de user o cada que se monta el componente
+    
 
     const initialState = {
         name:'',
         lastName:'',
-        workingAt:'',
+        workingAt: globalUser.workingAt || '',
         email:'',
         phone:'',
         userType: '',
@@ -22,7 +33,7 @@ function UserRegister() {
         password:''
     }
 
-    const [user, setUser] = useState(initialState)
+    const [user, setUser] = useState(location.pathname === '/user/edit' ? globalUser : initialState)
     const [confirmPassword, setConfirmPassword] = useState('')
 
     const [hasError, setHasError] = useState(false)
@@ -37,20 +48,22 @@ function UserRegister() {
         })
     }
 
+    
+
     const handleCreate = async () => {
 
         setError(false)
         setIsReady(false)
         setError('')
 
-        if (!user.name || !user.lastName || !user.workingAt || !user.email || !user.password){
+        if (!user.name || !user.lastName || !user.workingAt || !user.email || (location.pathname === '/user/create' && !user.password)){
             setHasError(true)
             setError('Faltan datos')
             toast.error('Faltan datos')
             return
         }
 
-        if (user.password !== confirmPassword){
+        if (location.pathname === '/user/create' && user.password !== confirmPassword){
             setHasError(true)
             setError('Contraseña y confirmar contraseña deben ser iguales')
             toast.error('Contraseña y confirmar contraseña deben ser iguales')
@@ -65,30 +78,42 @@ function UserRegister() {
             delete user.accountStatus
         }
         
-        const userData = user
-        const userLogged = await createUserService(userData)
+        const { _id, ...userData} = user
         
-        if(userLogged.error){
+
+        const userCreated = location.pathname === '/user/create'
+            ? await createUserService(userData) 
+            : await updateUserService(_id, userData) 
+
+        
+        if(userCreated.error){
             setHasError(true)
-            setError(userLogged.error)
-            toast.error(`Hubo un error ${userLogged.error}`)
+            setError(userCreated.error)
+            toast.error(`Hubo un error ${userCreated.error}`)
             setIsReady(false)
         }else{
             setHasError(false)
             setIsReady(true)
-            toggleUser(userLogged)
-            toast.success('Usuario creado')
+            if (location.pathname === '/user/create'){
+                toggleUser(userCreated)
+            }else{
+                saveUser(userCreated)
+            }
+            toast.success(location.pathname === '/user/create' ? 'Usuario creado' : 'Usuario actualizado')
             navigate('/')
         }
-        
-
-      }
+    }
 
     return (
         <>
         <div>
         <form>
-            <h1>Resgistrarse</h1>
+            {
+                location.pathname === '/user/edit' ? <h1>Actualizar información</h1> :
+                !globalUser.name ?
+                <h1>Resgistrarse</h1>
+                :<h1>Registrar usuario</h1>
+            }
             <input
                 type="text"
                 name='name'
@@ -113,22 +138,28 @@ function UserRegister() {
                 onChange={handleChange}
             />
             <br />
-            <input
-                type="password"
-                name='password'
-                placeholder='Contraseña'
-                value={user.password}
-                onChange={handleChange}
-            />
-            <br />
-            <input
-                type="password"
-                name="confirmPassword"
-                placeholder="Confirmar constraseña"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-            />
-            <br />
+            {
+                location.pathname === '/user/create' &&(
+                    <>
+                    <input
+                        type="password"
+                        name='password'
+                        placeholder='Contraseña'
+                        value={user.password}
+                        onChange={handleChange}
+                    />
+                    <br />
+                    <input
+                        type="password"
+                        name="confirmPassword"
+                        placeholder="Confirmar constraseña"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                    />
+                    <br />
+                    </>
+                )
+            }
             <input
                 type="text"
                 name="phone"
@@ -136,24 +167,57 @@ function UserRegister() {
                 value={user.phone}
                 onChange={handleChange}
             />
-            <br />
-            <input
-                type="text"
-                name="workingAt"
-                placeholder="Codigo de la compañia para la que trabaja"
-                value={user.workingAt}
-                onChange={handleChange}
-            />
+
+            {
+                (globalUser.userType === 'admin' || !globalUser.name) && (
+                    <>    
+                    <br />
+                    <input
+                        type="text"
+                        name="workingAt"
+                        placeholder="Codigo de la compañia para la que trabaja"
+                        value={user.workingAt}
+                        onChange={handleChange}
+                    />
+                </>
+                )
+                
+            }
+            {
+                (globalUser.userType === 'admin') && (
+                    <>    
+                        <br />
+                        <select
+                            name="userType"
+                            value={user.userType}
+                            onChange={handleChange}
+                            >
+                                <option value="" disabled d>Seleccione un tipo de usuario</option>
+                                {userTypes.map((type, index) => (
+                                    <option key={index} value={type}>
+                                    {type}
+                                    </option>
+                                ))}
+                        </select>
+                    </>
+                )
+                
+            }
         </form>
             {
                 hasError ? 
                     <p>{error}</p> :
                     isReady ? <p>Accediendo...</p>:<></>
             }
+            <br />    
+            <button onClick={handleCreate}>{location.pathname === '/user/create' ? 'Registrar Usuario' : 'Actualizar Datos'}</button>
             <br />
-            <button onClick={handleCreate}>Crear Usuario</button>
-            <br />
-            <Link to={'/login'}>Ya esta registrado?</Link>
+            {
+                !globalUser.name ?
+                <Link to={'/login'}>Ya esta registrado?</Link>
+                :
+                <Link to={'/'}>Volver</Link>
+            }
         </div>
         </>
     )

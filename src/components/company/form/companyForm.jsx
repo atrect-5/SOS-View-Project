@@ -1,8 +1,9 @@
 
 import { useState, useEffect } from 'react'
-import { useUserContext } from '../../../providers/userContext'
 import { toast } from 'react-toastify'
 import { Link, useNavigate } from 'react-router-dom'
+
+import { useUserContext } from '../../../providers/userContext'
 
 import { createCompanyService } from '../../../services/services'
 
@@ -40,10 +41,6 @@ function CompanyRegister() {
             [name]:value
         })
     }
-
-    const handleListCompanies = () =>{
-        navigate('/company/list')
-    } 
 
     const handleCreate = async () => {
 
@@ -129,7 +126,9 @@ function CompanyRegister() {
             <br />
             <button onClick={handleCreate}>Registrar</button>
             <br />
-            <button onClick={handleListCompanies}>Ver compañias registradas</button>
+            <Link to={'/company/list'}>
+                <button>Ver compañias registradas</button>
+            </Link>
             <br />
             <Link to={'/'}>Volver</Link>
         </div>

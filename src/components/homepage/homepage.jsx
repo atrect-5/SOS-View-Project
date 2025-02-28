@@ -1,11 +1,11 @@
 
 import { useEffect } from "react"
-import { useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { useUserContext, useUserToggleContext } from "../../providers/userContext"
 
 export default function HomePage() {
     const user = useUserContext() // Accede al estado global del usuario
-    const toggleUser = useUserToggleContext()
+    const { handleLoginChange: toggleUser } = useUserToggleContext()
 
     const navigate = useNavigate()
 
@@ -19,25 +19,36 @@ export default function HomePage() {
         toggleUser()
       }
 
-      const handleCreateMachine = () => {
-        navigate('/machine/create')
-      }
-
-      const handleCreateCompany = () => {
-        navigate('/company/create')
-      }
-
     return (
         <>
         <p>Welcome to home page, {user.name}</p>
         {
-          user.userType === 'admin' && (
+          (user.userType === 'admin' || user.userType === 'company-owner') && (
             <>
-              <button onClick={handleCreateCompany}>Registrar Compañia</button><br />
+              <Link to={'/user/create'}>
+                <button>Registrar Usuario</button><br />
+              </Link>
             </>
           )
         }
-        <button onClick={handleCreateMachine}>Registrar Maquina</button><br />
+        {
+          user.userType === 'admin' && (
+            <>
+              <Link to={'/company/create'}>
+                <button>Registrar Compañia</button><br />
+              </Link>
+            </>
+          )
+        }
+
+        <Link to={'/machine/create'}>
+          <button>Registrar Maquina</button><br />
+        </Link>
+
+        <Link to={'/user/edit'}>
+          <button>Actualizar Informacion</button><br />
+        </Link>
+
         <button onClick={handleCloseSesion}>Cerrar Sesion</button>
         </>
     )
