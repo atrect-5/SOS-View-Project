@@ -1,20 +1,24 @@
 
 import { useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
+
 import { useUserContext, useUserToggleContext } from "../../providers/userContext"
 
+// Pagina principal de la app 
 export default function HomePage() {
-    const user = useUserContext() // Accede al estado global del usuario
+    const user = useUserContext()
     const { handleLoginChange: toggleUser } = useUserToggleContext()
 
     const navigate = useNavigate()
 
+    // Redirige al login si el usuario no esta registrado
     useEffect(() => {
         if (!user.name) {
-          navigate('/login') // Redirige a la página de login si el usuario no está registrado
+          navigate('/login')
         }
-      }, [user, navigate]) // Esto indica que se actualizara cada que cambie el stateGlobal de user o cada que se monta el componente
+      }, [user, navigate])
 
+      // Maneja el cierre de sesion
       const handleCloseSesion = () => {
         toggleUser()
       }

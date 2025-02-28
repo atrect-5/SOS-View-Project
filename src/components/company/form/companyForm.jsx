@@ -4,14 +4,17 @@ import { toast } from 'react-toastify'
 import { Link, useNavigate } from 'react-router-dom'
 
 import { useUserContext } from '../../../providers/userContext'
-
 import { createCompanyService } from '../../../services/services'
 
+
+// Formulario de registro de compañias
 function CompanyRegister() {
     const navigate = useNavigate()
+
     const globalUser = useUserContext()
 
     const initialState = {
+        id: '',
         name: '',
         description: '',
         address: '',
@@ -21,19 +24,19 @@ function CompanyRegister() {
 
     const [company, setCompany] = useState(initialState)
 
+    const [iscreated, setIsCreated] = useState(false)
     const [hasError, setHasError] = useState(false)
     const [isReady, setIsReady] = useState(false)
     const [error, setError] = useState('')
-
-
+ 
+    // Redirige a la página principal si el usuario no está registrado
     useEffect(() => {
         if (!globalUser.name || globalUser.userType !== 'admin') {
-            navigate('/') // Redirige a la página principal si el usuario no está registrado
+            navigate('/') 
         }
-    }, [globalUser, navigate]) // Esto indica que se actualizara cada que cambie el stateGlobal de user o cada que se monta el componente
+    }, [globalUser, navigate])
 
-
-
+    // Maneja los cambios de los inputs
     const handleChange = e => {
         const { name, value } = e.target
         setCompany({
@@ -41,13 +44,24 @@ function CompanyRegister() {
             [name]:value
         })
     }
+    
+    // Eliminacion de state para crear nueva compañia
+    const handleNewCompany = () => {
+        setCompany(initialState)
+        setHasError(false)
+        setIsReady(false)
+        setIsCreated(false)
+        setError('')
+    }
 
+    // Maneja el registro de la nueva compañia
     const handleCreate = async () => {
 
         setError(false)
         setIsReady(false)
         setError('')
 
+        // Validacion de campos vacios
         if (!company.name || !company.description || !company.address || !company.email || !company.phone){
             setHasError(true)
             setError('Faltan datos')
@@ -58,15 +72,18 @@ function CompanyRegister() {
         const companyData = company
         const createdCompany = await createCompanyService(companyData)
         
+        // Maneja la creacion de la nueva compañia
         if(createdCompany.error || !createdCompany){
             setHasError(true)
             setError(createdCompany.error)
             toast.error(`Hubo un error ${createdCompany.error}`)
             setIsReady(false)
         }else{
+            // Aviso de correcta creacion
             setHasError(false)
             setIsReady(true)
             toast.success(`Compañia registrada con id: ${createdCompany._id}`)
+            setIsCreated(true)
             setCompany(createdCompany)
         }
         
@@ -90,7 +107,7 @@ function CompanyRegister() {
                 type="text"
                 name="description"
                 placeholder="Descripcion"
-                value={company.lastName}
+                value={company.description}
                 onChange={handleChange}
             />
             <br />
@@ -98,7 +115,7 @@ function CompanyRegister() {
                 type="text"
                 name='address'
                 placeholder='Direccion'
-                value={company.password}
+                value={company.address}
                 onChange={handleChange}
             />
             <br />
@@ -124,7 +141,7 @@ function CompanyRegister() {
                     isReady && (<p>Id al crearse: {company._id}</p>)
             }
             <br />
-            <button onClick={handleCreate}>Registrar</button>
+            <button onClick={iscreated ? handleNewCompany : handleCreate}>{iscreated ? 'Crear otra compañia' : 'Registrar'}</button>
             <br />
             <Link to={'/company/list'}>
                 <button>Ver compañias registradas</button>

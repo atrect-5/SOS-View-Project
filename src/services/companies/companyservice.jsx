@@ -3,6 +3,11 @@ import axios from "axios"
 
 import { API_URL, companyEndpoint } from '../../consts'
 
+/**
+ * Servicio para crear una nueva compañia
+ * @param {Object} companyData - Objeto que contiene los datos de la compañia a crear
+ * @returns {Object} - Datos de la compañia creada o mensaje de error
+ */
 export const createCompanyService = async (companyData) => {
     try{
         const response = await axios.post(`${API_URL}${companyEndpoint}`, companyData,
@@ -13,20 +18,19 @@ export const createCompanyService = async (companyData) => {
             }
         )
         
+        // Verifica si hay un error en la respuesta del servidor
         if(response.data.error){
-            // El servidor manda error
             return {
                 hasError: true,
                 error: response.data.error
             }
         }
+        // Si la respuesta es válida, retorna los datos de la maquina
         if (response.data){
-            console.log(response.data.message)
-            //console.log(response)        
             return response.data.data
         }
     }catch(error){
-        // Si hay algun error externo
+        // Manejo de errores externos
         return {
             hasError: true,
             error: error.message

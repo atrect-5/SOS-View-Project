@@ -4,10 +4,11 @@ import { toast } from 'react-toastify'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 
 import { useUserContext, useUserToggleContext } from '../../../providers/userContext'
-
-import { userTypes } from '../../../consts'
 import { createUserService, updateUserService } from '../../../services/services'
 
+import { userTypes } from '../../../consts'
+
+// Formulario de registro de usuario
 function UserRegister() {
     const navigate = useNavigate()
     const location = useLocation()
@@ -15,11 +16,12 @@ function UserRegister() {
     const { handleLoginChange: toggleUser, handleDataUpdated: saveUser } = useUserToggleContext()
     const globalUser = useUserContext()
 
+    // Redirije al usuario de '/user/edit' a '/user/create' en caso de no estar registrado
     useEffect(() => {
         if (!globalUser.name && location.pathname === '/user/edit') {
-            navigate('/user/create') // Redirige a la página de login si el usuario no está registrado
+            navigate('/user/create')
         }
-    }, [globalUser, navigate, location]) // Esto indica que se actualizara cada que cambie el stateGlobal de user o cada que se monta el componente
+    }, [globalUser, navigate, location])
     
 
     const initialState = {
@@ -33,13 +35,16 @@ function UserRegister() {
         password:''
     }
 
+    // Inicializa el estado del usuario. 
+    // Si la ruta actual es '/user/edit', se usa el estado global del usuario, de lo contrario, se usa el estado inicial.
     const [user, setUser] = useState(location.pathname === '/user/edit' ? globalUser : initialState)
-    const [confirmPassword, setConfirmPassword] = useState('')
 
+    const [confirmPassword, setConfirmPassword] = useState('')
     const [hasError, setHasError] = useState(false)
     const [isReady, setIsReady] = useState(false)
     const [error, setError] = useState('')
 
+    // Maneja los cambios de los inputs
     const handleChange = e => {
         const { name, value } = e.target
         setUser({
@@ -48,14 +53,14 @@ function UserRegister() {
         })
     }
 
-    
-
+    // Maneja la creacion/edicion del usuario
     const handleCreate = async () => {
 
         setError(false)
         setIsReady(false)
         setError('')
 
+        // Validación de campos vacíos
         if (!user.name || !user.lastName || !user.workingAt || !user.email || (location.pathname === '/user/create' && !user.password)){
             setHasError(true)
             setError('Faltan datos')
@@ -63,6 +68,7 @@ function UserRegister() {
             return
         }
 
+        // Validación de igualdad de contraseña y comprobacion de contraseña
         if (location.pathname === '/user/create' && user.password !== confirmPassword){
             setHasError(true)
             setError('Contraseña y confirmar contraseña deben ser iguales')
@@ -70,28 +76,29 @@ function UserRegister() {
             return
         }
         
+        // Eliminacion de userType y accountStatus para evitar errores del servicio
         if(!user.userType){
             delete user.userType
         }
-
         if(!user.accountStatus){
             delete user.accountStatus
         }
         
         const { _id, ...userData} = user
-        
 
+        // Creacion o actualizacion de datos segun la ruta
         const userCreated = location.pathname === '/user/create'
             ? await createUserService(userData) 
             : await updateUserService(_id, userData) 
 
-        
+        // Manejo de errores en el registro de usuario
         if(userCreated.error){
             setHasError(true)
             setError(userCreated.error)
             toast.error(`Hubo un error ${userCreated.error}`)
             setIsReady(false)
         }else{
+            // Actualización del estado global y redirección a la página principal
             setHasError(false)
             setIsReady(true)
             if (location.pathname === '/user/create'){

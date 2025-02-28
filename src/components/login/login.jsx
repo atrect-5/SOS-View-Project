@@ -4,13 +4,13 @@ import { toast } from 'react-toastify'
 import { Link, useNavigate } from 'react-router-dom'
 
 import { useUserToggleContext, useUserContext } from '../../providers/userContext'
-
 import { getUserLoginService } from '../../services/services'
 
+// Componente de Login del Usuario
 function UserLogin() {
     const navigate = useNavigate()
+    
     const globalUser = useUserContext()
-
     const { handleLoginChange: toggleUser } = useUserToggleContext()
 
     const [email, setEmail] = useState('')
@@ -19,18 +19,21 @@ function UserLogin() {
     const [isReady, setIsReady] = useState(false)
     const [error, setError] = useState('')
 
+    // Redirige a la página principal si el usuario ya está registrado
     useEffect(() => {
         if (globalUser.name) {
-            navigate('/') // Redirige a la página de login si el usuario no está registrado
+            navigate('/')
         }
-    }, [globalUser, navigate]) // Esto indica que se actualizara cada que cambie el stateGlobal de user o cada que se monta el componente
+    }, [globalUser, navigate])
 
+    // Maneja el proceso de inicio de sesión del usuario
     const handleLogin = async () => {
 
         setError(false)
         setIsReady(false)
         setError('')
 
+        // Validación de campos vacíos
         if (!email || !password){
             setHasError(true)
             setError('Usuario y contraseña requeridos')
@@ -41,12 +44,14 @@ function UserLogin() {
         const userData = {email, password}
         const userLogged = await getUserLoginService(userData)
 
+        // Manejo de errores en el inicio de sesión
         if(userLogged.error || !userLogged){
             setHasError(true)
             setError(userLogged.error)
             toast.error(`Hubo un error ${userLogged.error}`)
             setIsReady(false)
         }else{
+            // Actualización del estado global y redirección a la página principal
             setHasError(false)
             setIsReady(true)
             toggleUser(userLogged)

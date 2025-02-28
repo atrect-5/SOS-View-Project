@@ -4,11 +4,12 @@ import { toast } from 'react-toastify'
 import { Link, useNavigate } from 'react-router-dom'
 
 import { useUserContext } from '../../../providers/userContext'
-
 import { createMachineService } from '../../../services/services'
 
+// Formulario de registro de una nueva maquina
 function MachineRegister() {
     const navigate = useNavigate()
+
     const globalUser = useUserContext()
 
     const initialState = {
@@ -24,15 +25,16 @@ function MachineRegister() {
     const [hasError, setHasError] = useState(false)
     const [isReady, setIsReady] = useState(false)
     const [error, setError] = useState('')
+    const [iscreated, setIsCreated] = useState(false)
 
-
+    // Redirige a la página principal si el usuario no está registrado
     useEffect(() => {
         if (!globalUser.name) {
-            navigate('/') // Redirige a la página principal si el usuario no está registrado
+            navigate('/') 
         }
-    }, [globalUser, navigate]) // Esto indica que se actualizara cada que cambie el stateGlobal de user o cada que se monta el componente
+    }, [globalUser, navigate])
 
-    // Funcion que hace el cambio en el state cuando se edita algun input
+    // Maneja los cambios de los inputs
     const handleChange = e => {
         const { name, value } = e.target
         setMachine({
@@ -49,38 +51,52 @@ function MachineRegister() {
         return adjustedDate.toISOString().slice(0, 16);
     }
 
-    // Funcion que redirije a la lista de todas las maquinas registradas
-    const handleListCompanies = () =>{
-        navigate('/machine/list')
-    } 
+    // Eliminacion de state para crear nueva compañia
+    const handleNewMachine = () => {
+        setMachine(initialState)
+        setHasError(false)
+        setIsReady(false)
+        setIsCreated(false)
+        setError('')
+    }
 
-
-    // Funcion que crea la maquina
+    // Maneja la creacion de la nueva maquina
     const handleCreate = async () => {
 
         setError(false)
         setIsReady(false)
         setError('')
 
+        // Validación de campos vacíos
         if (!machine.name || !machine.description || !machine.location){
             setHasError(true)
             setError('Faltan datos')
             toast.error('Faltan datos')
             return
         }
+
+        // Eliminacion de installationDate para evitar errores del servicio
+        if(!machine.installationDate){
+            delete machine.installationDate
+        }
         
         const machineData = machine
         const createdMachine = await createMachineService(machineData)
+
+
         
+        // Manejo de errores en el registro de la nueva maquina
         if(createdMachine.error || !createdMachine){
             setHasError(true)
             setError(createdMachine.error)
             toast.error(`Hubo un error ${createdMachine.error}`)
             setIsReady(false)
         }else{
+            // Aviso de correcta creacion
             setHasError(false)
             setIsReady(true)
             toast.success(`Maquina registrada con id: ${createdMachine._id}`)
+            setIsCreated(true)
             setMachine(createdMachine)
         }
         
@@ -104,7 +120,7 @@ function MachineRegister() {
                 type="text"
                 name="description"
                 placeholder="Descripcion"
-                value={machine.lastName}
+                value={machine.description}
                 onChange={handleChange}
             />
             <br />
@@ -112,7 +128,7 @@ function MachineRegister() {
                 type="text"
                 name='location'
                 placeholder='Locacion'
-                value={machine.password}
+                value={machine.location}
                 onChange={handleChange}
             />
             <br />
@@ -145,9 +161,11 @@ function MachineRegister() {
                     isReady && (<p>Id al crearse: {machine._id}</p>)
             }
             <br />
-            <button onClick={handleCreate}>Registrar</button>
+            <button onClick={iscreated ? handleNewMachine : handleCreate}>{iscreated ? 'Crear otra maquina' : 'Registrar'}</button>
             <br />
-            <button onClick={handleListCompanies}>Ver maquinas registradas</button>
+            <Link to={'/machine/list'}>
+                <button>Ver maquinas registradas</button>
+            </Link>
             <br />
             <Link to={'/'}>Volver</Link>
         </div>

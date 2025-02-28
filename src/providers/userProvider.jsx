@@ -2,14 +2,17 @@
 import { useState } from "react";
 import PropTypes from 'prop-types'; 
 
-// Importamos nuestra funcion y los valores del state del usuario
 import {  userContext, userToggleContext } from "./userContext";
 
-
+// Proveedor de contexto del usuario
 export function UserProvider(props) {
-
+    // Estado global del usuario
     const [user, setGlobalUser] = useState({})
 
+    /**
+     * Maneja el cambio de estado de login del usuario
+     * @param {Object} userData - Datos del usuario para iniciar o cerrar sesión
+     */
     const handleLoginChange = (userData) => {
         if (user.name) {
             setGlobalUser({})
@@ -18,6 +21,10 @@ export function UserProvider(props) {
         }
     }
 
+    /**
+     * Actualiza los datos del usuario en el estado global
+     * @param {Object} userData - Nuevos datos del usuario
+     */
     const handleDataUpdated = (userData) => {
         setGlobalUser(prevUser => ({
             ...prevUser,
@@ -34,6 +41,7 @@ export function UserProvider(props) {
     )
 }
 
+// Validación de los tipos de propiedades
 UserProvider.propTypes = {
     children: PropTypes.node.isRequired,
 }

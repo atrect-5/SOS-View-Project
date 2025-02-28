@@ -3,8 +3,14 @@ import axios from "axios"
 
 import { API_URL, machineEndpoint } from '../../consts'
 
+/**
+ * Servicio para crear una nueva maquina
+ * @param {Object} machineData - Objeto que contiene los datos de la maquina a crear
+ * @returns {Object} - Datos de la maquina creada o mensaje de error
+ */
 export const createMachineService = async (machineData) => {
     try{
+        // Solicitud POST para crear la nueva maquina
         const response = await axios.post(`${API_URL}${machineEndpoint}`, machineData,
             {
                 headers: {
@@ -12,21 +18,20 @@ export const createMachineService = async (machineData) => {
                 }
             }
         )
-        
+
+        // Verifica si hay un error en la respuesta del servidor
         if(response.data.error){
-            // El servidor manda error
             return {
                 hasError: true,
                 error: response.data.error
             }
         }
-        if (response.data){
-            console.log(response.data.message)
-            //console.log(response)        
+        // Si la respuesta es válida, retorna los datos de la maquina
+        if (response.data){     
             return response.data.data
         }
     }catch(error){
-        // Si hay algun error externo
+        // Manejo de errores externos
         return {
             hasError: true,
             error: error.message
