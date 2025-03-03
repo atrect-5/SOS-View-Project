@@ -1,7 +1,7 @@
 
 import axios from "axios"
 
-import { API_URL, companyEndpoint } from '../../consts'
+import { API_URL, companyEndpoint, API_ACCESS_TOKEN } from '../../consts'
 
 /**
  * Servicio para crear una nueva compañia
@@ -13,7 +13,8 @@ export const createCompanyService = async (companyData) => {
         const response = await axios.post(`${API_URL}${companyEndpoint}`, companyData,
             {
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'x-api-key': API_ACCESS_TOKEN
                 }
             }
         )

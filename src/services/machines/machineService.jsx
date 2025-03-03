@@ -1,7 +1,7 @@
 
 import axios from "axios"
 
-import { API_URL, machineEndpoint } from '../../consts'
+import { API_URL, machineEndpoint, API_ACCESS_TOKEN } from '../../consts'
 
 /**
  * Servicio para crear una nueva maquina
@@ -14,7 +14,8 @@ export const createMachineService = async (machineData) => {
         const response = await axios.post(`${API_URL}${machineEndpoint}`, machineData,
             {
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'x-api-key': API_ACCESS_TOKEN
                 }
             }
         )

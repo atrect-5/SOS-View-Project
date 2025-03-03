@@ -1,7 +1,7 @@
 
 import axios from "axios"
 
-import { API_URL, userEndpoint } from '../../consts'
+import { API_URL, userEndpoint, API_ACCESS_TOKEN } from '../../consts'
 
 /**
  * Servicio para el login de usuario
@@ -14,7 +14,8 @@ export const getUserLoginService = async (userData) => {
         const response = await axios.post(`${API_URL}${userEndpoint}login`, userData,
             {
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'x-api-key': API_ACCESS_TOKEN
                 }
             }
         )
@@ -50,7 +51,8 @@ export const createUserService = async (userData) => {
         const response = await axios.post(`${API_URL}${userEndpoint}`, userData,
             {
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'x-api-key': API_ACCESS_TOKEN
                 }
             }
         )
@@ -87,7 +89,8 @@ export const updateUserService = async (userId, userData) => {
         const response = await axios.put(`${API_URL}${userEndpoint}${userId}`, userData,
             {
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'x-api-key': API_ACCESS_TOKEN
                 }
             }
         )
