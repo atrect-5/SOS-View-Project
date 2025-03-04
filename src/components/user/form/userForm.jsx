@@ -126,7 +126,7 @@ function UserRegister() {
 
     return (
         <>
-        <div>
+        <div className='form-card'>
         <form>
             {
                 location.pathname === '/user/edit' ? <h1>Actualizar información</h1> :

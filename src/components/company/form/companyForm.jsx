@@ -92,7 +92,7 @@ function CompanyRegister() {
 
     return (
         <>
-        <div>
+        <div className='form-card'>
         <form>
             <h1>Resgistrar Compañia</h1>
             <input

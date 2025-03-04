@@ -105,7 +105,7 @@ function MachineRegister() {
 
     return (
         <>
-        <div>
+        <div className='form-card'>
         <form>
             <h1>Resgistrar Maquina</h1>
             <input

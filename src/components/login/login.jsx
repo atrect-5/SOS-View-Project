@@ -63,7 +63,7 @@ function UserLogin() {
 
     return (
         <>
-        <div>
+        <div className='form-card'>
             <h1>Login</h1>
             <input
                 type="text"
