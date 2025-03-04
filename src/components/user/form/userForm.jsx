@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { TextField } from '@mui/material'
 
 import { useUserContext, useUserToggleContext } from '../../../providers/userContext'
 import { createUserService, updateUserService, getUserLoginService } from '../../../services/services'
@@ -134,26 +135,32 @@ function UserRegister() {
                 <h1>Resgistrarse</h1>
                 :<h1>Registrar usuario</h1>
             }
-            <input
+            <TextField
+                className='text-field'
                 type="text"
                 name='name'
-                placeholder='Nombre'
+                size="small"
+                label='Nombre'
                 value={user.name}
                 onChange={handleChange}
             />
             <br />
-            <input
+            <TextField
+                className='text-field'
                 type="text"
                 name="lastName"
-                placeholder="Apellido"
+                size="small"
+                label="Apellido"
                 value={user.lastName}
                 onChange={handleChange}
             />
             <br />
-            <input
+            <TextField
+                className='text-field'
                 type="email"
                 name='email'
-                placeholder='Email'
+                size="small"
+                label='Email'
                 value={user.email}
                 onChange={handleChange}
             />
@@ -161,18 +168,22 @@ function UserRegister() {
             {
                 location.pathname === '/user/create' &&(
                     <>
-                    <input
+                    <TextField
+                        className='text-field'
                         type="password"
                         name='password'
-                        placeholder='Contraseña'
+                        size="small"
+                        label='Contraseña'
                         value={user.password}
                         onChange={handleChange}
                     />
                     <br />
-                    <input
+                    <TextField
+                        className='text-field'
                         type="password"
                         name="confirmPassword"
-                        placeholder="Confirmar constraseña"
+                        size="small"
+                        label="Confirmar constraseña"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                     />
@@ -180,10 +191,12 @@ function UserRegister() {
                     </>
                 )
             }
-            <input
+            <TextField
+                className='text-field'
                 type="text"
                 name="phone"
-                placeholder="Telefono"
+                size="small"
+                label="Telefono"
                 value={user.phone}
                 onChange={handleChange}
             />
@@ -192,10 +205,12 @@ function UserRegister() {
                 (globalUser.userType === 'admin' || !globalUser.name) && (
                     <>    
                     <br />
-                    <input
+                    <TextField
+                        className='text-field'
                         type="text"
                         name="workingAt"
-                        placeholder="Codigo de la compañia para la que trabaja"
+                        size="small"
+                        label="Codigo de la compañia para la que trabaja"
                         value={user.workingAt}
                         onChange={handleChange}
                     />

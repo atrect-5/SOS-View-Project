@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { toast } from 'react-toastify'
 import { Link, useNavigate } from 'react-router-dom'
+import { TextField } from '@mui/material'
 
 import { useUserContext } from '../../../providers/userContext'
 import { createCompanyService } from '../../../services/services'
@@ -95,42 +96,56 @@ function CompanyRegister() {
         <div className='form-card'>
         <form>
             <h1>Resgistrar Compañia</h1>
-            <input
+            <TextField
+                className='text-field'
+                size="small"
                 type="text"
                 name='name'
-                placeholder='Nombre'
+                label='Nombre'
                 value={company.name}
                 onChange={handleChange}
             />
             <br />
-            <input
+            <TextField
+                className='text-field'
+                size="small"
                 type="text"
                 name="description"
-                placeholder="Descripcion"
+                label="Descripcion"
+                multiline
+                maxRows={5}
                 value={company.description}
                 onChange={handleChange}
             />
             <br />
-            <input
+            <TextField
+                className='text-field'
+                size="small"
                 type="text"
                 name='address'
-                placeholder='Direccion'
+                label='Direccion'
+                multiline
+                maxRows={5}
                 value={company.address}
                 onChange={handleChange}
             />
             <br />
-            <input
+            <TextField
+                className='text-field'
+                size="small"
                 type="email"
                 name='email'
-                placeholder='Email'
+                label='Email'
                 value={company.email}
                 onChange={handleChange}
             />
             <br />
-            <input
+            <TextField
+                className='text-field'
+                size="small"
                 type="text"
                 name="phone"
-                placeholder="Telefono"
+                label="Telefono"
                 value={company.phone}
                 onChange={handleChange}
             />

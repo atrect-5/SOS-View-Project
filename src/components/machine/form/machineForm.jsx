@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { toast } from 'react-toastify'
 import { Link, useNavigate } from 'react-router-dom'
+import { TextField } from '@mui/material'
 
 import { useUserContext } from '../../../providers/userContext'
 import { createMachineService } from '../../../services/services'
@@ -108,26 +109,36 @@ function MachineRegister() {
         <div className='form-card'>
         <form>
             <h1>Resgistrar Maquina</h1>
-            <input
+            <TextField
+                className='text-field'
+                size="small"
                 type="text"
                 name='name'
-                placeholder='Nombre'
+                label='Nombre'
                 value={machine.name}
                 onChange={handleChange}
             />
             <br />
-            <input
+            <TextField
+                className='text-field'
+                size="small"
                 type="text"
                 name="description"
-                placeholder="Descripcion"
+                label="Descripcion"
+                multiline
+                maxRows={5}
                 value={machine.description}
                 onChange={handleChange}
             />
             <br />
-            <input
+            <TextField
+                className='text-field'
+                size="small"
                 type="text"
                 name='location'
-                placeholder='Locacion'
+                label='Locacion'
+                multiline
+                maxRows={5}
                 value={machine.location}
                 onChange={handleChange}
             />
@@ -135,10 +146,12 @@ function MachineRegister() {
             {
                 globalUser.userType === 'admin' && (
                     <>
-                        <input
+                        <TextField
+                            className='text-field'
+                            size="small"
                             type="text"
                             name="belongsTo"
-                            placeholder="Codigo de la compañia"
+                            label="Codigo de la compañia"
                             value={machine.belongsTo}
                             onChange={handleChange}
                         />
@@ -148,6 +161,7 @@ function MachineRegister() {
             }
             <p>Fecha de instalacion</p>
             <input 
+                className='date-select'
                 type="datetime-local"
                 name="installationDate"
                 value={machine.installationDate ? formatDateTimeForInput(machine.installationDate) : ''}

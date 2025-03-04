@@ -115,22 +115,55 @@ button:focus-visible {
     background-color: $red;
   }
   select{
-    width: 100%;
+    width: 70%;
     padding: 0.5em;
     margin: 0.5em;
     border-radius: 8px;
     border: 1px solid $gray-variant2;
     background-color: $gray;
     color: $white;
+    font-size: 1em;
+    &:hover{
+      border: 1px solid $white;
+    }
   }
-  input{
-    width: 100%;
-    padding: 0.5em;
-    margin: 0.5em;
-    border-radius: 8px;
+
+  .text-field{
+    width: 70%;
+  }
+  .MuiInputBase-input {
+    color: $white; // Cambia el color del texto a blanco
+    font-size: 1em;
+  }
+  .MuiInputLabel-root {
+      color: $white-variant; // Cambia el color del label a gris
+  }
+  .MuiOutlinedInput-notchedOutline {
+    border-color: $white; // Cambia el color del borde 
+  }
+  .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+      border: 2px solid $white; // Cambia el color del borde al pasar el mouse
+  }
+  .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+      border-color: $white; // Cambia el color del borde cuando está enfocado
+  }
+  .MuiInputLabel-root.Mui-focused {
+    color: $white; // Cambia el color del label cuando el TextField está enfocado
+  }
+
+  
+  .date-select{
+    font-size: 1.2em;
+    text-align: center;
+    height: 35px;
+    width: 80%;
+    border-radius: 3px;
+    color: $white;
     border: 1px solid $gray-variant2;
     background-color: $gray-variant;
-    color: $white;
+    &:hover{
+      border: 1px solid $white;
+    }
   }
 }
 

@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { toast } from 'react-toastify'
 import { Link, useNavigate } from 'react-router-dom'
+import { TextField } from '@mui/material'
 
 import { useUserToggleContext, useUserContext } from '../../providers/userContext'
 import { getUserLoginService } from '../../services/services'
@@ -65,19 +66,21 @@ function UserLogin() {
         <>
         <div className='form-card'>
             <h1>Login</h1>
-            <input
+            <TextField
                 type="text"
                 name='email'
-                placeholder='Email'
+                label='Email'
                 value={email}
+                size="small"
                 onChange={(e) => setEmail(e.target.value)}
             />
             <br />
-            <input
+            <TextField
                 type="password"
                 name='password'
-                placeholder='Password'
+                label='Password'
                 value={password}
+                size="small"
                 onChange={(e) => setPassword(e.target.value)}
             />
             {
