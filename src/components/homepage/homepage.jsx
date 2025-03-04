@@ -4,6 +4,8 @@ import { Link, useNavigate } from "react-router-dom"
 
 import { useUserContext, useUserToggleContext } from "../../providers/userContext"
 
+import './homepage.scss'
+
 // Pagina principal de la app 
 export default function HomePage() {
     const user = useUserContext()
@@ -25,35 +27,43 @@ export default function HomePage() {
 
     return (
         <>
-        <p>Welcome to home page, {user.name}</p>
-        {
-          (user.userType === 'admin' || user.userType === 'company-owner') && (
-            <>
-              <Link to={'/user/create'}>
-                <button>Registrar Usuario</button><br />
+        <div className="homepage-container">
+          <div className="header-container">
+            <div className="functions-container">
+
+              {
+                (user.userType === 'admin' || user.userType === 'company-owner') && (
+                  <>
+                    <Link to={'/user/create'}>
+                      <button>Registrar Usuario</button><br />
+                    </Link>
+                  </>
+                )
+              }
+              {
+                user.userType === 'admin' && (
+                  <>
+                    <Link to={'/company/create'}>
+                      <button>Registrar Compañia</button><br />
+                    </Link>
+                  </>
+                )
+              }
+
+              <Link to={'/machine/create'}>
+                <button>Registrar Maquina</button><br />
               </Link>
-            </>
-          )
-        }
-        {
-          user.userType === 'admin' && (
-            <>
-              <Link to={'/company/create'}>
-                <button>Registrar Compañia</button><br />
+
+              <Link to={'/user/edit'}>
+                <button>Actualizar Informacion</button><br />
               </Link>
-            </>
-          )
-        }
 
-        <Link to={'/machine/create'}>
-          <button>Registrar Maquina</button><br />
-        </Link>
+            </div>
+            <button onClick={handleCloseSesion}>Cerrar Sesion</button>
+          </div>
+          <p>Welcome to home page, {user.name}</p>
 
-        <Link to={'/user/edit'}>
-          <button>Actualizar Informacion</button><br />
-        </Link>
-
-        <button onClick={handleCloseSesion}>Cerrar Sesion</button>
+        </div>
         </>
     )
 }
