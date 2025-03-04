@@ -41,8 +41,8 @@ function UserLogin() {
             return
         }
 
-        const userData = {email, password}
-        const userLogged = await getUserLoginService(userData)
+        const loginData = {email, password}
+        const userLogged = await getUserLoginService(loginData)
 
         // Manejo de errores en el inicio de sesión
         if(userLogged.error || !userLogged){

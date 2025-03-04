@@ -1,7 +1,8 @@
 
 import axios from "axios"
+import CryptoJS from 'crypto-js'
 
-import { API_URL, userEndpoint, API_ACCESS_TOKEN } from '../../consts'
+import { API_URL, userEndpoint, API_ACCESS_TOKEN, CRYPTO_KEY } from '../../consts'
 
 /**
  * Servicio para el login de usuario
@@ -29,6 +30,10 @@ export const getUserLoginService = async (userData) => {
         }
         // Si la respuesta es válida, retorna los datos del usuario
         if (response.data){
+            // Guardar la información del usuario en localStorage
+            const encryptedUser = CryptoJS.AES.encrypt(JSON.stringify(userData), CRYPTO_KEY).toString()
+            localStorage.setItem('loginUserData', encryptedUser)
+
             return response.data.data
         }
     }catch(error){

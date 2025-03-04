@@ -4,7 +4,7 @@ import { toast } from 'react-toastify'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 
 import { useUserContext, useUserToggleContext } from '../../../providers/userContext'
-import { createUserService, updateUserService } from '../../../services/services'
+import { createUserService, updateUserService, getUserLoginService } from '../../../services/services'
 
 import { userTypes } from '../../../consts'
 
@@ -19,7 +19,7 @@ function UserRegister() {
     // Redirije al usuario de '/user/edit' a '/user/create' en caso de no estar registrado
     useEffect(() => {
         if (!globalUser.name && location.pathname === '/user/edit') {
-            navigate('/user/create')
+            navigate('/login')
         }
     }, [globalUser, navigate, location])
     
@@ -43,6 +43,16 @@ function UserRegister() {
     const [hasError, setHasError] = useState(false)
     const [isReady, setIsReady] = useState(false)
     const [error, setError] = useState('')
+
+    // Actualiza el estado del nuevo usuario cuando el estado global del usuario esté disponible
+    useEffect(() => {
+        if (globalUser.workingAt && !user.workingAt) {
+            setUser(prevUser => ({
+                ...prevUser,
+                workingAt: globalUser.workingAt
+            }))
+        }
+    }, [globalUser, user.workingAt])
 
     // Maneja los cambios de los inputs
     const handleChange = e => {
@@ -102,7 +112,10 @@ function UserRegister() {
             setHasError(false)
             setIsReady(true)
             if (location.pathname === '/user/create'){
-                toggleUser(userCreated)
+                // Se inicia sesion para guardar los datos del usuario
+                const loginData = { email: user.email, password: user.password };
+                const userLogged = await getUserLoginService(loginData)
+                toggleUser(userLogged)
             }else{
                 saveUser(userCreated)
             }
@@ -199,7 +212,7 @@ function UserRegister() {
                             value={user.userType}
                             onChange={handleChange}
                             >
-                                <option value="" disabled d>Seleccione un tipo de usuario</option>
+                                <option value="" disabled>Seleccione un tipo de usuario</option>
                                 {userTypes.map((type, index) => (
                                     <option key={index} value={type}>
                                     {type}
