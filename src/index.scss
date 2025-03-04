@@ -104,6 +104,34 @@ button:focus-visible {
   box-shadow: 0 0 10px rgba(0, 0, 0, .8);
   background-color: $gray-variant;
   /* background: linear-gradient(45deg, #091cec, #4aa7f4); */
+  .error-message {
+    margin-top: 15px;
+    height: fit-content;
+    width:fit-content;
+    padding: 5px;
+    border-radius: 8px;
+    text-align: center;
+    color: $white;
+    background-color: $red;
+  }
+  select{
+    width: 100%;
+    padding: 0.5em;
+    margin: 0.5em;
+    border-radius: 8px;
+    border: 1px solid $gray-variant2;
+    background-color: $gray;
+    color: $white;
+  }
+  input{
+    width: 100%;
+    padding: 0.5em;
+    margin: 0.5em;
+    border-radius: 8px;
+    border: 1px solid $gray-variant2;
+    background-color: $gray-variant;
+    color: $white;
+  }
 }
 
 @media (prefers-color-scheme: light) {

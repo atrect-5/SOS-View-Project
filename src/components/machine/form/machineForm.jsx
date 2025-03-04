@@ -63,7 +63,7 @@ function MachineRegister() {
     // Maneja la creacion de la nueva maquina
     const handleCreate = async () => {
 
-        setError(false)
+        setHasError(false)
         setIsReady(false)
         setError('')
 
@@ -157,7 +157,7 @@ function MachineRegister() {
         </form>
             {
                 hasError ? 
-                    <p>{error}</p> :
+                    <p className='error-message'>{error}</p> :
                     isReady && (<p>Id al crearse: {machine._id}</p>)
             }
             <br />

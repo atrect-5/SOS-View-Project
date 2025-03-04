@@ -57,7 +57,7 @@ function CompanyRegister() {
     // Maneja el registro de la nueva compañia
     const handleCreate = async () => {
 
-        setError(false)
+        setHasError(false)
         setIsReady(false)
         setError('')
 
@@ -137,7 +137,7 @@ function CompanyRegister() {
         </form>
             {
                 hasError ? 
-                    <p>{error}</p> :
+                    <p className='error-message'>{error}</p> :
                     isReady && (<p>Id al crearse: {company._id}</p>)
             }
             <br />

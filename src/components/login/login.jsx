@@ -29,7 +29,7 @@ function UserLogin() {
     // Maneja el proceso de inicio de sesión del usuario
     const handleLogin = async () => {
 
-        setError(false)
+        setHasError(false)
         setIsReady(false)
         setError('')
 
@@ -82,7 +82,7 @@ function UserLogin() {
             />
             {
                 hasError ? 
-                    <p>{error}</p> :
+                    <p className='error-message'>{error}</p> :
                     isReady ? <p>Accediendo...</p>:<></>
             }
             <br />

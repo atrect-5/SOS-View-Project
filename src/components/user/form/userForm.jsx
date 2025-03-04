@@ -66,7 +66,7 @@ function UserRegister() {
     // Maneja la creacion/edicion del usuario
     const handleCreate = async () => {
 
-        setError(false)
+        setHasError(false)
         setIsReady(false)
         setError('')
 
@@ -226,7 +226,7 @@ function UserRegister() {
         </form>
             {
                 hasError ? 
-                    <p>{error}</p> :
+                    <p className='error-message'>{error}</p> :
                     isReady ? <p>Accediendo...</p>:<></>
             }
             <br />    
