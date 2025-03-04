@@ -11,7 +11,7 @@ import { getUserLoginService } from '../../services/services'
 function UserLogin() {
     const navigate = useNavigate()
     
-    const globalUser = useUserContext()
+    const { user: globalUser} = useUserContext()
     const { handleLoginChange: toggleUser } = useUserToggleContext()
 
     const [email, setEmail] = useState('')

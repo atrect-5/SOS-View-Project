@@ -11,7 +11,7 @@ import { createMachineService } from '../../../services/services'
 function MachineRegister() {
     const navigate = useNavigate()
 
-    const globalUser = useUserContext()
+    const { user: globalUser} = useUserContext()
 
     const initialState = {
         belongsTo: globalUser.workingAt,

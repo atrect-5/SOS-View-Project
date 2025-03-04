@@ -12,6 +12,7 @@ import { CRYPTO_KEY } from "../consts"
 export function UserProvider(props) {
     // Estado global del usuario
     const [user, setGlobalUser] = useState({})
+    const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
         const encryptedUser = localStorage.getItem('loginUserData')
@@ -19,6 +20,8 @@ export function UserProvider(props) {
             const bytes = CryptoJS.AES.decrypt(encryptedUser, CRYPTO_KEY)
             const decryptedUser = JSON.parse(bytes.toString(CryptoJS.enc.Utf8))
             verifyUser(decryptedUser)
+        }else{
+            setIsLoading(false)
         }
     }, [])
 
@@ -29,6 +32,7 @@ export function UserProvider(props) {
         } else {
             localStorage.removeItem('loginUserData')
         }
+        setIsLoading(false)
     }
 
     /**
@@ -56,7 +60,7 @@ export function UserProvider(props) {
     } 
 
     return (
-        <userContext.Provider value={user}>
+        <userContext.Provider value={{user, isLoading}}>
             <userToggleContext.Provider value={{handleLoginChange, handleDataUpdated}}>
                 {props.children}
             </userToggleContext.Provider>

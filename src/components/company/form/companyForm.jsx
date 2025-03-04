@@ -12,7 +12,7 @@ import { createCompanyService } from '../../../services/services'
 function CompanyRegister() {
     const navigate = useNavigate()
 
-    const globalUser = useUserContext()
+    const { user: globalUser} = useUserContext()
 
     const initialState = {
         id: '',

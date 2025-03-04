@@ -15,7 +15,7 @@ function UserRegister() {
     const location = useLocation()
 
     const { handleLoginChange: toggleUser, handleDataUpdated: saveUser } = useUserToggleContext()
-    const globalUser = useUserContext()
+    const { user: globalUser} = useUserContext()
 
     // Redirije al usuario de '/user/edit' a '/user/create' en caso de no estar registrado
     useEffect(() => {
