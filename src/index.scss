@@ -1,5 +1,5 @@
 
-@import './consts/index.scss';
+@use 'consts/index.scss' as consts;
 
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -15,7 +15,7 @@
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
   /* background-color: #242424; */
-  background: linear-gradient(45deg, $blue, $blue-variant);
+  background: linear-gradient(45deg, consts.$blue, consts.$blue-variant);
   /*background: radial-gradient(circle, #2200ff, #3ea8ff, #86a8e7, #0cdffa);*/
   
   font-synthesis: none;
@@ -69,7 +69,7 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: $gray;
+  background-color: consts.$gray;
   cursor: pointer;
   transition: border-color 0.25s;
 }
@@ -102,7 +102,7 @@ button:focus-visible {
   padding: 2em;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, .8);
-  background-color: $gray-variant;
+  background-color: consts.$gray-variant;
   /* background: linear-gradient(45deg, #091cec, #4aa7f4); */
   .error-message {
     margin-top: 15px;
@@ -111,20 +111,20 @@ button:focus-visible {
     padding: 5px;
     border-radius: 8px;
     text-align: center;
-    color: $white;
-    background-color: $red;
+    color: consts.$white;
+    background-color: consts.$red;
   }
   select{
     width: 70%;
     padding: 0.5em;
     margin: 0.5em;
     border-radius: 8px;
-    border: 1px solid $gray-variant2;
-    background-color: $gray;
-    color: $white;
+    border: 1px solid consts.$gray-variant2;
+    background-color: consts.$gray;
+    color: consts.$white;
     font-size: 1em;
     &:hover{
-      border: 1px solid $white;
+      border: 1px solid consts.$white;
     }
   }
 
@@ -132,23 +132,23 @@ button:focus-visible {
     width: 70%;
   }
   .MuiInputBase-input {
-    color: $white; // Cambia el color del texto a blanco
+    color: consts.$white; // Cambia el color del texto a blanco
     font-size: 1em;
   }
   .MuiInputLabel-root {
-      color: $white-variant; // Cambia el color del label a gris
+      color: consts.$white-variant; // Cambia el color del label a gris
   }
   .MuiOutlinedInput-notchedOutline {
-    border-color: $white; // Cambia el color del borde 
+    border-color: consts.$white; // Cambia el color del borde 
   }
   .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
-      border: 2px solid $white; // Cambia el color del borde al pasar el mouse
+      border: 2px solid consts.$white; // Cambia el color del borde al pasar el mouse
   }
   .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
-      border-color: $white; // Cambia el color del borde cuando está enfocado
+      border-color: consts.$white; // Cambia el color del borde cuando está enfocado
   }
   .MuiInputLabel-root.Mui-focused {
-    color: $white; // Cambia el color del label cuando el TextField está enfocado
+    color: consts.$white; // Cambia el color del label cuando el TextField está enfocado
   }
 
   
@@ -158,11 +158,11 @@ button:focus-visible {
     height: 35px;
     width: 80%;
     border-radius: 3px;
-    color: $white;
-    border: 1px solid $gray-variant2;
-    background-color: $gray-variant;
+    color: consts.$white;
+    border: 1px solid consts.$gray-variant2;
+    background-color: consts.$gray-variant;
     &:hover{
-      border: 1px solid $white;
+      border: 1px solid consts.$white;
     }
   }
 }

@@ -1,5 +1,5 @@
 
-@import '../../consts/index.scss';
+@use '../../consts/index.scss' as consts;
 
 .homepage-container {
     display: flex;
@@ -9,7 +9,7 @@
     .header-container{
         display: flex;
         justify-content: space-evenly;
-        background-color: $gray;
+        background-color: consts.$gray;
         border-bottom-left-radius:10px;
         border-bottom-right-radius:10px;
         .functions-container{
