@@ -1,7 +1,7 @@
 
 
 import { getUserLoginService, createUserService, updateUserService } from "./users/userService"
-import { createCompanyService } from "./companies/companyService"
+import { createCompanyService, getCompaniesService, getCompanyByIdService, updateCompanyService, deleteCompanyService } from "./companies/companyService"
 import { createMachineService } from "./machines/machineService"
 
 
@@ -11,6 +11,10 @@ export {
     updateUserService,
     
     createCompanyService,
+    getCompaniesService,
+    getCompanyByIdService,
+    updateCompanyService,
+    deleteCompanyService,
     
     createMachineService,
 }

@@ -177,7 +177,7 @@ function MachineRegister() {
             <br />
             <button onClick={iscreated ? handleNewMachine : handleCreate}>{iscreated ? 'Crear otra maquina' : 'Registrar'}</button>
             <br />
-            <Link to={'/machine/list'}>
+            <Link to={`/machine/list/${globalUser.workingAt}`}>
                 <button>Ver maquinas registradas</button>
             </Link>
             <br />

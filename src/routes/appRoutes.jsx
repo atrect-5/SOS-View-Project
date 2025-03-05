@@ -12,7 +12,8 @@ const RoutesOfApp = () => (
         <Route exact path="/user/edit" element={<UserRegister/>}/>
         <Route exact path="/company/create" element={<CompanyRegister/>}/>
         <Route exact path="/machine/create" element={<MachineRegister/>}/>
-        <Route path ="*" element = {<Navigate to='/'/>}/>
+        <Route path ="*" element = {<p>Not found</p>}/>
+        {/* <Route path ="*" element = {<Navigate to='/'/>}/> */}
     </Routes>
 )
 

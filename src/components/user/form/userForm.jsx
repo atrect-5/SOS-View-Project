@@ -248,6 +248,15 @@ function UserRegister() {
             <button onClick={handleCreate}>{location.pathname === '/user/create' ? 'Registrar Usuario' : 'Actualizar Datos'}</button>
             <br />
             {
+                (globalUser.userType === 'admin' || globalUser.userType === 'company-owner') && (location.pathname === '/user/create') &&
+                (<>
+                <Link to={`/user/list/${globalUser.workingAt}`}>
+                    <button>Ver usuarios registradas</button>
+                </Link>
+                <br />
+                </>)
+            }
+            {
                 !globalUser.name ?
                 <Link to={'/login'}>Ya esta registrado?</Link>
                 :
