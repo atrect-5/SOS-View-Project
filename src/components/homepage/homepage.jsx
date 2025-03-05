@@ -1,21 +1,18 @@
 
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import CircularProgress from '@mui/material/CircularProgress'
 
 import { useUserContext, useUserToggleContext } from "../../providers/userContext"
-import { getCompanyByIdService } from "../../services/services"
 
 import './homepage.scss'
 
 // Pagina principal de la app 
 export default function HomePage() {
-    const { user: globalUser, isLoading } = useUserContext()
+    const { user: globalUser, isLoading, userCompany: userCompanyGlobal } = useUserContext()
     const { handleLoginChange: toggleUser } = useUserToggleContext()
 
     const navigate = useNavigate()
-
-    const [userCompany, setUserCompany] = useState({})
 
     // Redirige al login si el usuario no esta registrado
     useEffect(() => {
@@ -25,11 +22,7 @@ export default function HomePage() {
           if (!globalUser.name){
             // Si no se cargo el usuario regresamos al login
             navigate('/login')
-          } else {
-            // Si se cargo el usuario, cargamos los datos de la compañia en la que trabaja
-            const company = await getCompanyByIdService(globalUser.workingAt)
-            setUserCompany(company)
-          }
+          } 
         }
       }
       fetchUserCompany()
@@ -69,15 +62,27 @@ export default function HomePage() {
                   </>
                 )
               }
-
-              <Link to={isLoading ? '#' : '/user/edit'}>
-                <button>Actualizar Informacion</button><br />
-              </Link>
+              {
+                (globalUser.userType === 'company-owner' || globalUser.userType === 'admin') &&
+                <Link to={isLoading ? '#' : '/company/edit'}>
+                  <button>Actualizar Compañia</button><br />
+                </Link>
+              }
 
             </div>
+            <div className="profile-content">
+
             <button onClick={handleCloseSesion}>Cerrar Sesion</button>
+            <Link to={isLoading ? '#' : '/user/edit'}>
+                <button>Perfil</button><br />
+            </Link>
+            </div>
           </div>
-          <h1>{userCompany.name}</h1>
+          {userCompanyGlobal.name ? (
+            <h1>{userCompanyGlobal.name}</h1>
+          ) : (
+            <h1>Cargando...</h1>
+          )}
           <p>Welcome to home page, {globalUser.name}
           {
             isLoading && <CircularProgress />

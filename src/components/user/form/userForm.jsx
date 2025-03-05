@@ -156,6 +156,7 @@ function UserRegister() {
             />
             <br />
             <TextField
+                disabled={location.pathname === '/user/edit'}
                 className='text-field'
                 type="email"
                 name='email'

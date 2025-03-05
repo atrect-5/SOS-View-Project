@@ -5,14 +5,14 @@ import { Link, useNavigate } from 'react-router-dom'
 import { TextField } from '@mui/material'
 
 import { useUserContext } from '../../../providers/userContext'
-import { createCompanyService } from '../../../services/services'
+import { createCompanyService, updateCompanyService } from '../../../services/services'
 
 
 // Formulario de registro de compañias
 function CompanyRegister() {
     const navigate = useNavigate()
 
-    const { user: globalUser} = useUserContext()
+    const { user: globalUser, userCompany: userCompanyGlobal, setUserCompanyGlobal } = useUserContext()
 
     const initialState = {
         id: '',
@@ -23,7 +23,7 @@ function CompanyRegister() {
         phone: ''
     }
 
-    const [company, setCompany] = useState(initialState)
+    const [company, setCompany] = useState(location.pathname === '/company/edit' ? userCompanyGlobal : initialState)
 
     const [iscreated, setIsCreated] = useState(false)
     const [hasError, setHasError] = useState(false)
@@ -32,9 +32,14 @@ function CompanyRegister() {
  
     // Redirige a la página principal si el usuario no está registrado
     useEffect(() => {
-        if (!globalUser.name || globalUser.userType !== 'admin') {
+        if (!globalUser.name){
             navigate('/') 
+        } else if (location.pathname === '/company/create' && globalUser.userType !== 'admin') {
+            navigate('/')
+        } else if (location.pathname === '/company/edit' && globalUser.userType !== 'admin' && globalUser.userType !== 'company-owner') {
+            navigate('/')
         }
+        
     }, [globalUser, navigate])
 
     // Maneja los cambios de los inputs
@@ -70,8 +75,10 @@ function CompanyRegister() {
             return
         }
         
-        const companyData = company
-        const createdCompany = await createCompanyService(companyData)
+        const { _id, ...companyData } = company
+        const createdCompany = location.pathname === '/company/create' 
+            ? await createCompanyService(companyData) 
+            : await updateCompanyService(_id, companyData)
         
         // Maneja la creacion de la nueva compañia
         if(createdCompany.error || !createdCompany){
@@ -83,8 +90,14 @@ function CompanyRegister() {
             // Aviso de correcta creacion
             setHasError(false)
             setIsReady(true)
-            toast.success(`Compañia registrada con id: ${createdCompany._id}`)
-            setIsCreated(true)
+            if (location.pathname === '/company/edit' ){
+                toast.success(`Compañia actualizada con exito`)
+                setUserCompanyGlobal(createdCompany)
+                setIsCreated(false)
+            }else{
+                toast.success(`Compañia registrada con id: ${createdCompany._id}`)
+                setIsCreated(true)
+            }
             setCompany(createdCompany)
         }
         
@@ -95,7 +108,24 @@ function CompanyRegister() {
         <>
         <div className='form-card'>
         <form>
-            <h1>Resgistrar Compañia</h1>
+            <h1>{location.pathname === '/company/create' ? 'Resgistrar Compañia': 'Actualizar Compañia'}</h1>
+            {
+                location.pathname === '/company/edit' &&
+                <>
+                <TextField
+                    className='text-field'
+                    size="small"
+                    type="text"
+                    name='_id'
+                    label='Id de la compañia'
+                    disabled
+                    value={company._id}
+                    onChange={handleChange}
+                />
+                <br />
+                </>
+            }
+            
             <TextField
                 className='text-field'
                 size="small"
@@ -153,14 +183,17 @@ function CompanyRegister() {
             {
                 hasError ? 
                     <p className='error-message'>{error}</p> :
-                    isReady && (<p>Id al crearse: {company._id}</p>)
+                    (isReady && location.pathname === '/company/create') && (<p>Id al crearse: {company._id}</p>)
             }
             <br />
-            <button onClick={iscreated ? handleNewCompany : handleCreate}>{iscreated ? 'Crear otra compañia' : 'Registrar'}</button>
+            <button onClick={iscreated ? handleNewCompany : handleCreate}>{iscreated ? 'Crear otra compañia' : location.pathname === '/company/create' ? 'Registrar' : 'Actualizar'}</button>
             <br />
-            <Link to={'/company/list'}>
-                <button>Ver compañias registradas</button>
-            </Link>
+            {
+                globalUser.userType === 'admin' &&
+                <Link to={'/company/list'}>
+                    <button>Ver compañias registradas</button>
+                </Link>
+            }
             <br />
             <Link to={'/'}>Volver</Link>
         </div>

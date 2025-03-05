@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 import CryptoJS from "crypto-js"
 
 import {  userContext, userToggleContext } from "./userContext"
-import { getUserLoginService } from "../services/services"
+import { getUserLoginService, getCompanyByIdService } from "../services/services"
 
 import { CRYPTO_KEY } from "../consts"
 
@@ -12,8 +12,13 @@ import { CRYPTO_KEY } from "../consts"
 export function UserProvider(props) {
     // Estado global del usuario
     const [user, setGlobalUser] = useState({})
+    
+    // Estado global de la compañia del usuario
+    const [userCompany, setUserCompanyGlobal] = useState({})
+    
     const [isLoading, setIsLoading] = useState(true)
 
+    // Cuando carga la página, verifica si hay un usuario en el localStorage y carga sus datos en el estado global
     useEffect(() => {
         const encryptedUser = localStorage.getItem('loginUserData')
         if (encryptedUser) {
@@ -29,6 +34,8 @@ export function UserProvider(props) {
         const response = await getUserLoginService(userData)
         if (!response.error) {
             setGlobalUser(response)
+            const company = await getCompanyByIdService(response.workingAt)
+            setUserCompanyGlobal(company)
         } else {
             localStorage.removeItem('loginUserData')
         }
@@ -42,9 +49,11 @@ export function UserProvider(props) {
     const handleLoginChange = (userData) => {
         if (user.name) {
             setGlobalUser({})
+            setUserCompanyGlobal({})
             localStorage.removeItem('loginUserData')
         } else {
             setGlobalUser(userData)
+            setUserCompanyGlobal(userData.workingAt)
         }
     }
 
@@ -59,8 +68,21 @@ export function UserProvider(props) {
         }))
     } 
 
+    // Actualiza los datos de la compañía cuando el usuario cambia
+    useEffect(() => {
+        const fetchCompanyData = async () => {
+            if (user.workingAt) {
+                const company = await getCompanyByIdService(user.workingAt)
+                setUserCompanyGlobal(company)
+            } else {
+                setUserCompanyGlobal({})
+            }
+        }
+        fetchCompanyData()
+    }, [user])
+
     return (
-        <userContext.Provider value={{user, isLoading}}>
+        <userContext.Provider value={{user, isLoading, userCompany, setUserCompanyGlobal}}>
             <userToggleContext.Provider value={{handleLoginChange, handleDataUpdated}}>
                 {props.children}
             </userToggleContext.Provider>

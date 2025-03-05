@@ -67,6 +67,7 @@ function UserLogin() {
         <div className='form-card'>
             <h1>Login</h1>
             <TextField
+                className='text-field'
                 type="text"
                 name='email'
                 label='Email'
@@ -76,6 +77,7 @@ function UserLogin() {
             />
             <br />
             <TextField
+                className='text-field'
                 type="password"
                 name='password'
                 label='Password'
