@@ -44,6 +44,7 @@ function UserRegister() {
     const [hasError, setHasError] = useState(false)
     const [isReady, setIsReady] = useState(false)
     const [error, setError] = useState('')
+    const [isCreate, setIsCreate] = useState(false)
 
     // Actualiza el estado del nuevo usuario cuando el estado global del usuario esté disponible
     useEffect(() => {
@@ -62,6 +63,15 @@ function UserRegister() {
             ...user,
             [name]:value
         })
+    }
+
+    const handleNewUser = () => {
+        setIsCreate(false)
+        setUser(initialState)
+        setHasError(false)
+        setIsReady(false)
+        setError('')
+        setConfirmPassword('')
     }
 
     // Maneja la creacion/edicion del usuario
@@ -112,16 +122,19 @@ function UserRegister() {
             // Actualización del estado global y redirección a la página principal
             setHasError(false)
             setIsReady(true)
-            if (location.pathname === '/user/create'){
-                // Se inicia sesion para guardar los datos del usuario
-                const loginData = { email: user.email, password: user.password };
+            if (location.pathname === '/user/create' && !globalUser.name){
+                // Se inicia sesion para guardar los datos del usuario en caso de que el usuario se crea a si mismo (no registrado)
+                const loginData = { email: user.email, password: user.password }
                 const userLogged = await getUserLoginService(loginData)
                 toggleUser(userLogged)
-            }else{
+                navigate('/')
+            }else if (location.pathname === '/user/edit'){
                 saveUser(userCreated)
+                navigate('/')
+            }else {
+                setIsCreate(true)
             }
             toast.success(location.pathname === '/user/create' ? 'Usuario creado' : 'Usuario actualizado')
-            navigate('/')
         }
     }
 
@@ -243,10 +256,10 @@ function UserRegister() {
             {
                 hasError ? 
                     <p className='error-message'>{error}</p> :
-                    isReady ? <p>Accediendo...</p>:<></>
+                    isReady && (location.pathname === '/user/create' ? !isCreate && <p>Accediendo...</p> : <p>Actualizando...</p>)
             }
             <br />    
-            <button onClick={handleCreate}>{location.pathname === '/user/create' ? 'Registrar Usuario' : 'Actualizar Datos'}</button>
+            <button onClick={isCreate ? handleNewUser : handleCreate}>{isCreate ? 'Registrar Otro Usuario' : location.pathname === '/user/create' ? 'Registrar Usuario' : 'Actualizar Datos'}</button>
             <br />
             {
                 (globalUser.userType === 'admin' || globalUser.userType === 'company-owner') && (location.pathname === '/user/create') &&
