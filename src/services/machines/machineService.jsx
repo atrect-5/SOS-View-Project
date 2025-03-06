@@ -39,3 +39,117 @@ export const createMachineService = async (machineData) => {
         }
     }
 }
+
+/**
+ * Servicio para obtener los datos de una maquina
+ * @param {String} machineId - Id de la maquina a obtener
+ * @returns {Object} - Datos de la maquina o mensaje de error
+ */
+export const getMachineByIdService = async (machineId) => {
+    try{
+        // Solicitud GET para obtener los datos de la maquina
+        const response = await axios.get(`${API_URL}${machineEndpoint}/${machineId}`,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': API_ACCESS_TOKEN
+                }
+            }
+        )
+
+        // Verifica si hay un error en la respuesta del servidor
+        if(response.data.error){
+            return {
+                hasError: true,
+                error: response.data.error
+            }
+        }
+        // Si la respuesta es válida, retorna los datos de la maquina
+        if (response.data){     
+            return response.data.data
+        }
+    }catch(error){
+        // Manejo de errores externos
+        return {
+            hasError: true,
+            error: error.message
+        }
+    }
+}
+
+/**
+ * Servicio para actualizar una maquina
+ * @param {String} machineId - Id de la maquina a actualizar
+ * @param {Object} machineData - Objeto que contiene los datos de la maquina a actualizar
+ * @returns {Object} - Datos de la maquina actualizada o mensaje de error
+ */
+export const updateMachineService = async (machineId, machineData) => {
+    try{
+        // Solicitud PUT para actualizar la maquina
+        const response = await axios.put(`${API_URL}${machineEndpoint}/${machineId}`, machineData,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': API_ACCESS_TOKEN
+                }
+            }
+        )
+
+        // Verifica si hay un error en la respuesta del servidor
+        if(response.data.error){
+            return {
+                hasError: true,
+                error: response.data.error
+            }
+        }
+        // Si la respuesta es válida, retorna los datos de la maquina
+        if (response.data){     
+            return response.data.data
+        }
+    }catch(error){
+        // Manejo de errores externos
+        return {
+            hasError: true,
+            error: error.message
+        }
+    }
+}
+
+/**
+ * Servicio para registrar una maquina a una empresa
+ * @param {String} companyId - Id de la empresa a la que se registrará la maquina
+ * @param {String} machineId - Id de la maquina a registrar
+ * @returns {Object} - Datos de la maquina registrada o mensaje de error
+ */
+export const registerMachineService = async (companyId, machineId) => {
+    try{
+        // Solicitud PUT para registrar la maquina
+        const response = await axios.put(`${API_URL}${machineEndpoint}/machine-company/${companyId}/${machineId}`,
+            {},
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': API_ACCESS_TOKEN
+                }
+            }
+        )
+
+        // Verifica si hay un error en la respuesta del servidor
+        if(response.data.error){
+            return {
+                hasError: true,
+                error: response.data.error
+            }
+        }
+        // Si la respuesta es válida, retorna los datos de la maquina
+        if (response.data){     
+            return response.data.data
+        }
+    }catch(error){
+        // Manejo de errores externos
+        return {
+            hasError: true,
+            error: error.message
+        }
+    }
+}

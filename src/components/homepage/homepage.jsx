@@ -48,10 +48,15 @@ export default function HomePage() {
                   </>
                 )
               }
-              
-              <Link to={isLoading ? '#' : '/machine/create'}>
-                <button>Registrar Maquina</button><br />
+              <Link to={isLoading ? '#' : '/machine/edit'}>
+                  <button>Registrar Maquina</button><br />
               </Link>
+              {
+                globalUser.userType === 'admin' && 
+                <Link to={isLoading ? '#' : '/machine/create'}>
+                  <button>Crear Maquina</button><br />
+                </Link>
+              }
 
               {
                 globalUser.userType === 'admin' && (
