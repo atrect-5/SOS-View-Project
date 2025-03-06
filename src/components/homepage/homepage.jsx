@@ -3,14 +3,14 @@ import { useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import CircularProgress from '@mui/material/CircularProgress'
 
-import { useUserContext, useUserToggleContext } from "../../providers/userContext"
+import { useUserContext } from "../../providers/userContext"
+import { Header } from "../components"
 
 import './homepage.scss'
 
 // Pagina principal de la app 
 export default function HomePage() {
     const { user: globalUser, isLoading, userCompany: userCompanyGlobal } = useUserContext()
-    const { handleLoginChange: toggleUser } = useUserToggleContext()
 
     const navigate = useNavigate()
 
@@ -28,84 +28,43 @@ export default function HomePage() {
       fetchUserCompany()
       }, [globalUser, navigate, isLoading])
 
-      // Maneja el cierre de sesion
-      const handleCloseSesion = () => {
-        toggleUser()
-      }
-
     return (
         <>
         <div className="homepage-container">
-          <div className="header-container">
-            <div className="functions-container">
-
+        <Header />
+          <div className="body-home-page-container">
+            <div className="name-container">
+              {userCompanyGlobal.name ? (
+                <h1>{userCompanyGlobal.name}</h1>
+              ) : (
+                <h1>Cargando...</h1>
+              )}
               {
-                (globalUser.userType === 'admin' || globalUser.userType === 'company-owner') && (
-                  <>
-                    <Link to={isLoading ? '#' : '/user/create'}>
-                      <button>Registrar Usuario</button><br />
-                    </Link>
-                  </>
-                )
+                isLoading ? <CircularProgress />
+                  : <h2>{`${globalUser.name} ${globalUser.lastName}`}</h2>
               }
-              <Link to={isLoading ? '#' : '/machine/register'}>
-                  <button>Registrar Maquina</button><br />
-              </Link>
-              {
-                globalUser.userType === 'admin' && 
-                <Link to={isLoading ? '#' : '/machine/create'}>
-                  <button>Crear Maquina</button><br />
-                </Link>
-              }
-
-              {
-                globalUser.userType === 'admin' && (
-                  <>
-                    <Link to={isLoading ? '#' :'/company/create'}>
-                      <button>Registrar Compañia</button><br />
-                    </Link>
-                  </>
-                )
-              }
-              {
-                (globalUser.userType === 'company-owner' || globalUser.userType === 'admin') &&
-                <Link to={isLoading ? '#' : '/company/edit'}>
-                  <button>Actualizar Compañia</button><br />
-                </Link>
-              }
-
             </div>
-            <div className="profile-content">
+            <hr />
 
-            <button onClick={handleCloseSesion}>Cerrar Sesion</button>
-            <Link to={isLoading ? '#' : '/user/edit'}>
-                <button>Perfil</button><br />
+            <Link to={`/machine/list/${globalUser.workingAt}`}>
+                  <button>Ver maquinas registradas</button>
             </Link>
-            </div>
-          </div>
-          <div className="name-container">
-            {userCompanyGlobal.name ? (
-              <h1>{userCompanyGlobal.name}</h1>
-            ) : (
-              <h1>Cargando...</h1>
-            )}
-            <p>Welcome to home page, {globalUser.name}
             {
-              isLoading && <CircularProgress />
+              (globalUser.userType === 'admin' || globalUser.userType === 'company-owner') &&
+              <Link to={`/user/list/${globalUser.workingAt}`}>
+                <button>Ver usuarios registradas</button>
+              </Link>
             }
-            </p>
+            {
+              globalUser.userType === 'admin' &&
+              <Link to={`/company/list`}>
+                <button>Ver compañias registradas</button>
+              </Link>
+            }
+                        
           </div>
-
-          <Link to={`/machine/list/${globalUser.workingAt}`}>
-                <button>Ver maquinas registradas</button>
-          </Link>
-          {
-            globalUser.userType === 'admin' &&
-            <Link to={`/company/list`}>
-              <button>Ver compañias registradas</button>
-            </Link>
-          }
         </div>
+        
         </>
     )
 }

@@ -81,6 +81,12 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+.title-login{
+  font-size: 5em;
+  color: consts.$white;
+  margin-bottom: 50px;
+}
+
 .form-card{
   h1{
     text-align: center;

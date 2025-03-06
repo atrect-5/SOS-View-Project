@@ -6,14 +6,27 @@
     flex-direction: column;
     width: 100vw;
     min-height: 100vh;
-    .header-container{
+    .body-home-page-container{
         display: flex;
-        justify-content: space-evenly;
-        background-color: consts.$gray;
-        border-bottom-left-radius:10px;
-        border-bottom-right-radius:10px;
-        .functions-container{
+        flex-direction: column;
+        align-items: center;
+        .name-container{
             display: flex;
+            align-items: center;
+            justify-content: space-evenly;
+            width: 100%;
+            padding: 20px 0 ;
+            h1{
+                font-size: 3rem;
+                color: consts.$white;
+                font-weight: 700;
+                margin: 0;
+            }
+        }
+        hr {
+
+            width: 90%;
+            border: 1px solid consts.$gray-variant2;
         }
     }
 }
