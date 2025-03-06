@@ -22,7 +22,7 @@ function UserRegister() {
         if (!globalUser.name && location.pathname === '/user/edit') {
             navigate('/login')
         }
-        if (globalUser.userType !== 'admin' && globalUser.userType !== 'company-owner' && location.pathname === '/user/create') {
+        if (globalUser.userType !== 'admin' && globalUser.userType !== 'company-owner' && location.pathname === '/user/create' && globalUser.name) {
             navigate('/')
         }
     }, [globalUser, navigate, location])

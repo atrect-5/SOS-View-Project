@@ -48,7 +48,7 @@ export default function HomePage() {
                   </>
                 )
               }
-              <Link to={isLoading ? '#' : '/machine/edit'}>
+              <Link to={isLoading ? '#' : '/machine/register'}>
                   <button>Registrar Maquina</button><br />
               </Link>
               {
@@ -83,17 +83,28 @@ export default function HomePage() {
             </Link>
             </div>
           </div>
-          {userCompanyGlobal.name ? (
-            <h1>{userCompanyGlobal.name}</h1>
-          ) : (
-            <h1>Cargando...</h1>
-          )}
-          <p>Welcome to home page, {globalUser.name}
-          {
-            isLoading && <CircularProgress />
-          }
-          </p>
+          <div className="name-container">
+            {userCompanyGlobal.name ? (
+              <h1>{userCompanyGlobal.name}</h1>
+            ) : (
+              <h1>Cargando...</h1>
+            )}
+            <p>Welcome to home page, {globalUser.name}
+            {
+              isLoading && <CircularProgress />
+            }
+            </p>
+          </div>
 
+          <Link to={`/machine/list/${globalUser.workingAt}`}>
+                <button>Ver maquinas registradas</button>
+          </Link>
+          {
+            globalUser.userType === 'admin' &&
+            <Link to={`/company/list`}>
+              <button>Ver compañias registradas</button>
+            </Link>
+          }
         </div>
         </>
     )
