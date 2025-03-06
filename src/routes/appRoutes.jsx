@@ -11,7 +11,7 @@ const RoutesOfApp = () => (
 
         <Route exact path="/user/create" element={<UserRegister/>}/>
         <Route exact path="/user/edit" element={<UserRegister/>}/>
-        <Route exact path="/user/list/:comanyId" element={<UserList/>}/>
+        <Route exact path="/user/list/:companyId" element={<UserList/>}/>
 
         <Route exact path="/company/create" element={<CompanyRegister/>}/>
         <Route exact path="/company/edit" element={<CompanyRegister/>}/>
@@ -20,7 +20,7 @@ const RoutesOfApp = () => (
         <Route exact path="/machine/create" element={<MachineRegister/>}/>
         <Route exact path="/machine/edit/:machineId" element={<MachineRegister/>}/>
         <Route exact path="/machine/register" element={<MachineRegister/>}/>
-        <Route exact path="/machine/list/:comanyId" element={<MachineList/>}/>
+        <Route exact path="/machine/list/:companyId" element={<MachineList/>}/>
         
         <Route path ="*" element = {<p>Not found</p>}/>
         <Route path ="*" element = {<Navigate to='/'/>}/>
