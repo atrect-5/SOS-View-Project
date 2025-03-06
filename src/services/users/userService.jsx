@@ -45,6 +45,43 @@ export const getUserLoginService = async (userData) => {
     }
 }
 
+/** 
+ * Servicio para obtener los uuarios que trabajan en una compañia 
+ * @param {string} companyId - ID de la compañia
+ * @returns {Object} - Lista de usuarios o mensaje de error
+ */
+export const getUsersByCompanyService = async (companyId) => {
+    try{
+        // Solicitud GET para obtener los usuarios de una compañia
+        const response = await axios.get(`${API_URL}${userEndpoint}company/${companyId}`,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': API_ACCESS_TOKEN
+                }
+            }
+        )
+
+        // Verifica si hay un error en la respuesta del servidor
+        if(response.data.error){
+            return {
+                hasError: true,
+                error: response.data.error
+            }
+        }
+        // Si la respuesta es válida, retorna los datos de los usuarios
+        if (response.data){
+            return response.data.data
+        }
+    }catch(error){
+        // Manejo de errores externos
+        return {
+            hasError: true,
+            error: error.message
+        }
+    }
+}
+
 /**
  * Servicio para crear un nuevo usuario
  * @param {Object} userData - Objeto que contiene los datos del usuario a crear

@@ -78,6 +78,43 @@ export const getMachineByIdService = async (machineId) => {
 }
 
 /**
+ * Servicio para obtener las maquinas de una empresa
+ * @param {String} companyId - Id de la empresa a la que pertenecen las maquinas
+ * @returns {Object} - Datos de las maquinas o mensaje de error
+ */
+export const getMachinesByCompanyService = async (companyId) => {
+    try{
+        // Solicitud GET para obtener las maquinas de la empresa
+        const response = await axios.get(`${API_URL}${machineEndpoint}/company/${companyId}`,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': API_ACCESS_TOKEN
+                }
+            }
+        )
+
+        // Verifica si hay un error en la respuesta del servidor
+        if(response.data.error){
+            return {
+                hasError: true,
+                error: response.data.error
+            }
+        }
+        // Si la respuesta es válida, retorna los datos de las maquinas
+        if (response.data){     
+            return response.data.data
+        }
+    }catch(error){
+        // Manejo de errores externos
+        return {
+            hasError: true,
+            error: error.message
+        }
+    }
+}
+
+/**
  * Servicio para actualizar una maquina
  * @param {String} machineId - Id de la maquina a actualizar
  * @param {Object} machineData - Objeto que contiene los datos de la maquina a actualizar

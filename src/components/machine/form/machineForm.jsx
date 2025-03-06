@@ -32,13 +32,15 @@ function MachineRegister() {
 
     // Redirige a la página principal si el usuario no está registrado
     useEffect(() => {
-        if ((location.pathname === '/machine/create' && globalUser.userType !== 'admin' && !isLoading) || !globalUser.name) {
-            navigate('/') 
-        } else if (location.pathname === '/machine/register') {
-            setMachine(prevMachine => ({
-                ...prevMachine,
-                belongsTo: globalUser.workingAt
-            }))
+        if (!isLoading){
+            if ((location.pathname === '/machine/create' && globalUser.userType !== 'admin' && !isLoading) || !globalUser.name) {
+                navigate('/') 
+            } else if (location.pathname === '/machine/register') {
+                setMachine(prevMachine => ({
+                    ...prevMachine,
+                    belongsTo: globalUser.workingAt
+                }))
+            }
         }
     }, [globalUser, navigate, isLoading])
 
