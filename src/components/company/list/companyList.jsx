@@ -57,7 +57,11 @@ function CompanyList() {
                     <ErrorComponent
                         error={error}
                     />
-                    : <CircularProgress />
+                    : 
+                    <>
+                        <h1>Cargando compañias...</h1>
+                        <CircularProgress />
+                    </>
             
         }
 

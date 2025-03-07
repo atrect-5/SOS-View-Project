@@ -23,6 +23,7 @@ function Header () {
 
           <div className="next-back-buttons">
               <img onClick={() => navigate(-1)} src="../../../../public/back_icon.png" alt="back" />
+              <img onClick={() => navigate('/')} src="../../../../public/home_icon.png" alt="home" />
               <img onClick={() => navigate(+1)} src="../../../../public/next_icon.png" alt="next" /> 
           </div>
 
@@ -75,9 +76,6 @@ function Header () {
           <button onClick={handleCloseSesion}>Cerrar Sesion</button>
           <Link to={isLoading ? '#' : '/user/edit'}>
               <button>Perfil</button>
-          </Link>
-          <Link to={isLoading ? '#' : '/'}>
-                <button>Inicio</button>
           </Link>
           </div>
         </div>

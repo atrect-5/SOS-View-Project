@@ -58,7 +58,7 @@ function MachineList() {
         }
 
         if (!isLoading){
-            if ((!globalUser.name || (globalUser.userType !== 'admin' && globalUser.workingAt !== companyId))) {
+            if ((!globalUser.name || (globalUser.userType !== 'admin' && (globalUser.workingAt !== companyId || location.pathname === '/machine/list/unregistered')))) {
                 navigate('/')
             } else {
                 fetchMachines()
@@ -83,7 +83,11 @@ function MachineList() {
                         <ErrorComponent
                             error={error}
                         />
-                        : <CircularProgress />
+                        : 
+                        <>
+                            <h1>Cargando maquinas...</h1>
+                            <CircularProgress />
+                        </>
                 
             }
         
@@ -110,10 +114,20 @@ function ListComponent({machines}) {
                     <h2>
                         {machine.name}
                     </h2>
-                    <strong>
-                        {machine.description}
-                    </strong>
-                    <p>Ubicacion: <span>{machine.location}</span></p>
+                    {
+                        location.pathname === '/machine/list/unregistered' ?
+                        <>
+                            <p>Id para registro: <span>{machine._id}</span></p>
+                        </>
+                        :
+                        <>
+                        <strong>
+                            {machine.description}
+                        </strong>
+                        <p>Ubicacion: <span>{machine.location}</span></p>
+                        </>
+                    }
+                    
                     <p>Status: <span>{machine.status}</span></p>
                     <p>Fecha de instalacion: <span>{formatDateTimeForInput(machine.installationDate)}</span></p>
                 </div>

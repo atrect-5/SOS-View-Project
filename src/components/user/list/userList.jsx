@@ -62,7 +62,11 @@ function UserList() {
                         <ErrorComponent
                             error={error}
                         />
-                        : <CircularProgress />
+                        : 
+                        <>
+                            <h1>Cargando usuarios...</h1>
+                            <CircularProgress />
+                        </>
                 
             }
       </div>
