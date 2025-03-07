@@ -31,16 +31,32 @@ export function UserProvider(props) {
     }, [])
 
     const verifyUser = async (userData) => {
-        const response = await getUserLoginService(userData)
-        if (!response.error) {
-            setGlobalUser(response)
-            const company = await getCompanyByIdService(response.workingAt)
-            setUserCompanyGlobal(company)
-        } else {
-            localStorage.removeItem('loginUserData')
+        try {
+            const response = await getUserLoginService(userData)
+            if (!response.error) {
+                setGlobalUser(response)       
+            } else {
+                throw new Error(response.error)
+            }
+        } catch (error) {
+            if (error.message === 'Credenciales Incorrectas') {
+                localStorage.removeItem('loginUserData')
+            }
+        } finally {
+            setIsLoading(false)
         }
-        setIsLoading(false)
     }
+
+     // Actualiza los datos de la compañía cuando el usuario cambia
+     useEffect(() => {
+        const fetchCompanyData = async () => {
+            if (user.workingAt) {
+                const company = await getCompanyByIdService(user.workingAt)
+                setUserCompanyGlobal(company)
+            }
+        }
+        fetchCompanyData()
+    }, [user])
 
     /**
      * Maneja el cambio de estado de login del usuario
@@ -67,19 +83,6 @@ export function UserProvider(props) {
             ...userData
         }))
     } 
-
-    // Actualiza los datos de la compañía cuando el usuario cambia
-    useEffect(() => {
-        const fetchCompanyData = async () => {
-            if (user.workingAt) {
-                const company = await getCompanyByIdService(user.workingAt)
-                setUserCompanyGlobal(company)
-            } else {
-                setUserCompanyGlobal({})
-            }
-        }
-        fetchCompanyData()
-    }, [user])
 
     return (
         <userContext.Provider value={{user, isLoading, userCompany, setUserCompanyGlobal}}>

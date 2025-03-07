@@ -1,12 +1,12 @@
 
 import { useEffect, useState } from "react"
-import { useNavigate, Link, useParams } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import PropTypes from "prop-types"
 import { CircularProgress } from "@mui/material"
 
 import { useUserContext } from "../../../providers/userContext"
 import { Header } from "../../components"
-import { getUsersByCompanyService } from "../../../services/services"
+import { getUsersByCompanyService, getCompanyByIdService } from "../../../services/services"
 
 import './userList.scss'
 
@@ -19,18 +19,21 @@ function UserList() {
     const [error, setError] = useState('')
     const [hasError, setHasError] = useState(false)
     const [users, setUsers] = useState([])
+    const [company, setCompany] = useState({})
 
     const navigate = useNavigate()
 
     useEffect(() => {
         const fetchUsers = async () => {
             const usersData = await getUsersByCompanyService(companyId)
+            const companyData = await getCompanyByIdService(companyId)
             // Obtenemos el posible error del backend
-            if (usersData.error) {
+            if (usersData.error || companyData.error) {
                 setHasError(true)
                 setError(usersData.error)
             }else{
                 setUsers(usersData)
+                setCompany(companyData)
                 setIsReady(true)
             }
         }
@@ -43,11 +46,12 @@ function UserList() {
             }
         }
         
-    })
+    }, [globalUser, isLoading, companyId, navigate])
 
     return (
-      <div className="user-list-container">
+      <div className="user-list-main-container">
         <Header/>
+        <h1>{company.name}</h1>
             {
                 isReady ? 
                     <ListComponent
@@ -62,21 +66,31 @@ function UserList() {
                 
             }
 
-        <Link to={`/`}>
-                <button>Volver</button>
-        </Link>
+        <button onClick={() => navigate(-1)}>Volver</button>
       </div>
     );
 }
 
 function ListComponent({users}) {
+    const { user: globalUser} = useUserContext()
+    const navigate = useNavigate()
     return (
-        <div>
+        <div className={users.length <= 1 ? 'user-list-container single-item' : 'user-list-container'}>
             {
-                users.length === 0 ? <p>No hay usuarios registradas</p> : (
+                users.length === 0 ? <p className="error-message">No hay usuarios registradas</p> : (
                 users.map(user => (
-                <div className="user-card" key={user._id}>
-                    {user.name}, {user.lastName}, {user.workingAt}, {user.email}, {user.phone}, {user.userType}
+                <div className="user-card" key={user._id}
+                        onClick={() => navigate(`/user/detail/${user._id}`)}>
+                    <h2>
+                        {user.name} {user.lastName}
+                    </h2>
+                    <p className="contacto">Contacto </p>
+                    <p>Telefono: <span>{user.phone}</span></p>
+                    <p>Correo: <span><a target="_blank" href={`https://mail.google.com/mail/?view=cm&fs=1&to=${user.email}`}>{user.email}</a></span></p>
+                    {
+                        globalUser.userType === 'admin' && 
+                        <p>Tipo de usuario: <span>{user.userType}</span></p>
+                    }
                 </div>
                 )
             ))}
@@ -91,7 +105,7 @@ ListComponent.propTypes = {
 function ErrorComponent({error}) {
     return (
         <div>
-            <p>Ha ocurrido un error: {error}</p>
+            <p className="error-message">Ha ocurrido un error: {error}</p>
         </div>
     )
 }

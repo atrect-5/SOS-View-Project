@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { CircularProgress } from "@mui/material";
 import PropTypes from "prop-types";
 
@@ -45,7 +45,7 @@ function CompanyList() {
     }, [globalUser, navigate, isLoading])
 
     return (
-      <div className="company-list-container">
+      <div className="company-list-main-container">
         <Header/>
         {
             isReady ? 
@@ -61,20 +61,41 @@ function CompanyList() {
             
         }
 
-        <Link to={`/`}>
-                <button>Volver</button>
-        </Link>
+        <button onClick={() => navigate(-1)}>Volver</button>
       </div>
     )
 }
 
 function ListComponent({companies}) {
+    const navigate = useNavigate()
     return (
-        <div>
-            {companies.map(company => (
-                <div className="company-card" key={company._id}>
-                    {company.name}, {company.description}, {company.address}, {company.phone}, {company.email}
+        <div className={companies.length <= 1 ? 'company-list-container single-item' : 'company-list-container'}>
+            {
+                companies.length === 0 ? <p className="error-message">No hay empresas registradas</p> : (
+                companies.map(company => (
+                <div className="company-card" key={company._id}
+                        onClick={() => navigate(`/company/detail/${company._id}`)}>
+                    <h2>
+                        {company.name}
+                    </h2>
+                    <strong>    
+                        {company.description}
+                    </strong>
+                    <br />
+                    <br />
+                    <p className="contacto">Contacto </p>
+                    <p>Direccion: <span>{company.address} </span></p>
+                    <p>Numero: <span>{company.phone}</span></p>
+                    <p>Correo: <span><a target="_blank" href={`https://mail.google.com/mail/?view=cm&fs=1&to=${company.email}`}>{company.email}</a></span></p>
+                    {/* <p>Correo: <span><a target="_blank" href={`mailto:${company.email}`}>{company.email}</a></span></p> */}
+                    <br />
+                    <div className="button-company-container">
+                        <hr />
+                        <button onClick={() => navigate(`/user/list/${company._id}`)}>Ver usuarios</button>
+                        <button onClick={() => navigate(`/machine/list/${company._id}`)}>Ver maquinas</button>
+                    </div>
                 </div>
+                )
             ))}
         </div>
     )
@@ -87,7 +108,7 @@ ListComponent.propTypes = {
 function ErrorComponent({error}) {
     return (
         <div>
-            <p>Ha ocurrido un error: {error}</p>
+            <p className="error-message">Ha ocurrido un error: {error}</p>
         </div>
     )
 }

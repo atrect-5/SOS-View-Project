@@ -1,12 +1,12 @@
 
 import { useState, useEffect } from "react"
-import { Link, useNavigate, useParams } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import { CircularProgress } from "@mui/material"
 import PropTypes from "prop-types"
 
 import { Header } from "../../components"
 import { useUserContext } from "../../../providers/userContext"
-import { getMachinesByCompanyService } from "../../../services/services"
+import { getMachinesByCompanyService, getCompanyByIdService } from "../../../services/services"
 
 import './machineList.scss'
 
@@ -20,17 +20,20 @@ function MachineList() {
     const [error, setError] = useState('')
     const [hasError, setHasError] = useState(false)
     const [machines, setMachines] = useState([])
+    const [company, setCompany] = useState({})
 
     const navigate = useNavigate()
 
     useEffect(() => {
         const fetchMachines = async () => {
             const machinesData = await getMachinesByCompanyService(companyId)
+            const companyData = await getCompanyByIdService(companyId)
             // Obtenemos el posible error del backend
-            if (machinesData.error) {
+            if (machinesData.error || companyData.error) {
                 setHasError(true)
                 setError(machinesData.error)
             }else{
+                setCompany(companyData)
                 setMachines(machinesData)
                 setIsReady(true)
             }
@@ -47,8 +50,9 @@ function MachineList() {
     }, [globalUser, navigate, isLoading, companyId])
 
   return (
-        <div className="machine-list-container">
+        <div className="machine-list-main-container">
             <Header/>
+            <h1>{company.name}</h1>
             {
                 isReady ? 
                     <ListComponent
@@ -63,21 +67,36 @@ function MachineList() {
                 
             }
         
-        <Link to={`/`}>
-                <button>Volver</button>
-        </Link>
+        <button onClick={() => navigate(-1)}>Volver</button>
         </div>
     )
 }
 
 function ListComponent({machines}) {
+    const navigate = useNavigate()
+    // Función para convertir la fecha al formato requerido por el campo datetime-local
+    const formatDateTimeForInput = (datetime) => {
+        const date = new Date(datetime);
+        const offset = date.getTimezoneOffset();
+        const adjustedDate = new Date(date.getTime() - (offset * 60 * 1000));
+        return adjustedDate.toISOString().slice(0, 16);
+    }
     return (
-        <div>
+        <div className={machines.length <= 1 ? 'machine-list-container single-item' : 'machine-list-container'}>
             {
-                machines.length === 0 ? <p>No hay maquinas registradas</p> : (
+                machines.length === 0 ? <p className="error-message">No hay maquinas registradas</p> : (
                 machines.map(machine => (
-                <div className="machine-card" key={machine._id}>
-                    {machine.name}, {machine.belongsTo}, {machine.description}, {machine.location}, {machine.status}
+                <div className="machine-card" key={machine._id}
+                        onClick={() => navigate(`/machine/detail/${machine._id}`)}>
+                    <h2>
+                        {machine.name}
+                    </h2>
+                    <strong>
+                        {machine.description}
+                    </strong>
+                    <p>Ubicacion: <span>{machine.location}</span></p>
+                    <p>Status: <span>{machine.status}</span></p>
+                    <p>Fecha de instalacion: <span>{formatDateTimeForInput(machine.installationDate)}</span></p>
                 </div>
                 )
             ))}
@@ -92,7 +111,7 @@ ListComponent.propTypes = {
 function ErrorComponent({error}) {
     return (
         <div>
-            <p>Ha ocurrido un error: {error}</p>
+            <p className="error-message">Ha ocurrido un error: {error}</p>
         </div>
     )
 }

@@ -9,8 +9,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100vw;
+  width: 100%;
   min-height: 100vh;
+  box-sizing: border-box;
   
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
@@ -36,10 +37,9 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  width: 100%;
 }
 
 h1 {
@@ -52,11 +52,12 @@ h1 {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 100vw;
+  width: 100%;
   min-height: 100vh; // Para ocupar toda la altura de la ventana gráfica
   overflow: auto; // Para manejar el contenido que se desborda
   box-sizing: border-box; // Incluir padding y borde en el ancho total
-  
+  overflow-x: hidden;
+
   padding: 0; // Restablecer padding
   margin: 0; // Restablecer margin
 }

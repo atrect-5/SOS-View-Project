@@ -16,7 +16,7 @@ export default function HomePage() {
 
     // Redirige al login si el usuario no esta registrado
     useEffect(() => {
-      const fetchUserCompany = async () => {
+      const fetchUser = async () => {
         // Esperamos a que carguen los datos del usuario del localStorage
         if (!isLoading) {
           if (!globalUser.name){
@@ -25,7 +25,7 @@ export default function HomePage() {
           } 
         }
       }
-      fetchUserCompany()
+      fetchUser()
       }, [globalUser, navigate, isLoading])
 
     return (
