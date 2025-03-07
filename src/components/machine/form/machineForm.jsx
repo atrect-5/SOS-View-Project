@@ -20,7 +20,8 @@ function MachineRegister() {
         installationDate: '',
         name: '',
         description: '',
-        location: ''
+        location: '',
+        _id: ''
     }
 
     const [machine, setMachine] = useState(initialState)

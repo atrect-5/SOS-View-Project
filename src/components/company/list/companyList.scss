@@ -40,9 +40,9 @@
             padding: 25px;
             background: linear-gradient(0deg, consts.$secondary, consts.$blue-variant);
             transition: all .2s;
-
+            
             &:hover{
-                background-color: consts.$secondary;
+                filter: drop-shadow(0 0 5px consts.$gray-variant2);
             }
 
             h2{

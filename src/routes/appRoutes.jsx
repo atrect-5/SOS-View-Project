@@ -1,6 +1,6 @@
 
 import { Routes, Route, Navigate } from "react-router-dom"
-import { UserLogin, HomePage, UserRegister, CompanyRegister, MachineRegister, UserList, CompanyList, MachineList } from "../components/components"
+import { UserLogin, HomePage, UserRegister, CompanyRegister, MachineRegister, UserList, CompanyList, MachineList, UserDetail, CompanyDetail, MachineDetail } from "../components/components"
 
 
 // Declaramos las rutas de la app
@@ -12,15 +12,19 @@ const RoutesOfApp = () => (
         <Route exact path="/user/create" element={<UserRegister/>}/>
         <Route exact path="/user/edit" element={<UserRegister/>}/>
         <Route exact path="/user/list/:companyId" element={<UserList/>}/>
+        <Route exact path="/user/detail/:userId" element={<UserDetail/>}/>
 
         <Route exact path="/company/create" element={<CompanyRegister/>}/>
         <Route exact path="/company/edit" element={<CompanyRegister/>}/>
         <Route exact path="/company/list/" element={<CompanyList/>}/>
+        <Route exact path="/company/detail/:companyId" element={<CompanyDetail/>}/>
 
         <Route exact path="/machine/create" element={<MachineRegister/>}/>
         <Route exact path="/machine/edit/:machineId" element={<MachineRegister/>}/>
         <Route exact path="/machine/register" element={<MachineRegister/>}/>
+        <Route exact path="/machine/list/unregistered" element={<MachineList/>}/>
         <Route exact path="/machine/list/:companyId" element={<MachineList/>}/>
+        <Route exact path="/machine/detail/:machineId" element={<MachineDetail/>}/>
         
         <Route path ="*" element = {<p>Not found</p>}/>
         <Route path ="*" element = {<Navigate to='/'/>}/>

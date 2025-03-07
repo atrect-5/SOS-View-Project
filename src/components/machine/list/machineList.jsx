@@ -6,7 +6,7 @@ import PropTypes from "prop-types"
 
 import { Header } from "../../components"
 import { useUserContext } from "../../../providers/userContext"
-import { getMachinesByCompanyService, getCompanyByIdService } from "../../../services/services"
+import { getMachinesByCompanyService, getCompanyByIdService, getMachineWhithoutCompanyService } from "../../../services/services"
 
 import './machineList.scss'
 
@@ -26,16 +26,34 @@ function MachineList() {
 
     useEffect(() => {
         const fetchMachines = async () => {
-            const machinesData = await getMachinesByCompanyService(companyId)
-            const companyData = await getCompanyByIdService(companyId)
-            // Obtenemos el posible error del backend
-            if (machinesData.error || companyData.error) {
-                setHasError(true)
-                setError(machinesData.error)
+
+            if (location.pathname === '/machine/list/unregistered') {
+                const machinesData = await getMachineWhithoutCompanyService()
+                    
+                // Obtenemos el posible error del backend
+                if (machinesData.error) {
+                    setHasError(true)
+                    setError(machinesData.error)
+                }else{
+                    setCompany({})
+                    setMachines(machinesData)
+                    setIsReady(true)
+                }
+
             }else{
-                setCompany(companyData)
-                setMachines(machinesData)
-                setIsReady(true)
+                const machinesData = await getMachinesByCompanyService(companyId)
+                const companyData = await getCompanyByIdService(companyId)
+
+                // Obtenemos el posible error del backend
+                if (machinesData.error || companyData.error) {
+                    setHasError(true)
+                    setError(machinesData.error)
+                }else{
+                    setCompany(companyData)
+                    setMachines(machinesData)
+                    setIsReady(true)
+                }
+
             }
         }
 
@@ -52,7 +70,9 @@ function MachineList() {
   return (
         <div className="machine-list-main-container">
             <Header/>
-            <h1>{company.name}</h1>
+            <h1>{location.pathname === '/machine/list/unregistered' 
+                            ? 'Maquinas sin registrar'
+                            : company.name}</h1>
             {
                 isReady ? 
                     <ListComponent
@@ -67,7 +87,6 @@ function MachineList() {
                 
             }
         
-        <button onClick={() => navigate(-1)}>Volver</button>
         </div>
     )
 }

@@ -1,0 +1,17 @@
+@use '../../../consts/index.scss' as consts;
+
+* {
+    padding: 0;
+    margin: 0;
+}
+
+.company-detail-main-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    min-height: 100vh;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    word-break: break-word;
+}

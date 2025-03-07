@@ -65,10 +65,8 @@ function UserList() {
                         : <CircularProgress />
                 
             }
-
-        <button onClick={() => navigate(-1)}>Volver</button>
       </div>
-    );
+    )
 }
 
 function ListComponent({users}) {

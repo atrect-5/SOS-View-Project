@@ -61,7 +61,6 @@ function CompanyList() {
             
         }
 
-        <button onClick={() => navigate(-1)}>Volver</button>
       </div>
     )
 }
@@ -73,8 +72,7 @@ function ListComponent({companies}) {
             {
                 companies.length === 0 ? <p className="error-message">No hay empresas registradas</p> : (
                 companies.map(company => (
-                <div className="company-card" key={company._id}
-                        onClick={() => navigate(`/company/detail/${company._id}`)}>
+                <div className="company-card" key={company._id}>
                     <h2>
                         {company.name}
                     </h2>
@@ -93,6 +91,7 @@ function ListComponent({companies}) {
                         <hr />
                         <button onClick={() => navigate(`/user/list/${company._id}`)}>Ver usuarios</button>
                         <button onClick={() => navigate(`/machine/list/${company._id}`)}>Ver maquinas</button>
+                        <button onClick={() => navigate(`/company/detail/${company._id}`)}>Ver informacion</button>
                     </div>
                 </div>
                 )
