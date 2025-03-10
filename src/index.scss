@@ -132,6 +132,16 @@ button:focus-visible {
     color: consts.$white;
     background-color: consts.$red;
   }
+  .success-message {
+    margin-top: 15px;
+    height: fit-content;
+    width:fit-content;
+    padding: 5px;
+    border-radius: 8px;
+    text-align: center;
+    color: consts.$white;
+    background-color: consts.$green;
+  }
   select{
     width: 70%;
     padding: 0.5em;

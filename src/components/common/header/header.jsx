@@ -16,9 +16,9 @@ function Header () {
       <div className="header-container">
 
           <div className="next-back-buttons">
-              <img onClick={() => navigate(-1)} src="../../../../public/back_icon.png" alt="back" />
-              <img onClick={() => navigate('/')} src="../../../../public/home_icon.png" alt="home" />
-              <img onClick={() => navigate(+1)} src="../../../../public/next_icon.png" alt="next" /> 
+              <img onClick={() => navigate(-1)} src="../../../../back_icon.png" alt="back" />
+              <img onClick={() => navigate('/')} src="../../../../home_icon.png" alt="home" />
+              <img onClick={() => navigate(+1)} src="../../../../next_icon.png" alt="next" /> 
           </div>
 
           <div className="functions-container">
@@ -67,7 +67,7 @@ function Header () {
           </div>
           <div className="profile-content">
 
-            <img onClick={() => navigate(isLoading ? '#' : '/user/edit')} src="../../../../public/profile_icon.png" alt="profile" />
+            <img onClick={() => navigate(isLoading ? '#' : '/user/edit')} src="../../../../profile_icon.png" alt="profile" />
           </div>
         </div>
   )

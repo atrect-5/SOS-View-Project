@@ -112,7 +112,7 @@ function ListComponent({companies}) {
                         <hr />
                         <button onClick={() => navigate(`/user/list/${company._id}`)}>Ver usuarios</button>
                         <button onClick={() => navigate(`/machine/list/${company._id}`)}>Ver maquinas</button>
-                        <button onClick={() => navigate(`/company/detail/${company._id}`)}>Ver informacion</button>
+                        <button onClick={() => navigate(`/company/edit/${company._id}`)}>Editar informacion</button>
                     </div>
                 </div>
                 )

@@ -16,6 +16,7 @@ const RoutesOfApp = () => (
 
         <Route exact path="/company/create" element={<CompanyRegister/>}/>
         <Route exact path="/company/edit" element={<CompanyRegister/>}/>
+        <Route exact path="/company/edit/:companyId" element={<CompanyRegister/>}/>
         <Route exact path="/company/list/" element={<CompanyList/>}/>
         <Route exact path="/company/detail/:companyId" element={<CompanyDetail/>}/>
 
