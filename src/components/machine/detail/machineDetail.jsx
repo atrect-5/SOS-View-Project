@@ -25,16 +25,30 @@ function MachineDetail () {
     useEffect(() => {
         const fetchMachine = async () => {
             const machineData = await getMachineByIdService(machineId)
-            const companyData = await getCompanyByIdService(machineData.belongsTo)
-            // Obtenemos el posible error del backend
-            if (machineData.error || companyData.error) {
-                setHasError(true)
-                setError(machineData.error)
-            }else{
-                setMachine(machineData)
-                setCompany(companyData)
-                setIsReady(true)
+
+            if (machineData.belongsTo){
+                const companyData = await getCompanyByIdService(machineData.belongsTo)
+                // Obtenemos el posible error del backend
+                if (machineData.error || companyData.error) {
+                    setHasError(true)
+                    setError(machineData.error || companyData.error)
+                }else{
+                    setMachine(machineData)
+                    setCompany(companyData)
+                    setIsReady(true)
+                }
+            } else {
+                // Obtenemos el posible error del backend
+                if (machineData.error) {
+                    setHasError(true)
+                    setError(machineData.error)
+                }else{
+                    setMachine(machineData)
+                    setCompany({name:'Maquina sin registrar'})
+                    setIsReady(true)
+                }
             }
+
         }
 
         if (!isLoading){
@@ -64,8 +78,7 @@ function MachineDetail () {
             {
                 isReady ? 
                     <>
-                    <div className="machine-card" key={machine._id}
-                            onClick={() => navigate(`/machine/detail/${machine._id}`)}>
+                    <div className="machine-card" key={machine._id}>
                         <h2>
                             {machine.name}
                         </h2>

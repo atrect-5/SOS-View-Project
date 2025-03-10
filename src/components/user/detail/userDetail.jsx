@@ -56,8 +56,7 @@ function UserDetail () {
             {
                 isReady ? 
                     <>
-                    <div className="user-card" key={user._id}
-                        onClick={() => navigate(`/user/detail/${user._id}`)}>
+                    <div className="user-card" key={user._id}>
                     <h2>
                         {user.name} {user.lastName}
                     </h2>

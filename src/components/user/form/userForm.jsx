@@ -141,6 +141,10 @@ function UserRegister() {
         }
     }
 
+    const handleCloseSesion = () =>{
+        toggleUser()
+    }
+
     return (
         <>
         <div className='form-card'>
@@ -263,16 +267,19 @@ function UserRegister() {
             }
             <br />    
             <button onClick={isCreate ? handleNewUser : handleCreate}>{isCreate ? 'Registrar Otro Usuario' : location.pathname === '/user/create' ? 'Registrar Usuario' : 'Actualizar Datos'}</button>
-            <br />
             {
                 (globalUser.userType === 'admin' || globalUser.userType === 'company-owner') && (location.pathname === '/user/create') &&
                 (<>
                 <Link to={`/user/list/${globalUser.workingAt}`}>
                     <button>Ver usuarios registradas</button>
                 </Link>
-                <br />
                 </>)
             }
+            {
+                (globalUser.name && location.pathname !== '/user/create' ) && 
+                     <button onClick={handleCloseSesion}>Cerrar Sesion</button>
+            }
+            <br />
             {
                 !globalUser.name ?
                 <Link to={'/login'}>Ya esta registrado?</Link>

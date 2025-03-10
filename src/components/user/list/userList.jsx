@@ -51,7 +51,7 @@ function UserList() {
     return (
       <div className="user-list-main-container">
         <Header/>
-        <h1>{company.name}</h1>
+        <h1>Usuarios registrados en: {isReady ? company.name : hasError  ? 'Hubo un error' : <CircularProgress/>}</h1>
             {
                 isReady ? 
                     <ListComponent

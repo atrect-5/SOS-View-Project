@@ -47,6 +47,7 @@ function CompanyList() {
     return (
       <div className="company-list-main-container">
         <Header/>
+        <h1>Compañias registradas</h1>
         {
             isReady ? 
                 <ListComponent

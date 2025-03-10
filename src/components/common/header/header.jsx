@@ -2,7 +2,7 @@
 
 import { Link, useNavigate } from "react-router-dom"
 
-import { useUserContext, useUserToggleContext } from "../../../providers/userContext"
+import { useUserContext } from "../../../providers/userContext"
 
 import './header.scss'
 
@@ -11,12 +11,6 @@ function Header () {
   const navigate = useNavigate()
 
   const { user: globalUser, isLoading } = useUserContext()
-  const { handleLoginChange: toggleUser } = useUserToggleContext()
-
-  // Maneja el cierre de sesion
-  const handleCloseSesion = () => {
-      toggleUser()
-  }
 
   return(
       <div className="header-container">
@@ -73,10 +67,7 @@ function Header () {
           </div>
           <div className="profile-content">
 
-          <button onClick={handleCloseSesion}>Cerrar Sesion</button>
-          <Link to={isLoading ? '#' : '/user/edit'}>
-              <button>Perfil</button>
-          </Link>
+            <img onClick={() => navigate(isLoading ? '#' : '/user/edit')} src="../../../../public/profile_icon.png" alt="profile" />
           </div>
         </div>
   )

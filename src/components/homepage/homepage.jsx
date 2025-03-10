@@ -40,7 +40,7 @@ export default function HomePage() {
                 <h1>Cargando...</h1>
               )}
               {
-                isLoading ? <CircularProgress />
+                isLoading ? <CircularProgress/>
                   : <h2>{`${globalUser.name} ${globalUser.lastName}`}</h2>
               }
             </div>
@@ -52,7 +52,7 @@ export default function HomePage() {
             {
               (globalUser.userType === 'admin' || globalUser.userType === 'company-owner') &&
               <Link to={`/user/list/${globalUser.workingAt}`}>
-                <button>Ver usuarios registradas</button>
+                <button>Ver usuarios registrados</button>
               </Link>
             }
             {

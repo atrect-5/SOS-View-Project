@@ -7,6 +7,7 @@ import {  userContext, userToggleContext } from "./userContext"
 import { getUserLoginService, getCompanyByIdService } from "../services/services"
 
 import { CRYPTO_KEY } from "../consts"
+import { toast } from "react-toastify"
 
 // Proveedor de contexto del usuario
 export function UserProvider(props) {
@@ -42,6 +43,7 @@ export function UserProvider(props) {
             if (error.message === 'Credenciales Incorrectas') {
                 localStorage.removeItem('loginUserData')
             }
+            toast.error(`Error al cargar el usuario ${error.message}`)
         } finally {
             setIsLoading(false)
         }

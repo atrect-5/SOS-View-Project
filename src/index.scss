@@ -23,8 +23,12 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  }
-  
+}
+
+/* Aplicar color global a todos los CircularProgress */
+.MuiCircularProgress-root {
+  color: consts.$gray-variant2; /* Cambia el color a tu preferencia */
+}
   
 a {
   font-weight: 500;

@@ -70,9 +70,15 @@ function MachineList() {
   return (
         <div className="machine-list-main-container">
             <Header/>
-            <h1>{location.pathname === '/machine/list/unregistered' 
+            <h1>
+                {location.pathname === '/machine/list/unregistered' 
                             ? 'Maquinas sin registrar'
-                            : company.name}</h1>
+                            : <>
+                                Maquinas registradas en: {isReady ? company.name : hasError  ? 'Hubo un error' : <CircularProgress/>} 
+                              </> 
+                }
+            </h1>
+
             {
                 isReady ? 
                     <ListComponent
