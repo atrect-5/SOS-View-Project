@@ -2,11 +2,13 @@
 
 import { ToastContainer } from 'react-toastify'
 import { BrowserRouter as Router } from "react-router-dom"
+import { ThemeProvider } from '@mui/material/styles';
 //import { useState } from 'react'
 //import reactLogo from './assets/react.svg'
 //import viteLogo from '/vite.svg'
 
 import { UserProvider } from './providers/userProvider'
+import { theme } from './consts';
 import RoutesOfApp from './routes/appRoutes'
 
 import 'react-toastify/ReactToastify.css'
@@ -18,12 +20,14 @@ function App() {
   return (
     <>
     <UserProvider>
-      <Router>
-        <div className="main-container">
-          <RoutesOfApp/>
-        </div>
-        <ToastContainer/>
-      </Router>
+      <ThemeProvider theme={theme}>
+        <Router>
+          <div className="main-container">
+            <RoutesOfApp/>
+          </div>
+          <ToastContainer/>
+        </Router>
+      </ThemeProvider>
     </UserProvider>
     </>
   )

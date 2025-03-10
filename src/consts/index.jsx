@@ -15,3 +15,16 @@ export const userTypes = [
     'admin', 
     'company-owner'
 ]
+
+import { createTheme } from "@mui/material"
+
+export const theme = createTheme({
+    palette: {
+      secondary: {
+        main: '#ffffff6e',
+      },
+      primary: {
+        main: '#1a1a1a',
+      },
+    },
+  })
