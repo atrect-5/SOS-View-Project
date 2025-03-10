@@ -10,61 +10,78 @@ import './homepage.scss'
 
 // Pagina principal de la app 
 export default function HomePage() {
-    const { user: globalUser, isLoading, userCompany: userCompanyGlobal } = useUserContext()
+  const { user: globalUser, isLoading, userCompany: userCompanyGlobal } = useUserContext()
 
-    const navigate = useNavigate()
+  const navigate = useNavigate()
 
-    // Redirige al login si el usuario no esta registrado
-    useEffect(() => {
-      const fetchUser = async () => {
-        // Esperamos a que carguen los datos del usuario del localStorage
-        if (!isLoading) {
-          if (!globalUser.name){
-            // Si no se cargo el usuario regresamos al login
-            navigate('/login')
-          } 
-        }
+  // Redirige al login si el usuario no esta registrado
+  useEffect(() => {
+    const fetchUser = async () => {
+      // Esperamos a que carguen los datos del usuario del localStorage
+      if (!isLoading) {
+        if (!globalUser.name){
+          // Si no se cargo el usuario regresamos al login
+          navigate('/login')
+        } 
       }
-      fetchUser()
-      }, [globalUser, navigate, isLoading])
+    }
+    fetchUser()
+  }, [globalUser, navigate, isLoading])
 
-    return (
-        <>
-        <div className="homepage-container">
-        <Header />
-          <div className="body-home-page-container">
-            <div className="name-container">
-              {userCompanyGlobal.name ? (
-                <h1>{userCompanyGlobal.name}</h1>
-              ) : (
-                <h1>Cargando...</h1>
-              )}
-              {
-                isLoading ? <CircularProgress/>
-                  : <h2>{`${globalUser.name} ${globalUser.lastName}`}</h2>
-              }
-            </div>
-            <hr />
+  // Ajustamos dinamicamente el margin top del contenido para que el header no cubre el contenido
+  useEffect(() => {
+    const header = document.querySelector('.header-fixed')
+    const content = document.querySelector('.body-home-page-container')
+    const adjustPadding = () => {
+      content.style.paddingTop = `${header.offsetHeight}px`
+    }
+    adjustPadding()
+    window.addEventListener('resize', adjustPadding)
 
-            <Link to={`/machine/list/${globalUser.workingAt}`}>
-                  <button>Ver maquinas registradas</button>
-            </Link>
-            {
-              (globalUser.userType === 'admin' || globalUser.userType === 'company-owner') &&
-              <Link to={`/user/list/${globalUser.workingAt}`}>
-                <button>Ver usuarios registrados</button>
-              </Link>
-            }
-            {
-              globalUser.userType === 'admin' &&
-              <Link to={`/company/list`}>
-                <button>Ver compañias registradas</button>
-              </Link>
-            }
-                        
-          </div>
+    return () => window.removeEventListener('resize', adjustPadding)
+  }, [])
+
+  return (
+      <>
+      <div className="homepage-container">
+        <div className="header-fixed">
+          <Header />
         </div>
-        
-        </>
-    )
+        <div className="body-home-page-container">
+          <div className="name-container">
+            {userCompanyGlobal.name ? (
+              <h1>{userCompanyGlobal.name}</h1>
+            ) : (
+              <h1>Cargando...</h1>
+            )}
+            {
+              isLoading ? <CircularProgress/>
+                : <h2>{`${globalUser.name} ${globalUser.lastName}`}</h2>
+            }
+          </div>
+          <hr />
+
+          <Link to={`/machine/list/${globalUser.workingAt}`}>
+                <button>Ver maquinas registradas</button>
+          </Link>
+          {
+            (globalUser.userType === 'admin' || globalUser.userType === 'company-owner') &&
+            <Link to={`/user/list/${globalUser.workingAt}`}>
+              <button>Ver usuarios registrados</button>
+            </Link>
+          }
+          {
+            globalUser.userType === 'admin' &&
+            <Link to={`/company/list`}>
+              <button>Ver compañias registradas</button>
+            </Link>
+          }
+
+      
+                      
+        </div>
+      </div>
+      
+      </>
+  )
 }

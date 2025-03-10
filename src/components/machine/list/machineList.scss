@@ -23,6 +23,7 @@
         gap: 20px;
         justify-items: center;
         box-sizing: border-box;
+        margin-bottom: 50px;
         
         &.single-item {
             grid-template-columns: repeat(auto-fit, minmax(100%, 1fr)); // Centra el único elemento

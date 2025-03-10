@@ -48,10 +48,25 @@ function UserList() {
         
     }, [globalUser, isLoading, companyId, navigate])
 
+    // Ajustamos dinamicamente el margin top del contenido para que el header no cubre el contenido
+    useEffect(() => {
+        const header = document.querySelector('.header-fixed')
+        const content = document.querySelector('.title-container')
+        const adjustPadding = () => {
+          content.style.paddingTop = `${header.offsetHeight}px`
+        }
+        adjustPadding()
+        window.addEventListener('resize', adjustPadding)
+    
+        return () => window.removeEventListener('resize', adjustPadding)
+    }, [])
+
     return (
       <div className="user-list-main-container">
-        <Header/>
-        <h1>Usuarios registrados en: {isReady ? company.name : hasError  ? 'Hubo un error' : <CircularProgress/>}</h1>
+        <div className="header-fixed">
+            <Header/>
+        </div>
+        <h1 className="title-container">Usuarios registrados en: {isReady ? company.name : hasError  ? 'Hubo un error' : <CircularProgress/>}</h1>
             {
                 isReady ? 
                     <ListComponent
