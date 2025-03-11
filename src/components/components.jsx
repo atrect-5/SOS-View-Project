@@ -14,6 +14,8 @@ import UserDetail from "./user/detail/userDetail"
 import CompanyDetail from "./company/detail/companyDetail"
 import MachineDetail from "./machine/detail/machineDetail"
 
+import MaintenanceForm from "./machine/form/maintenanceForm"
+
 import Header from "./common/header/header"
 
 export {
@@ -31,6 +33,7 @@ export {
     MachineRegister,
     MachineList,
     MachineDetail,
+    MaintenanceForm,
 
     Header
 }

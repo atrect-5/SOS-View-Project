@@ -41,7 +41,10 @@
             padding: 25px;
             background: linear-gradient(0deg, consts.$secondary, consts.$blue-variant);
             transition: all .2s;
-            cursor: pointer;
+            box-shadow: 5px 5px 5px rgba($color: consts.$black, $alpha: .2);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
             
             &:hover{
                 filter: drop-shadow(0 0 5px consts.$gray-variant2);
@@ -62,13 +65,14 @@
                 }
             }
             
+            hr{
+                width: 100%;
+                border: 1px solid consts.$gray-variant2;
+            }
             .button-machine-container{
+                display:inline-flex;
                 justify-content: center;
                 justify-items: center;
-                hr{
-                    width: 100%;
-                    border: 1px solid consts.$gray-variant2;
-                }
                 button{
                     background-color: consts.$gray;
                     transition: all .2s;

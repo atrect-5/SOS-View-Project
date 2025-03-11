@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { CircularProgress } from "@mui/material"
+import { format } from 'date-fns'
+import { es } from 'date-fns/locale'
 
 import { useUserContext } from "../../../providers/userContext"
 import { getCompanyByIdService, getMachineByIdService } from "../../../services/services"
@@ -25,6 +27,11 @@ function MachineDetail () {
     useEffect(() => {
         const fetchMachine = async () => {
             const machineData = await getMachineByIdService(machineId)
+
+            if (globalUser.userType !== 'admin' && globalUser.workingAt !== machineData.belongsTo)
+            {
+                navigate('/')
+            }
 
             if (machineData.belongsTo){
                 const companyData = await getCompanyByIdService(machineData.belongsTo)
@@ -52,7 +59,6 @@ function MachineDetail () {
         }
 
         if (!isLoading){
-            //if ((!globalUser.name || (globalUser.userType !== 'admin' && globalUser.workingAt !== machineId))) {
             if ((!globalUser.name)) {
                 navigate('/')
             } else {
@@ -65,11 +71,21 @@ function MachineDetail () {
 
     // Función para convertir la fecha al formato requerido por el campo datetime-local
     const formatDateTimeForInput = (datetime) => {
-        const date = new Date(datetime);
-        const offset = date.getTimezoneOffset();
-        const adjustedDate = new Date(date.getTime() - (offset * 60 * 1000));
-        return adjustedDate.toISOString().slice(0, 16);
-    }
+            try {
+                const date = new Date(datetime)
+                if (isNaN(date.getTime())) {
+                    throw new Error('Invalid date')
+                }
+                // Convierte la fecha a la zona horaria local del usuario
+                const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
+                const zonedDate = new Date(date.toLocaleString('en-US', { timeZone }))
+                // Busca por expresion regular la primer letra y la convierte en mayuscula, dandole un formato parecido a:  Jueves 6 de marzo 2025 a las 10:19 PM
+                return format(zonedDate, "EEEE',' d 'de' MMMM 'del' yyyy 'a las' h:mm a", { locale: es }).replace(/(^\w{1})/g, letter => letter.toUpperCase())
+            } catch (error) {
+                console.error('Error formateando la fecha:', error)
+                return 'Fecha no disponible'
+            }
+        }
 
     return(
         <div className="machine-detail-main-container">

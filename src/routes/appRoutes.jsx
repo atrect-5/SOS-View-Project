@@ -1,6 +1,17 @@
 
 import { Routes, Route, Navigate } from "react-router-dom"
-import { UserLogin, HomePage, UserRegister, CompanyRegister, MachineRegister, UserList, CompanyList, MachineList, UserDetail, CompanyDetail, MachineDetail } from "../components/components"
+import { UserLogin, 
+    HomePage, 
+    UserRegister, 
+    CompanyRegister, 
+    MachineRegister, 
+    UserList, 
+    CompanyList, 
+    MachineList, 
+    UserDetail, 
+    CompanyDetail, 
+    MachineDetail, 
+    MaintenanceForm } from "../components/components"
 
 
 // Declaramos las rutas de la app
@@ -26,6 +37,7 @@ const RoutesOfApp = () => (
         <Route exact path="/machine/list/unregistered" element={<MachineList/>}/>
         <Route exact path="/machine/list/:companyId" element={<MachineList/>}/>
         <Route exact path="/machine/detail/:machineId" element={<MachineDetail/>}/>
+        <Route exact path="/machine/maintenance/create/:machineId" element={<MaintenanceForm/>}/>
         
         <Route path ="*" element = {<p>Not found</p>}/>
         <Route path ="*" element = {<Navigate to='/'/>}/>

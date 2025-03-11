@@ -34,7 +34,7 @@ function MachineRegister() {
     // Redirige a la página principal si el usuario no está registrado
     useEffect(() => {
         if (!isLoading){
-            if ((location.pathname === '/machine/create' && globalUser.userType !== 'admin' && !isLoading) || !globalUser.name) {
+            if ((location.pathname === '/machine/create' && globalUser.userType !== 'admin') || !globalUser.name ) {
                 navigate('/') 
             } else if (location.pathname === '/machine/register') {
                 setMachine(prevMachine => ({
@@ -50,11 +50,21 @@ function MachineRegister() {
         const fetchMachineData = async () => {
             if (machineId) {
                 const machineData = await getMachineByIdService(machineId)
-                setMachine(machineData)
+                const { belongsTo } = machineData
+
+                // Evitamos que si se esta editando, sea alguien diferente de la empresa
+                if (globalUser.workingAt !== belongsTo && globalUser.userType !== 'admin'){
+                    navigate('/')
+                }
+                
+                setMachine({
+                    ...machineData,
+                    belongsTo: belongsTo || ''
+                })
             }
         }
         fetchMachineData()
-    }, [machineId])
+    }, [machineId, navigate, globalUser])
 
     // Maneja los cambios de los inputs
     const handleChange = e => {
@@ -98,22 +108,23 @@ function MachineRegister() {
             toast.error('Faltan datos')
             return
         }
-
-        // Eliminacion de installationDate para evitar errores del servicio
-        if(!machine.installationDate){
-            delete machine.installationDate
-        }
-
-        // Eliminacion de belongsTo si no existe para evitar errores del servicio
-        if (!machine.belongsTo){
-            delete machine.belongsTo
-        }
         
         const { _id, ...machineData} = machine
+        
+        // Eliminacion de installationDate para evitar errores del servicio
+        if (!machineData.installationDate) {
+            delete machineData.installationDate
+        }
+        
+        // Eliminacion de belongsTo si no existe para evitar errores del servicio
+        if (!machineData.belongsTo) {
+            delete machineData.belongsTo
+        }
+
         const createdMachine = location.pathname === '/machine/create'
             ? await createMachineService(machineData)
             : location.pathname === '/machine/register'
-                ? await registerMachineService(globalUser.workingAt, _id) 
+                ? await registerMachineService(machine.belongsTo, _id) 
                 : await updateMachineService(_id, machineData)
 
         
@@ -130,18 +141,23 @@ function MachineRegister() {
             if (location.pathname === '/machine/create'){
                 toast.success(`Maquina registrada con id: ${createdMachine._id}`)
             }else if(location.pathname === '/machine/register'){
-                toast.success(`Maquina ${createdMachine._id} registrada a la compañia ${globalUser.workingAt}`)
+                toast.success(`Maquina ${createdMachine._id} registrada a la compañia ${createdMachine.belongsTo}`)
                 navigate(`/machine/detail/${createdMachine._id}`)
             }else{
                 toast.success(`Maquina actualizada`)
                 navigate(`/machine/detail/${createdMachine._id}`)
             }
             setIsCreated(true)
-            setMachine(createdMachine)
+            setMachine(prevState => ({
+                ...prevState,
+                ...createdMachine
+            }))
         }
-        
+    }
 
-      }
+    const handleBack = () => {
+        navigate(-1)
+    }
 
     return (
         <>
@@ -234,7 +250,7 @@ function MachineRegister() {
             {
                 hasError ? 
                     <p className='error-message'>{error}</p> :
-                    (isReady && location.pathname === '/machine/create') && (<p>Id al crearse: {machine._id}</p>)
+                    (isReady && location.pathname === '/machine/create') && (<p className='success-message'>Id al crearse: {machine._id}</p>)
             }
             <br />
             <button onClick={iscreated ? handleNewMachine : handleCreate}>{location.pathname === '/machine/create'
@@ -243,12 +259,11 @@ function MachineRegister() {
                                                                                 ? 'Registrar'
                                                                                 : 'Actualizar'            
                                                                         }</button>                                      
-            <br />
             <Link to={`/machine/list/${globalUser.workingAt}`}>
                 <button>Ver maquinas registradas</button>
             </Link>
             <br />
-            <Link to={'/'}>Volver</Link>
+            <Link onClick={handleBack}>Volver</Link>
         </div>
         </>
     )

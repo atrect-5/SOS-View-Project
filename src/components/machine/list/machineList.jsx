@@ -3,6 +3,8 @@ import { useState, useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { CircularProgress } from "@mui/material"
 import PropTypes from "prop-types"
+import { format } from 'date-fns'
+import { es } from 'date-fns/locale'
 
 import { Header } from "../../components"
 import { useUserContext } from "../../../providers/userContext"
@@ -58,7 +60,7 @@ function MachineList() {
         }
 
         if (!isLoading){
-            if ((!globalUser.name || (globalUser.userType !== 'admin' && (globalUser.workingAt !== companyId || location.pathname === '/machine/list/unregistered')))) {
+            if ((!globalUser.name || (globalUser.userType !== 'admin' && globalUser.workingAt !== companyId))) {
                 navigate('/')
             } else {
                 fetchMachines()
@@ -79,7 +81,7 @@ function MachineList() {
         window.addEventListener('resize', adjustPadding)
     
         return () => window.removeEventListener('resize', adjustPadding)
-    }, [])
+    }, [globalUser])
 
   return (
         <div className="machine-list-main-container">
@@ -121,18 +123,27 @@ function ListComponent({machines}) {
     const navigate = useNavigate()
     // Función para convertir la fecha al formato requerido por el campo datetime-local
     const formatDateTimeForInput = (datetime) => {
-        const date = new Date(datetime);
-        const offset = date.getTimezoneOffset();
-        const adjustedDate = new Date(date.getTime() - (offset * 60 * 1000));
-        return adjustedDate.toISOString().slice(0, 16);
+        try {
+            const date = new Date(datetime)
+            if (isNaN(date.getTime())) {
+                throw new Error('Invalid date')
+            }
+            // Convierte la fecha a la zona horaria local del usuario
+            const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
+            const zonedDate = new Date(date.toLocaleString('en-US', { timeZone }))
+            // Busca por expresion regular la primer letra y la convierte en mayuscula, dandole un formato parecido a:  Jueves 6 de marzo 2025 a las 10:19 PM
+            return format(zonedDate, "EEEE',' d 'de' MMMM 'del' yyyy 'a las' h:mm a", { locale: es }).replace(/(^\w{1})/g, letter => letter.toUpperCase())
+        } catch (error) {
+            console.error('Error formateando la fecha:', error)
+            return 'Fecha no disponible'
+        }
     }
     return (
         <div className={machines.length <= 1 ? 'machine-list-container single-item' : 'machine-list-container'}>
             {
                 machines.length === 0 ? <p className="error-message">No hay maquinas registradas</p> : (
                 machines.map(machine => (
-                <div className="machine-card" key={machine._id}
-                        onClick={() => navigate(`/machine/detail/${machine._id}`)}>
+                <div className="machine-card" key={machine._id}>
                     <h2>
                         {machine.name}
                     </h2>
@@ -152,6 +163,14 @@ function ListComponent({machines}) {
                     
                     <p>Status: <span>{machine.status}</span></p>
                     <p>Fecha de instalacion: <span>{formatDateTimeForInput(machine.installationDate)}</span></p>
+
+                    <br />
+                        <hr />
+                    <div className="button-machine-container">
+                        <button onClick={() => navigate(`/machine/detail/${machine._id}`)}>Ver</button>
+                        <button onClick={() => navigate(`/machine/maintenance/create/${machine._id}`)}>Agregar Mantenimiento</button>
+                        <button onClick={() => navigate(`/machine/edit/${machine._id}`)}>Editar</button>
+                    </div>
                 </div>
                 )
             ))}
