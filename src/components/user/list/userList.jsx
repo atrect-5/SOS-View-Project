@@ -90,14 +90,12 @@ function UserList() {
 
 function ListComponent({users}) {
     const { user: globalUser} = useUserContext()
-    const navigate = useNavigate()
     return (
         <div className={users.length <= 1 ? 'user-list-container single-item' : 'user-list-container'}>
             {
                 users.length === 0 ? <p className="error-message">No hay usuarios registradas</p> : (
                 users.map(user => (
-                <div className="user-card" key={user._id}
-                        onClick={() => navigate(`/user/detail/${user._id}`)}>
+                <div className="user-card" key={user._id}>
                     <h2>
                         {user.name} {user.lastName}
                     </h2>
