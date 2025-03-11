@@ -221,7 +221,6 @@ function CompanyRegister() {
                 }
                 <br />
                 <button onClick={iscreated ? handleNewCompany : handleCreate}>{iscreated ? 'Crear otra compañia' : location.pathname === '/company/create' ? 'Registrar' : 'Actualizar'}</button>
-                <br />
                 {
                     globalUser.userType === 'admin' &&
                     <Link to={'/company/list'}>
