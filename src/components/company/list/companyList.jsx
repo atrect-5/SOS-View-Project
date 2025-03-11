@@ -102,10 +102,18 @@ function ListComponent({companies}) {
                     </strong>
                     <br />
                     <br />
-                    <p className="contacto">Contacto </p>
-                    <p>Direccion: <span>{company.address} </span></p>
-                    <p>Numero: <span>{company.phone}</span></p>
-                    <p>Correo: <span><a target="_blank" href={`https://mail.google.com/mail/?view=cm&fs=1&to=${company.email}`}>{company.email}</a></span></p>
+                    <div className="company-info">
+                        <div className="contact-info">
+                            <p className="contacto">Contacto </p>
+                            <p>Direccion: <span>{company.address} </span></p>
+                            <p>Numero: <span>{company.phone}</span></p>
+                            <p>Correo: <span><a target="_blank" href={`https://mail.google.com/mail/?view=cm&fs=1&to=${company.email}`}>{company.email}</a></span></p>
+                        </div>
+                        <div className="id-info">
+                            <p className="contacto">Id de la compa&ntilde;ia</p>
+                            <p><span>{company._id} </span></p>
+                        </div>
+                    </div>
                     {/* <p>Correo: <span><a target="_blank" href={`mailto:${company.email}`}>{company.email}</a></span></p> */}
                     <br />
                     <div className="button-company-container">
