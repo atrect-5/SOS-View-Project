@@ -19,6 +19,8 @@ export function UserProvider(props) {
     
     const [isLoading, setIsLoading] = useState(true)
 
+    const [isOnline, setIsOnline] = useState(navigator.onLine)
+
     // Cuando carga la página, verifica si hay un usuario en el localStorage y carga sus datos en el estado global
     useEffect(() => {
         const encryptedUser = localStorage.getItem('loginUserData')
@@ -60,6 +62,27 @@ export function UserProvider(props) {
         fetchCompanyData()
     }, [user])
 
+    // Maneja la conexión a la red
+    useEffect(() => {
+        const handleOnline = () => {
+            setIsOnline(true)
+            toast.success('Conexión restablecida')
+        }
+
+        const handleOffline = () => {
+            setIsOnline(false)
+            toast.error('Conexión perdida')
+        }
+
+        window.addEventListener('online', handleOnline)
+        window.addEventListener('offline', handleOffline)
+
+        return () => {
+            window.removeEventListener('online', handleOnline)
+            window.removeEventListener('offline', handleOffline)
+        }
+    }, [])
+
     /**
      * Maneja el cambio de estado de login del usuario
      * @param {Object} userData - Datos del usuario para iniciar o cerrar sesión
@@ -87,7 +110,7 @@ export function UserProvider(props) {
     } 
 
     return (
-        <userContext.Provider value={{user, isLoading, userCompany, setUserCompanyGlobal}}>
+        <userContext.Provider value={{user, isLoading, userCompany, setUserCompanyGlobal, isOnline}}>
             <userToggleContext.Provider value={{handleLoginChange, handleDataUpdated}}>
                 {props.children}
             </userToggleContext.Provider>
