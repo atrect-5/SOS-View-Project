@@ -151,6 +151,44 @@ export const getMachinesByCompanyService = async (companyId) => {
 }
 
 /**
+ * Servicio para guardar una entrada de mantenimiento en una maquina
+ * @param {String} machineId - Id de la maquina 
+ * @param {Object} machineData - Objeto que contiene los datos de la entrada de mantenimiento ({date: Date, description: String})
+ * @returns {Object} - Datos de la maquina actualizada o mensaje de error
+ */
+export const saveMaintenanceService = async (machineId, maintenanceData) => {
+    try{
+        // Solicitud POST para crear la entrada de mantenimiento
+        const response = await axios.post(`${API_URL}${machineEndpoint}/maintenance/${machineId}`, maintenanceData,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': API_ACCESS_TOKEN
+                }
+            }
+        )
+
+        // Verifica si hay un error en la respuesta del servidor
+        if(response.data.error){
+            return {
+                hasError: true,
+                error: response.data.error
+            }
+        }
+        // Si la respuesta es válida, retorna los datos de la entrada de mantenimiento
+        if (response.data){     
+            return response.data.data
+        }
+    }catch(error){
+        // Manejo de errores externos
+        return {
+            hasError: true,
+            error: error.message
+        }
+    }
+}
+
+/**
  * Servicio para actualizar una maquina
  * @param {String} machineId - Id de la maquina a actualizar
  * @param {Object} machineData - Objeto que contiene los datos de la maquina a actualizar

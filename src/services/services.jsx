@@ -1,8 +1,28 @@
 
 
-import { getUserLoginService, createUserService, updateUserService, getUsersByCompanyService, getUserByIdService } from "./users/userService"
-import { createCompanyService, getCompaniesService, getCompanyByIdService, updateCompanyService, deleteCompanyService } from "./companies/companyService"
-import { createMachineService, updateMachineService, registerMachineService, getMachineByIdService, getMachinesByCompanyService, getMachineWhithoutCompanyService } from "./machines/machineService"
+import { 
+    getUserLoginService, 
+    createUserService, 
+    updateUserService, 
+    getUsersByCompanyService, 
+    getUserByIdService 
+} from "./users/userService"
+
+import { createCompanyService, 
+    getCompaniesService, 
+    getCompanyByIdService, 
+    updateCompanyService, 
+    deleteCompanyService 
+} from "./companies/companyService"
+
+import { createMachineService, 
+    updateMachineService, 
+    registerMachineService, 
+    getMachineByIdService, 
+    getMachinesByCompanyService, 
+    getMachineWhithoutCompanyService,
+    saveMaintenanceService
+} from "./machines/machineService"
 
 
 export {
@@ -23,5 +43,6 @@ export {
     createMachineService,
     getMachineByIdService,
     getMachinesByCompanyService,
-    getMachineWhithoutCompanyService
+    getMachineWhithoutCompanyService,
+    saveMaintenanceService
 }

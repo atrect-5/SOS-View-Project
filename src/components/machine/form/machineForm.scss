@@ -1,0 +1,25 @@
+
+@use '../../../consts/index.scss' as consts;
+
+.maintenaince{
+    margin-top: 50px;
+    margin-bottom: 50px;
+    min-width: 80%;
+    .text-field{
+        min-width: 90%;
+    }
+    .date-select{
+        width: 30%;
+    }
+}
+.title-maintenance{
+    font-weight: 700;
+    span{
+        font-weight: 400;
+        a{
+            font-weight: 400;
+            color: consts.$white;
+            text-decoration: underline;
+        }
+    }
+}
