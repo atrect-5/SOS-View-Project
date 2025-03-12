@@ -104,6 +104,26 @@ function MachineDetail () {
                         <p>Ubicacion: <span>{machine.location}</span></p>
                         <p>Status: <span>{machine.status}</span></p>
                         <p>Fecha de instalacion: <span>{formatDateTimeForInput(machine.installationDate)}</span></p>
+
+                        <div className="maintenance-history-container">
+                            <details>
+                            <summary>Historial de mantenimiento: </summary>
+                            {
+                                machine.maintenanceHistory.length === 0 ? <p className="error-message">No hay historial registrado</p> 
+                                :
+                                (
+                                    machine.maintenanceHistory.map((maintenance, index) => (
+                                        <div key={index}>
+                                            <p>Descripcion: <span>{maintenance.description}</span></p>
+                                            <p>Fecha: <span>{formatDateTimeForInput(maintenance.date)}</span></p>
+                                        </div>
+                                    ))
+                                )
+                            }
+                            
+                            </details>
+                        </div>
+
                     </div>
                     
                     </>
