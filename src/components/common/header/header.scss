@@ -12,7 +12,32 @@
         display: flex;
         box-sizing: border-box;
         padding: 10px;
+
+        #menu-button{
+            width: 40px;
+        }
     }
+
+    .menu {
+        opacity: 0; /* Inicialmente transparente */
+        height: 0; /* Inicialmente colapsado */
+        overflow: hidden; /* Esconde el contenido cuando height es 0 */
+        transition: all 0.2s ease; /* Animación suave de 0.3 segundos */
+        flex-direction: column;
+        background-color: consts.$gray;
+        position: absolute;
+        top: 55px;
+        padding: 0 10px; /* Padding horizontal (ajustamos verticalmente abajo) */
+        border-bottom-right-radius: 10px;
+        border-bottom-left-radius: 10px;
+    }
+    
+    .menu.open {
+        opacity: 1; /* Totalmente visible */
+        height: auto; /* Expande automáticamente según el contenido */
+        padding: 10px; /* Agrega el padding vertical cuando el menú se despliega */
+    }
+
     .profile-content{
         display: flex;
         align-items: center;
@@ -29,8 +54,21 @@
             filter: drop-shadow(0 0 5px consts.$secondary);
         }
     }
-    .functions-container{
+    .img-menu-despleyed{
+        filter: drop-shadow(0 0 5px consts.$secondary);
+    }
+
+    .user-info{
+        width: 100%;
         display: flex;
+        justify-content: space-around;
+        align-items: center;
+        margin-bottom: 15px;
+        margin-top: 5px;
+        h1{
+            margin: 0;
+            padding: 0;
+        }
     }
 }
 

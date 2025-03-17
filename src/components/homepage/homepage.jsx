@@ -1,7 +1,7 @@
 
 import { useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import CircularProgress from '@mui/material/CircularProgress'
+//import CircularProgress from '@mui/material/CircularProgress'
 
 import { useUserContext } from "../../providers/userContext"
 import { Header } from "../components"
@@ -10,7 +10,7 @@ import './homepage.scss'
 
 // Pagina principal de la app 
 export default function HomePage() {
-  const { user: globalUser, isLoading, userCompany: userCompanyGlobal } = useUserContext()
+  const { user: globalUser, isLoading } = useUserContext()
 
   const navigate = useNavigate()
 
@@ -48,18 +48,6 @@ export default function HomePage() {
           <Header />
         </div>
         <div className="body-home-page-container">
-          <div className="name-container">
-            {userCompanyGlobal.name ? (
-              <h1>{userCompanyGlobal.name}</h1>
-            ) : (
-              <h1>Cargando...</h1>
-            )}
-            {
-              isLoading ? <CircularProgress/>
-                : <h2>{`${globalUser.name} ${globalUser.lastName}`}</h2>
-            }
-          </div>
-          <hr />
 
           <Link to={`/machine/list/${globalUser.workingAt}`}>
                 <button>Ver maquinas registradas</button>
