@@ -6,6 +6,7 @@ import { toast } from "react-toastify"
 
 import { saveMaintenanceService, getMachineByIdService } from "../../../services/services"
 import { useUserContext } from "../../../providers/userContext"
+import { Header } from "../../components"
 
 import './machineForm.scss'
 
@@ -124,44 +125,50 @@ function MaintenanceForm () {
 
     return(
         <>
-        {
-            isLoading ? <CircularProgress/> 
-            :
-            <div className="form-card maintenaince">
-                <p className="title-maintenance">Registrar mantenimiento en la maquina: <span>{machine.name}</span></p>
-                <br />
-                <br />
-                <TextField
-                    className='text-field'
-                    size="small"
-                    type="text"
-                    name="description"
-                    label="Descripcion"
-                    multiline
-                    maxRows={25}
-                    value={maintenanceData.description}
-                    onChange={handleChange}
-                />
-                <br />
-                <p>Fecha</p>
-                <input 
-                    className='date-select'
-                    type="datetime-local"
-                    name="date"
-                    value={maintenanceData.date ? formatDateTimeForInput(maintenanceData.date) : ''}
-                    onChange={handleChange} 
-                />
-                {
-                    hasError ? 
-                        <p className='error-message'>{error}</p> :
-                        (isReady) && (<p className='success-message'>Id al crearse: {maintenanceData._id}</p>)
-                }
-                <br />
-                <button onClick={isCreated ? handleNew : handleCreate}>{isCreated ? 'Registrar otro' : 'Guardar' }</button>
-                <br />
-                <Link onClick={handleBack}>Volver</Link>
+        <div className="maintenance-body-container">
+            <div className="header-fixed">
+                <Header />
             </div>
-        }
+            <div className="form-maintenance-container">
+                {
+                    isLoading ? <CircularProgress/> 
+                    :
+                    <div className="form-card maintenaince">
+                        <p className="title-maintenance">Registrar mantenimiento en la maquina: <span>{machine.name}</span></p>
+                        <br />
+                        <br />
+                        <TextField
+                            className='text-field'
+                            size="small"
+                            type="text"
+                            name="description"
+                            label="Descripcion"
+                            multiline
+                            value={maintenanceData.description}
+                            onChange={handleChange}
+                        />
+                        <br />
+                        <p>Fecha</p>
+                        <input 
+                            className='date-select'
+                            type="datetime-local"
+                            name="date"
+                            value={maintenanceData.date ? formatDateTimeForInput(maintenanceData.date) : ''}
+                            onChange={handleChange} 
+                        />
+                        {
+                            hasError ? 
+                                <p className='error-message'>{error}</p> :
+                                (isReady) && (<p className='success-message'>Id al crearse: {maintenanceData._id}</p>)
+                        }
+                        <br />
+                        <button onClick={isCreated ? handleNew : handleCreate}>{isCreated ? 'Registrar otro' : 'Guardar' }</button>
+                        <br />
+                        <Link onClick={handleBack}>Volver</Link>
+                    </div>
+                }
+            </div>
+        </div>
         </>
     )
 }

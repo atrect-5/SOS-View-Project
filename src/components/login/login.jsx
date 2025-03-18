@@ -7,6 +7,8 @@ import { TextField } from '@mui/material'
 import { useUserToggleContext, useUserContext } from '../../providers/userContext'
 import { getUserLoginService } from '../../services/services'
 
+import './login.scss'
+
 // Componente de Login del Usuario
 function UserLogin() {
     const navigate = useNavigate()
@@ -64,37 +66,40 @@ function UserLogin() {
 
     return (
         <>
-        <h1 className='title-login'>SOS</h1>
-        <div className='form-card'>
-            <h1>Login</h1>
-            <TextField
-                className='text-field'
-                type="text"
-                name='email'
-                label='Email'
-                value={email}
-                size="small"
-                onChange={(e) => setEmail(e.target.value)}
-            />
-            <br />
-            <TextField
-                className='text-field'
-                type="password"
-                name='password'
-                label='Password'
-                value={password}
-                size="small"
-                onChange={(e) => setPassword(e.target.value)}
-            />
-            {
-                hasError ? 
+        <div className="login-container">
+            <img src="../../../public/servicios-soluciones-logo.png" alt="logo" />
+
+            <div className='form-card'>
+                <h1>Login</h1>
+                <TextField
+                    className='text-field'
+                    type="text"
+                    name='email'
+                    label='Email'
+                    value={email}
+                    size="small"
+                    onChange={(e) => setEmail(e.target.value)}
+                    />
+                <br />
+                <TextField
+                    className='text-field'
+                    type="password"
+                    name='password'
+                    label='Password'
+                    value={password}
+                    size="small"
+                    onChange={(e) => setPassword(e.target.value)}
+                    />
+                {
+                    hasError ? 
                     <p className='error-message'>{error}</p> :
                     isReady ? <p>Accediendo...</p>:<></>
-            }
-            <br />
-            <button onClick={handleLogin}>Login</button>
-            <br />
-            <Link to={'/user/create'}>No registrado aun</Link>
+                }
+                <br />
+                <button onClick={handleLogin}>Login</button>
+                <br />
+                <Link to={'/user/create'}>No registrado aun</Link>
+            </div>
         </div>
         </>
     )

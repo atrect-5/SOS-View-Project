@@ -145,6 +145,10 @@ function UserRegister() {
         toggleUser()
     }
 
+    const handleBack = () =>{
+        navigate(-1)
+    }
+
     return (
         <>
         <div className='form-card'>
@@ -284,7 +288,7 @@ function UserRegister() {
                 !globalUser.name ?
                 <Link to={'/login'}>Ya esta registrado?</Link>
                 :
-                <Link to={'/'}>Volver</Link>
+                <Link onClick={handleBack}>Volver</Link>
             }
         </div>
         </>

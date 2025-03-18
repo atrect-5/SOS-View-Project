@@ -1,0 +1,29 @@
+
+@use '../../consts/index.scss' as consts;
+
+
+
+.login-container{
+    width: 100%;
+    height: 100vh;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    img{
+        position: absolute;
+        height: 800px;
+        width: auto;
+        margin-bottom: 45px;
+        z-index: -1;
+        opacity: .5;
+    }
+    .form-card{
+        width: 40%;
+        height: fit-content;
+        min-width: 300px;
+        background: rgba(consts.$gray, 0.99); 
+        position: relative;
+    }
+
+}

@@ -1,16 +1,19 @@
 
 import { useState, useEffect } from 'react'
 import { toast } from 'react-toastify'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { CircularProgress, TextField } from '@mui/material'
 
 import { useUserContext } from '../../../providers/userContext'
 import { createCompanyService, updateCompanyService, getCompanyByIdService } from '../../../services/services'
+import { Header } from '../../components'
 
+import './companyForm.scss'
 
 // Formulario de registro de compañias
 function CompanyRegister() {
     const navigate = useNavigate()
+    const location = useLocation()
 
     const { companyId } = useParams()
 
@@ -47,22 +50,39 @@ function CompanyRegister() {
             }
         }
         
-    }, [globalUser, navigate, isLoading, companyId])
+    }, [globalUser, navigate, isLoading, companyId, location.pathname])
 
     // Crea el state de la compañia segun la ruta accedida
     useEffect(() => {
 
-        const seCompanyWithId = async () => {
+        setIsCreated(false)
+        setHasError(false)
+        setError('')
+        setIsReady(false)
+
+        const setCompanyWithId = async () => {
             const companyData = await getCompanyByIdService(companyId)
             setCompany(companyData)
+        }
+        const setCompanyEmpty = () => {
+            setCompany({
+                _id: '',
+                name: '',
+                description: '',
+                address: '',
+                email: '',
+                phone: ''
+            })
         }
 
         if (location.pathname === '/company/edit' && userCompanyGlobal.name){
             setCompany(userCompanyGlobal)
         } else if (companyId){
-            seCompanyWithId()
+            setCompanyWithId()
+        } else if (location.pathname === '/company/create'){
+            setCompanyEmpty()
         }
-    }, [companyId, userCompanyGlobal])
+    }, [companyId, userCompanyGlobal, location.pathname])
 
     const handleBack = () => {
         navigate(-1)
@@ -136,101 +156,109 @@ function CompanyRegister() {
 
     return (
         <>
-        {
-            isLoading 
-                ? <CircularProgress/>
-                :
-            <div className='form-card'>
-            <form>
-                <h1>{location.pathname === '/company/create' ? 'Resgistrar Compañia': 'Actualizar Compañia'}</h1>
-                {
-                    location.pathname === '/company/edit' &&
-                    <>
+        <div className="company-form-body-container">
+            <div className="header-fixed">
+                <Header />
+            </div>
+            <div className="company-form-container">
+            {
+                isLoading 
+                    ? <CircularProgress/>
+                    :
+                <div className='form-card'>
+                <form>
+                    <h1>{location.pathname === '/company/create' ? 'Resgistrar Compañia': 'Actualizar Compañia'}</h1>
+                    {
+                        location.pathname === '/company/edit' &&
+                        <>
+                        <TextField
+                            className='text-field'
+                            size="small"
+                            type="text"
+                            name='_id'
+                            label='Id de la compañia'
+                            disabled
+                            value={company._id}
+                            onChange={handleChange}
+                        />
+                        <br />
+                        </>
+                    }
+                    
                     <TextField
                         className='text-field'
                         size="small"
                         type="text"
-                        name='_id'
-                        label='Id de la compañia'
-                        disabled
-                        value={company._id}
+                        name='name'
+                        label='Nombre'
+                        value={company.name}
                         onChange={handleChange}
                     />
                     <br />
-                    </>
-                }
-                
-                <TextField
-                    className='text-field'
-                    size="small"
-                    type="text"
-                    name='name'
-                    label='Nombre'
-                    value={company.name}
-                    onChange={handleChange}
-                />
-                <br />
-                <TextField
-                    className='text-field'
-                    size="small"
-                    type="text"
-                    name="description"
-                    label="Descripcion"
-                    multiline
-                    maxRows={5}
-                    value={company.description}
-                    onChange={handleChange}
-                />
-                <br />
-                <TextField
-                    className='text-field'
-                    size="small"
-                    type="text"
-                    name='address'
-                    label='Direccion'
-                    multiline
-                    maxRows={5}
-                    value={company.address}
-                    onChange={handleChange}
-                />
-                <br />
-                <TextField
-                    className='text-field'
-                    size="small"
-                    type="email"
-                    name='email'
-                    label='Email'
-                    value={company.email}
-                    onChange={handleChange}
-                />
-                <br />
-                <TextField
-                    className='text-field'
-                    size="small"
-                    type="text"
-                    name="phone"
-                    label="Telefono"
-                    value={company.phone}
-                    onChange={handleChange}
-                />
-            </form>
-                {
-                    hasError ? 
-                        <p className='error-message'>{error}</p> :
-                        (isReady && location.pathname === '/company/create') && (<p className='success-message'>Id al crearse: {company._id}</p>)
-                }
-                <br />
-                <button onClick={iscreated ? handleNewCompany : handleCreate}>{iscreated ? 'Crear otra compañia' : location.pathname === '/company/create' ? 'Registrar' : 'Actualizar'}</button>
-                {
-                    globalUser.userType === 'admin' &&
-                    <Link to={'/company/list'}>
-                        <button>Ver compañias registradas</button>
-                    </Link>
-                }
-                <br />
-                <Link onClick={handleBack}>Volver</Link>
+                    <TextField
+                        className='text-field'
+                        size="small"
+                        type="text"
+                        name="description"
+                        label="Descripcion"
+                        multiline
+                        maxRows={5}
+                        value={company.description}
+                        onChange={handleChange}
+                    />
+                    <br />
+                    <TextField
+                        className='text-field'
+                        size="small"
+                        type="text"
+                        name='address'
+                        label='Direccion'
+                        multiline
+                        maxRows={5}
+                        value={company.address}
+                        onChange={handleChange}
+                    />
+                    <br />
+                    <TextField
+                        className='text-field'
+                        size="small"
+                        type="email"
+                        name='email'
+                        label='Email'
+                        value={company.email}
+                        onChange={handleChange}
+                    />
+                    <br />
+                    <TextField
+                        className='text-field'
+                        size="small"
+                        type="text"
+                        name="phone"
+                        label="Telefono"
+                        value={company.phone}
+                        onChange={handleChange}
+                    />
+                </form>
+                    {
+                        hasError ? 
+                            <p className='error-message'>{error}</p> :
+                            (isReady && location.pathname === '/company/create') && (<p className='success-message'>Id al crearse: {company._id}</p>)
+                    }
+                    <br />
+                    <button onClick={iscreated ? handleNewCompany : handleCreate}>{iscreated ? 'Crear otra compañia' : location.pathname === '/company/create' ? 'Registrar' : 'Actualizar'}</button>
+                    {
+                        globalUser.userType === 'admin' &&
+                        <Link to={'/company/list'}>
+                            <button>Ver compañias registradas</button>
+                        </Link>
+                    }
+                    <br />
+                    <Link onClick={handleBack}>Volver</Link>
+                </div>
+            }   
             </div>
-        }   
+
+        </div>
         </>
     )
 }

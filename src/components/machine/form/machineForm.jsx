@@ -1,15 +1,19 @@
 
 import { useState, useEffect } from 'react'
 import { toast } from 'react-toastify'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { TextField } from '@mui/material'
 
 import { useUserContext } from '../../../providers/userContext'
 import { createMachineService, updateMachineService, getMachineByIdService, registerMachineService } from '../../../services/services'
+import { Header } from '../../components'
+
+import './machineForm.scss'
 
 // Formulario de registro de una nueva maquina
 function MachineRegister() {
     const navigate = useNavigate()
+    const location = useLocation()
 
     const { machineId } = useParams()
 
@@ -36,14 +40,18 @@ function MachineRegister() {
         if (!isLoading){
             if ((location.pathname === '/machine/create' && globalUser.userType !== 'admin') || !globalUser.name ) {
                 navigate('/') 
-            } else if (location.pathname === '/machine/register') {
-                setMachine(prevMachine => ({
-                    ...prevMachine,
-                    belongsTo: globalUser.workingAt
-                }))
-            }
+            } else if (location.pathname === '/machine/register' || location.pathname === '/machine/create' ) {
+                setMachine({
+                    installationDate: '',
+                    name: '',
+                    description: '',
+                    location: '',
+                    _id: '',
+                    belongsTo: location.pathname === '/machine/register' ? globalUser.workingAt : ''
+                })
+            } 
         }
-    }, [globalUser, navigate, isLoading])
+    }, [globalUser, navigate, isLoading, location.pathname])
 
     // Carga los datos de la máquina si machineId está disponible
     useEffect(() => {
@@ -63,8 +71,13 @@ function MachineRegister() {
                 })
             }
         }
+        setIsCreated(false)
+        setHasError(false)
+        setError('')
+        setIsReady(false)
+
         fetchMachineData()
-    }, [machineId, navigate, globalUser])
+    }, [machineId, navigate, globalUser, location])
 
     // Maneja los cambios de los inputs
     const handleChange = e => {
@@ -161,110 +174,116 @@ function MachineRegister() {
 
     return (
         <>
-        <div className='form-card'>
-        <form>
-            <h1>{location.pathname === '/machine/create' 
-                        ? 'Crear Maquina' 
-                        : location.pathname === '/machine/register'
-                                ? 'Registrar Maquina'
-                                : 'Actualizar Maquina'}</h1>
-            {
-            location.pathname !== '/machine/register' ?
-            <>
-            <TextField
-                className='text-field'
-                size="small"
-                type="text"
-                name='name'
-                label='Nombre'
-                value={machine.name}
-                onChange={handleChange}
-            />
-            <br />
-            <TextField
-                className='text-field'
-                size="small"
-                type="text"
-                name="description"
-                label="Descripcion"
-                multiline
-                maxRows={5}
-                value={machine.description}
-                onChange={handleChange}
-            />
-            <br />
-            <TextField
-                className='text-field'
-                size="small"
-                type="text"
-                name='location'
-                label='Locacion'
-                multiline
-                maxRows={5}
-                value={machine.location}
-                onChange={handleChange}
-            />
-            <br />
-            </>
-            :
-            <>
-            <TextField
-                className='text-field'
-                size="small"
-                type="text"
-                name="_id"
-                label="id de la maquina a registrar"
-                value={machine._id}
-                onChange={handleChange}
-            />
-            <br />
-            </>
-            }
-            <TextField
-                className='text-field'
-                size="small"
-                type="text"
-                name="belongsTo"
-                disabled= {globalUser.userType !== 'admin'}
-                label="Codigo de la compañia"
-                value={machine.belongsTo}
-                onChange={handleChange}
-            />
-            <br />
-            {
-                location.pathname !== '/machine/register' && 
+        <div className="body-machine-form-container">
+            <div className="header-fixed">
+                <Header />
+            </div>
+            <div className='form-card'>
+            <form>
+                <h1>{location.pathname === '/machine/create' 
+                            ? 'Crear Maquina' 
+                            : location.pathname === '/machine/register'
+                                    ? 'Registrar Maquina'
+                                    : 'Actualizar Maquina'}</h1>
+                {
+                location.pathname !== '/machine/register' ?
                 <>
-                <p>Fecha de instalacion</p>
-                <input 
-                    className='date-select'
-                    type="datetime-local"
-                    name="installationDate"
-                    value={machine.installationDate ? formatDateTimeForInput(machine.installationDate) : ''}
-                    onChange={handleChange} 
+                <TextField
+                    className='text-field'
+                    size="small"
+                    type="text"
+                    name='name'
+                    label='Nombre'
+                    value={machine.name}
+                    onChange={handleChange}
                 />
+                <br />
+                <TextField
+                    className='text-field'
+                    size="small"
+                    type="text"
+                    name="description"
+                    label="Descripcion"
+                    multiline
+                    maxRows={5}
+                    value={machine.description}
+                    onChange={handleChange}
+                />
+                <br />
+                <TextField
+                    className='text-field'
+                    size="small"
+                    type="text"
+                    name='location'
+                    label='Locacion'
+                    multiline
+                    maxRows={5}
+                    value={machine.location}
+                    onChange={handleChange}
+                />
+                <br />
                 </>
-            }
+                :
+                <>
+                <TextField
+                    className='text-field'
+                    size="small"
+                    type="text"
+                    name="_id"
+                    label="id de la maquina a registrar"
+                    value={machine._id}
+                    onChange={handleChange}
+                />
+                <br />
+                </>
+                }
+                <TextField
+                    className='text-field'
+                    size="small"
+                    type="text"
+                    name="belongsTo"
+                    disabled= {globalUser.userType !== 'admin'}
+                    label="Codigo de la compañia"
+                    value={machine.belongsTo}
+                    onChange={handleChange}
+                />
+                <br />
+                {
+                    location.pathname !== '/machine/register' && 
+                    <>
+                    <p>Fecha de instalacion</p>
+                    <input 
+                        className='date-select'
+                        type="datetime-local"
+                        name="installationDate"
+                        value={machine.installationDate ? formatDateTimeForInput(machine.installationDate) : ''}
+                        onChange={handleChange} 
+                    />
+                    </>
+                }
 
-            
-        </form>
-            {
-                hasError ? 
-                    <p className='error-message'>{error}</p> :
-                    (isReady && location.pathname === '/machine/create') && (<p className='success-message'>Id al crearse: {machine._id}</p>)
-            }
-            <br />
-            <button onClick={iscreated ? handleNewMachine : handleCreate}>{location.pathname === '/machine/create'
-                                                                                ? iscreated ? 'Crear otra maquina' : 'Registrar'
-                                                                                : location.pathname === '/machine/register' 
-                                                                                ? 'Registrar'
-                                                                                : 'Actualizar'            
-                                                                        }</button>                                      
-            <Link to={`/machine/list/${globalUser.workingAt}`}>
-                <button>Ver maquinas registradas</button>
-            </Link>
-            <br />
-            <Link onClick={handleBack}>Volver</Link>
+                
+            </form>
+                {
+                    hasError ? 
+                        <p className='error-message'>{error}</p> :
+                        (isReady && location.pathname === '/machine/create') && (<p className='success-message'>Id al crearse: {machine._id}</p>)
+                }
+                <br />
+                <button onClick={iscreated ? handleNewMachine : handleCreate}>{location.pathname === '/machine/create'
+                                                                                    ? iscreated ? 'Crear otra maquina' : 'Registrar'
+                                                                                    : location.pathname === '/machine/register' 
+                                                                                    ? 'Registrar'
+                                                                                    : 'Actualizar'            
+                                                                            }</button>                                      
+                <Link to={`/machine/list/${globalUser.workingAt}`}>
+                    <button>Ver maquinas registradas</button>
+                </Link>
+                <br />
+                <Link onClick={handleBack}>Volver</Link>
+            </div>
         </div>
+
         </>
     )
 }
