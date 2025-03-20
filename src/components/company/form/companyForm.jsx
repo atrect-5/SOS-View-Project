@@ -64,6 +64,7 @@ function CompanyRegister() {
             const companyData = await getCompanyByIdService(companyId)
             if (companyData.hasError){
                 toast.error(`Hubo un error: ${companyData.error}`)
+                navigate('/company/list', { replace: true })
             }else{
                 setCompany(companyData)
             }
@@ -86,7 +87,7 @@ function CompanyRegister() {
         } else if (location.pathname === '/company/create'){
             setCompanyEmpty()
         }
-    }, [companyId, userCompanyGlobal, location.pathname])
+    }, [companyId, userCompanyGlobal, location.pathname, navigate])
 
     const handleBack = () => {
         navigate(-1)
