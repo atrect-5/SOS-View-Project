@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { format } from 'date-fns'
@@ -6,6 +5,7 @@ import { es } from 'date-fns/locale'
 import { Switch } from "@mui/material"
 import CircularProgress from '@mui/material/CircularProgress'
 import { toast } from "react-toastify"
+import io from 'socket.io-client'; // Asegúrate de instalar esta dependencia
 
 import { useUserContext } from "../../providers/userContext"
 import { Header } from "../components"
@@ -133,6 +133,19 @@ export default function HomePage() {
         return 'Fecha no disponible'
     }
   }
+
+  useEffect(() => {
+    const socket = io('http://localhost:3000'); // Cambia la URL según tu configuración
+    socket.on('machineData', (data) => {
+      const updatedMachine = machineList.find((machine) => machine._id === data.machineId);
+      if (updatedMachine) {
+        updatedMachine.lastReading = data.lastReading;
+        setMachineList([...machineList]);
+      }
+    });
+
+    return () => socket.disconnect();
+  }, [machineList]);
 
   return (
       <>
