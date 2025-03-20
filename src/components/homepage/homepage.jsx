@@ -5,7 +5,7 @@ import { es } from 'date-fns/locale'
 import { Switch } from "@mui/material"
 import CircularProgress from '@mui/material/CircularProgress'
 import { toast } from "react-toastify"
-import io from 'socket.io-client'; // Asegúrate de instalar esta dependencia
+import io from 'socket.io-client'
 
 import { useUserContext } from "../../providers/userContext"
 import { Header } from "../components"
@@ -33,6 +33,7 @@ export default function HomePage() {
   const [machineList, setMachineList] = useState([])
   const [selectedMachine, setSelectedMachine] = useState(initialState)
   const [isUpdateingStatus, setIsUpdateingStatus] = useState(false)
+  const [hasShownWebError, setHasShownWebError] = useState(false)
 
   // Redirige al login si el usuario no esta registrado
   useEffect(() => {
@@ -135,17 +136,40 @@ export default function HomePage() {
   }
 
   useEffect(() => {
-    const socket = io('http://localhost:3000'); // Cambia la URL según tu configuración
-    socket.on('machineData', (data) => {
-      const updatedMachine = machineList.find((machine) => machine._id === data.machineId);
-      if (updatedMachine) {
-        updatedMachine.lastReading = data.lastReading;
-        setMachineList([...machineList]);
-      }
-    });
+    const socket = io('http://localhost:3000') // Cambia la URL según tu configuración
 
-    return () => socket.disconnect();
-  }, [machineList]);
+    // Notifica cuando el socket se conecta
+    socket.on('connect', () => {
+      toast.success('Conectado al servidor de datos en tiempo real')
+      setHasShownWebError(false)
+    })
+
+    // Notifica cuando el socket se desconecta
+    socket.on('disconnect', () => {
+      toast.warning('Desconectado del servidor de datos en tiempo real')
+      setHasShownWebError(false)
+    })
+
+    // Notifica si ocurre un error al intentar conectarse
+    socket.on('connect_error', (error) => {
+      if (!hasShownWebError)
+      {
+        toast.error(`Error al conectar con el servidor: ${error.message}`)
+        setHasShownWebError(true)
+      }
+    })
+
+    // Maneja los datos recibidos
+    socket.on('machineData', (data) => {
+      const updatedMachine = machineList.find((machine) => machine._id === data.machineId)
+      if (updatedMachine) {
+        updatedMachine.lastReading = data.lastReading
+        setMachineList([...machineList])
+      }
+    })
+
+    return () => socket.disconnect()
+  }, [machineList, hasShownWebError])
 
   return (
       <>
