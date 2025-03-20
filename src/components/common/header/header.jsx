@@ -1,6 +1,6 @@
 
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { CircularProgress } from "@mui/material"
 
@@ -21,15 +21,39 @@ function Header () {
     setIsMenuOpen(!isMenuOpen)
   }
 
+  const [canGoBack, setCanGoBack] = useState(false);
+  const [canGoForward, setCanGoForward] = useState(false);
+
+  // Actualiza el estado de navegación
+  useEffect(() => {
+    // Verifica si se puede ir hacia atrás o hacia adelante
+    const updateNavigationState = () => {
+      setCanGoBack(window.history.state?.idx > 0);
+      setCanGoForward(window.history.state?.idx < window.history.length - 1);
+    };
+
+    // Inicializa el estado al cargar el componente
+    updateNavigationState();
+
+    // Escucha cambios en el historial
+    window.addEventListener("popstate", updateNavigationState);
+
+    // Limpia el listener al desmontar el componente
+    return () => {
+      window.removeEventListener("popstate", updateNavigationState);
+    };
+  }, []);
+  
+
   return(
     <div className="header-container">
 
 
       <div className="next-back-buttons">
         <img onClick={toggleOpenMenu} id="menu-button" className={`${isMenuOpen ? 'img-menu-despleyed' : ''}`} src="../../../../menu_icon.png" alt="menu" />
-        <img onClick={() => navigate(-1)} src="../../../../back_icon.png" alt="back" />
+        <img className={canGoBack ? '' : 'no-next-back'} onClick={() => navigate(-1)} src="../../../../back_icon.png" alt="back" />
         <img onClick={() => navigate('/')} src="../../../../home_icon.png" alt="home" />
-        <img onClick={() => navigate(+1)} src="../../../../next_icon.png" alt="next" /> 
+        <img className={canGoForward ? '' : 'no-next-back'} onClick={() => navigate(+1)} src="../../../../next_icon.png" alt="next" /> 
       </div>
 
       <div className={`menu ${isMenuOpen ? "open" : ''}`}>

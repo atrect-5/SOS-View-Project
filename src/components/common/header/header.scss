@@ -54,6 +54,12 @@
             filter: drop-shadow(0 0 5px consts.$secondary);
         }
     }
+    img.no-next-back{
+        opacity: .5;
+        &:hover{
+            filter: drop-shadow(0 0 5px consts.$gray);
+        }
+    }
     .img-menu-despleyed{
         filter: drop-shadow(0 0 5px consts.$secondary);
     }
