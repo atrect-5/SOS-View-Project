@@ -172,7 +172,7 @@ function CompanyRegister() {
 
             if (!result.hasError){
                 toast.success(`Se ha eliminado la Compañia ${company.name}`)  
-                navigate(`/company/list`)     
+                navigate('/company/list', { replace: true })
             }else{
                 // Si el servidor respondio con algun error
                 toast.error(`Hubo un error al eliminar Compañia -> ${result.error}`)
