@@ -155,9 +155,9 @@ function ListComponent({machines}) {
                         :
                         <>
                         <strong>
-                            {machine.description}
+                            {machine.description ? machine.description : 'Sin descripción'}
                         </strong>
-                        <p>Ubicacion: <span>{machine.location}</span></p>
+                        <p>Ubicacion: <span>{machine.location ? machine.location : 'Sin locación'}</span></p>
                         </>
                     }
                     

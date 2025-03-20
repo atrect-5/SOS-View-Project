@@ -21,7 +21,8 @@ import { createMachineService,
     getMachineByIdService, 
     getMachinesByCompanyService, 
     getMachineWhithoutCompanyService,
-    saveMaintenanceService
+    saveMaintenanceService, 
+    updateMachineStatusService
 } from "./machines/machineService"
 
 
@@ -44,5 +45,6 @@ export {
     getMachineByIdService,
     getMachinesByCompanyService,
     getMachineWhithoutCompanyService,
-    saveMaintenanceService
+    saveMaintenanceService,
+    updateMachineStatusService,
 }

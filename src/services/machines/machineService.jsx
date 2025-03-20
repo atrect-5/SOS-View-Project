@@ -227,6 +227,44 @@ export const updateMachineService = async (machineId, machineData) => {
 }
 
 /**
+ * Servicio para actualizar el status una maquina
+ * @param {String} machineId - Id de la maquina a actualizar
+ * @param {String} status - El nuevo status de la maquina 
+ * @returns {Object} - Datos de la maquina actualizada o mensaje de error
+ */
+export const updateMachineStatusService = async (machineId, status) => {
+    try{
+        // Solicitud PUT para actualizar la maquina
+        const response = await axios.put(`${API_URL}${machineEndpoint}status/${machineId}`, status,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': API_ACCESS_TOKEN
+                }
+            }
+        )
+
+        // Verifica si hay un error en la respuesta del servidor
+        if(response.data.error){
+            return {
+                hasError: true,
+                error: response.data.error
+            }
+        }
+        // Si la respuesta es válida, retorna los datos de la maquina
+        if (response.data){     
+            return response.data.data
+        }
+    }catch(error){
+        // Manejo de errores externos
+        return {
+            hasError: true,
+            error: error.message
+        }
+    }
+}
+
+/**
  * Servicio para registrar una maquina a una empresa
  * @param {String} companyId - Id de la empresa a la que se registrará la maquina
  * @param {String} machineId - Id de la maquina a registrar

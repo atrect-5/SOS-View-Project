@@ -1,12 +1,13 @@
 
 import { useState, useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { CircularProgress } from "@mui/material"
+import { CircularProgress, Switch } from "@mui/material"
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { toast } from "react-toastify"
 
 import { useUserContext } from "../../../providers/userContext"
-import { getCompanyByIdService, getMachineByIdService } from "../../../services/services"
+import { getCompanyByIdService, getMachineByIdService, updateMachineStatusService } from "../../../services/services"
 import { Header } from "../../components"
 
 import './machineDetail.scss'
@@ -21,8 +22,37 @@ function MachineDetail () {
     const [hasError, setHasError] = useState(false)
     const [machine, setMachine] = useState([])
     const [company, setCompany] = useState({})
+    const [isUpdateingStatus, setIsUpdateingStatus] = useState(false)
 
     const navigate = useNavigate()
+
+    // Maneja el cambio el el Status de ma maquina
+      const handleStatusChange = async () => {
+        try {
+            setIsUpdateingStatus(true)
+            // Alterna el estado entre 'active' y 'sleeping'
+            const newStatus = machine.status === 'active' ? 'sleeping' : 'active'
+        
+            // Se actualiza el status en la base de datos 
+            const updatedMachine = await updateMachineStatusService(machine._id, {status:newStatus})   
+            
+            if (updatedMachine.error){
+                toast.error(`Hubo un error al cambiar el status: ${updatedMachine.error}`)
+                setIsUpdateingStatus(false)
+                return
+            }
+        
+            // Actualiza el estado localmente
+            setMachine((prevState) => ({
+                ...prevState,
+                status: updatedMachine.status,
+            }))
+            setIsUpdateingStatus(false)
+        } catch (error) {
+            console.error('Error al cambiar el estado de la máquina:', error)
+            toast.error('No se pudo cambiar el estado de la máquina. Inténtalo de nuevo.')
+        }
+      }
 
     useEffect(() => {
         const fetchMachine = async () => {
@@ -71,26 +101,26 @@ function MachineDetail () {
 
     // Función para convertir la fecha al formato requerido por el campo datetime-local
     const formatDateTimeForInput = (datetime) => {
-            try {
-                const date = new Date(datetime)
-                if (isNaN(date.getTime())) {
-                    throw new Error('Invalid date')
-                }
-                // Convierte la fecha a la zona horaria local del usuario
-                const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
-                const zonedDate = new Date(date.toLocaleString('en-US', { timeZone }))
-                // Busca por expresion regular la primer letra y la convierte en mayuscula, dandole un formato parecido a:  Jueves 6 de marzo 2025 a las 10:19 PM
-                return format(zonedDate, "EEEE',' d 'de' MMMM 'del' yyyy 'a las' h:mm a", { locale: es }).replace(/(^\w{1})/g, letter => letter.toUpperCase())
-            } catch (error) {
-                console.error('Error formateando la fecha:', error)
-                return 'Fecha no disponible'
+        try {
+            const date = new Date(datetime)
+            if (isNaN(date.getTime())) {
+                throw new Error('Invalid date')
             }
+            // Convierte la fecha a la zona horaria local del usuario
+            const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
+            const zonedDate = new Date(date.toLocaleString('en-US', { timeZone }))
+            // Busca por expresion regular la primer letra y la convierte en mayuscula, dandole un formato parecido a:  Jueves 6 de marzo 2025 a las 10:19 PM
+            return format(zonedDate, "EEEE',' d 'de' MMMM 'del' yyyy 'a las' h:mm a", { locale: es }).replace(/(^\w{1})/g, letter => letter.toUpperCase())
+        } catch (error) {
+            console.error('Error formateando la fecha:', error)
+            return 'Fecha no disponible'
         }
+    }
 
     return(
         <div className="machine-detail-main-container">
             <Header/>
-            <h1>{company.name}</h1>
+            <h1 className="company-title">Compañia: {company.name}</h1>
             {
                 isReady ? 
                     <>
@@ -99,9 +129,13 @@ function MachineDetail () {
                             {machine.name}
                         </h2>
                         <strong>
-                            {machine.description}
+                        {
+                            machine.description ? machine.description : 'Sin descripcion'
+                        }
                         </strong>
-                        <p>Ubicacion: <span>{machine.location}</span></p>
+                        {
+                            machine.location && <p>Ubicacion: <span>{machine.location}</span></p>
+                        }
                         <p>Status: <span>{machine.status}</span></p>
                         <p>Fecha de instalacion: <span>{formatDateTimeForInput(machine.installationDate)}</span></p>
 
@@ -109,7 +143,7 @@ function MachineDetail () {
                             <details>
                             <summary>Historial de mantenimiento: </summary>
                             {
-                                machine.maintenanceHistory.length === 0 ? <p className="error-message">No hay historial registrado</p> 
+                                machine.maintenanceHistory.length === 0 ? <p className="caution-message">No hay historial registrado</p> 
                                 :
                                 (
                                     machine.maintenanceHistory.map((maintenance, index) => (
@@ -122,6 +156,56 @@ function MachineDetail () {
                             }
                             
                             </details>
+                        </div>
+
+                        <p>
+                            {machine.status === 'active' ? 'Apagar' : 'Encender' } maquina: 
+                        <Switch
+                            onChange={handleStatusChange}
+                            checked={machine.status === 'active'}
+                            sx={{
+                            '& .MuiSwitch-switchBase': {
+                                top: 3,
+                            },
+                            '& .MuiSwitch-switchBase.Mui-checked': {
+                                color: '#00c917',
+                                '& + .MuiSwitch-track': {
+                                backgroundColor: '#048f14d0', 
+                                opacity: 1
+                                },
+                            },
+                            '& .MuiSwitch-track': {
+                                borderRadius: 13, 
+                                backgroundColor: '#404258', 
+                                height: 20, 
+                            }
+                            }}
+                        />
+                        </p>
+                        {
+                            isUpdateingStatus && <CircularProgress/>
+                        }
+                        <div className="last-reading-container">
+                            {
+                                machine.readings.temperatures.length === 0 ? <p className="caution-message">No hay lecturas registradas aun</p>
+                                : <div className="last-reading-info">
+                                <p>Ultima medicion: </p>
+                                {
+                                    machine.lastReading.temperature && 
+                                    (<>
+                                        <p>Temperatura: </p>
+                                        <p>Lectura: {machine.lastReading.temperature.measure} | Fecha: {formatDateTimeForInput(machine.lastReading.temperature.date)}</p>
+                                    </>)
+                                }
+                                {
+                                    machine.lastReading.voltage && 
+                                    (<>
+                                        <p>Voltage: </p>
+                                        <p>Lectura: {machine.lastReading.voltage.measure} | Fecha: {formatDateTimeForInput(machine.lastReading.voltage.date)}</p>
+                                    </>)
+                                }
+                                </div>
+                            }
                         </div>
 
                     </div>
