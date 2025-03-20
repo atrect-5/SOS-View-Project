@@ -5,6 +5,9 @@ En este repositorio se encuentra el front end del proyecto para lectura de tempe
 
 ###### Este proyecto fue creado con React + Vite
 
+> Version de node con la que se realizo el proyecto: v20.17.0  
+> Version npm con la que se realizo el proyecto: 10.8.2
+
 <!--
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
