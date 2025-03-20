@@ -34,6 +34,7 @@ export default function HomePage() {
   const [selectedMachine, setSelectedMachine] = useState(initialState)
   const [isUpdateingStatus, setIsUpdateingStatus] = useState(false)
   const [hasShownWebError, setHasShownWebError] = useState(false)
+  const [hasShownWebConection, setHasShownWebConection] = useState(false)
 
   // Redirige al login si el usuario no esta registrado
   useEffect(() => {
@@ -135,12 +136,17 @@ export default function HomePage() {
     }
   }
 
+  // Realiza la conexion al webSocket
   useEffect(() => {
     const socket = io('http://localhost:3000') // Cambia la URL según tu configuración
 
     // Notifica cuando el socket se conecta
     socket.on('connect', () => {
-      toast.success('Conectado al servidor de datos en tiempo real')
+      if (!hasShownWebConection){
+        toast.success('Conectado al servidor de datos en tiempo real')
+        setHasShownWebConection(true)
+      }
+
       setHasShownWebError(false)
     })
 
@@ -148,6 +154,7 @@ export default function HomePage() {
     socket.on('disconnect', () => {
       toast.warning('Desconectado del servidor de datos en tiempo real')
       setHasShownWebError(false)
+      setHasShownWebConection(false)
     })
 
     // Notifica si ocurre un error al intentar conectarse
@@ -157,6 +164,7 @@ export default function HomePage() {
         toast.error(`Error al conectar con el servidor: ${error.message}`)
         setHasShownWebError(true)
       }
+      setHasShownWebConection(false)
     })
 
     // Maneja los datos recibidos
@@ -169,7 +177,7 @@ export default function HomePage() {
     })
 
     return () => socket.disconnect()
-  }, [machineList, hasShownWebError])
+  }, [machineList, hasShownWebError, hasShownWebConection])
 
   return (
       <>
@@ -239,6 +247,7 @@ export default function HomePage() {
                     <p>
                       {selectedMachine.status === 'active' ? 'Apagar' : 'Encender' } maquina: 
                     <Switch
+                      name="machine-status"
                       onChange={handleStatusChange}
                       checked={selectedMachine.status === 'active'}
                       sx={{

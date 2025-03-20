@@ -5,6 +5,7 @@ import { CircularProgress, Switch } from "@mui/material"
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { toast } from "react-toastify"
+import { io } from "socket.io-client"
 
 import { useUserContext } from "../../../providers/userContext"
 import { getCompanyByIdService, getMachineByIdService, updateMachineStatusService } from "../../../services/services"
@@ -23,6 +24,8 @@ function MachineDetail () {
     const [machine, setMachine] = useState([])
     const [company, setCompany] = useState({})
     const [isUpdateingStatus, setIsUpdateingStatus] = useState(false)
+    const [hasShownWebError, setHasShownWebError] = useState(false)
+    const [hasShownWebConection, setHasShownWebConection] = useState(false)
 
     const navigate = useNavigate()
 
@@ -98,6 +101,56 @@ function MachineDetail () {
         
     }, [globalUser, navigate, isLoading, machineId])
 
+    // Realiza la conexion al webSocket
+    useEffect(() => {
+        const socket = io('http://localhost:3000') // Cambia la URL según tu configuración
+    
+        // Notifica cuando el socket se conecta
+        socket.on('connect', () => {
+            if (!hasShownWebConection) {
+                toast.success('Conectado al servidor de datos en tiempo real')
+                setHasShownWebConection(true)
+            }
+            setHasShownWebError(false)
+        })
+    
+        // Notifica cuando el socket se desconecta
+        socket.on('disconnect', () => {
+            toast.warning('Desconectado del servidor de datos en tiempo real')
+            setHasShownWebError(false)
+            setHasShownWebConection(false)
+        })
+    
+        // Notifica si ocurre un error al intentar conectarse
+        socket.on('connect_error', (error) => {
+            if (!hasShownWebError) {
+                toast.error(`Error al conectar con el servidor: ${error.message}`)
+                setHasShownWebError(true)
+            }
+            setHasShownWebConection(false)
+        })
+    
+        // Maneja los datos recibidos para la máquina actual
+        socket.on('machineData', (data) => {
+            if (data.machineId === machineId) { // Filtra los datos para la máquina actual
+                setMachine((prevState) => ({
+                    ...prevState,
+                    lastReading: data.lastReading,
+                    readings: {
+                        ...prevState.readings,
+                        temperatures: data.temperatures || prevState.readings.temperatures,
+                        voltage: data.voltage || prevState.readings.voltage,
+                    },
+                }))
+            }
+        })
+    
+        // Limpia el socket al desmontar el componente
+        return () => {
+            socket.disconnect()
+        }
+    }, [machineId, hasShownWebError, hasShownWebConection])
+
 
     // Función para convertir la fecha al formato requerido por el campo datetime-local
     const formatDateTimeForInput = (datetime) => {
@@ -161,6 +214,7 @@ function MachineDetail () {
                         <p>
                             {machine.status === 'active' ? 'Apagar' : 'Encender' } maquina: 
                         <Switch
+                            name="machine-status"
                             onChange={handleStatusChange}
                             checked={machine.status === 'active'}
                             sx={{
