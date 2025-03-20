@@ -35,5 +35,59 @@
         padding: 10px;
         border-radius: 10px;
         margin-bottom: 45px;
+        .principal-info-container{
+            width: 100%;
+            padding: 0 2%;
+        }
+        .machine-info{
+            display: flex;
+            justify-content: space-around;
+        }
+        p{
+            font-weight: 700;
+            span{
+                font-weight: 400;
+            }
+            span.sleeping-status{
+                height: fit-content;
+                width:fit-content;
+                padding: 0 8px;
+                background-color: consts.$orange;
+                border-radius: 3px;
+            }
+            span.active-status{
+                height: fit-content;
+                width:fit-content;
+                padding: 0 8px;
+                background-color: consts.$green;
+                border-radius: 3px;
+            }
+        }
+        hr{
+            width: 90%;
+            margin: 0 5%;
+            height: 2px;
+            background: consts.$gray-variant;
+        }
+        .last-reading-container{
+            width: 100%;
+            padding: 0 5%;
+            justify-items: center;
+        }
+        .maintenance-history-container{
+            width: 100%;
+            padding: 0 5%;
+            margin-bottom: 45px;
+            summary{
+                font-weight: 700;
+                text-decoration: underline;
+            }
+            .history-container{
+                padding: 0 2%;
+            }
+        }
+        .subtitle{
+            color: consts.$gray;
+        }
     }
 }

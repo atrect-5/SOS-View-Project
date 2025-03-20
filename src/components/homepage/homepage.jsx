@@ -129,7 +129,7 @@ export default function HomePage() {
         const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
         const zonedDate = new Date(date.toLocaleString('en-US', { timeZone }))
         // Busca por expresion regular la primer letra y la convierte en mayuscula, dandole un formato parecido a:  Jueves 6 de marzo 2025 a las 10:19 PM
-        return format(zonedDate, "EEEE',' d 'de' MMMM 'del' yyyy 'a las' h:mm:ss a", { locale: es }).replace(/(^\w{1})/g, letter => letter.toUpperCase())
+        return format(zonedDate, "EEEE',' d 'de' MMMM 'del' yyyy 'a las' h:mm a", { locale: es }).replace(/(^\w{1})/g, letter => letter.toUpperCase())
     } catch (error) {
         console.error('Error formateando la fecha:', error)
         return 'Fecha no disponible'
@@ -180,150 +180,167 @@ export default function HomePage() {
   }, [machineList, hasShownWebError, hasShownWebConection])
 
   return (
-      <>
-      <div className="homepage-container">
-        <div className="header-fixed">
-          <Header />
+    <>
+    <div className="homepage-container">
+      <div className="header-fixed">
+        <Header />
+      </div>
+      <div className="body-home-page-container">
+        
+        <div className="select-machine-container">
+          <p className="info-message">Selecciona la maquina para visualizar</p>
+          <select
+              name="index"
+              disabled={machineList.length === 0}
+              value={selectedMachine.index || 0}
+              onChange={handleChange}
+              >
+                  {
+                    machineList.length === 0 
+                      ? <option value={0} disabled>No hay maquinas registradas</option> 
+                      :
+                      machineList.map((machine, index) => (
+                          <option key={index} value={index}>
+                          {`${machine.name} | ${machine.location ? machine.location : 'Sin locación'}`}
+                          </option>
+                      ))
+                  }
+          </select>
         </div>
-        <div className="body-home-page-container">
-          
-          <div className="select-machine-container">
-            <p className="info-message">Selecciona la maquina para visualizar</p>
-            <select
-                name="index"
-                disabled={machineList.length === 0}
-                value={selectedMachine.index || 0}
-                onChange={handleChange}
-                >
-                    {
-                      machineList.length === 0 
-                        ? <option value={0} disabled>No hay maquinas registradas</option> 
-                        :
-                        machineList.map((machine, index) => (
-                            <option key={index} value={index}>
-                            {`${machine.name} | ${machine.location ? machine.location : 'Sin locación'}`}
-                            </option>
-                        ))
-                    }
-            </select>
-          </div>
-          
-          {loadingMachines ? <CircularProgress/> :
-            machineList.length === 0 ? <p className="error-message">No hay maquinas registradas</p>
-              : !selectedMachine.installationDate ? <CircularProgress/> 
-                : <div className="machine-card">
+        
+        {loadingMachines ? <CircularProgress/> :
+          machineList.length === 0 ? <p className="error-message">No hay maquinas registradas</p>
+            : !selectedMachine.installationDate ? <CircularProgress/> 
+              : <div className="machine-card">
+                  <div className="principal-info-container">
                     <h2>
                         Nombre: {selectedMachine.name}
                     </h2>
                     <strong>
-                    {
+                      {
                         selectedMachine.description ? selectedMachine.description : 'Sin descripcion'
-                    }
-                    </strong>
+                      }
+                    </strong><br />
                     {
-                        selectedMachine.location && <p>Ubicacion: <span>{selectedMachine.location}</span></p>
+                      selectedMachine.location && <p>Ubicacion: <span>{selectedMachine.location}</span></p>
                     }
-                    <p>Status: <span>{selectedMachine.status}</span></p>
-                    <p>Fecha de instalacion: <span>{formatDateTimeForInput(selectedMachine.installationDate)}</span></p>
+                  </div>
 
-                    <div className="maintenance-history-container">
-                        <details>
-                        <summary>Historial de mantenimiento: </summary>
+                  <br /><hr /><br />
+                  <div className="last-reading-container">
+                    {
+                      selectedMachine.readings.temperatures.length === 0 ? <p className="caution-message">No hay lecturas registradas aun</p>
+                      : <div className="last-reading-info">
+                        <p>Ultima medicion: </p>
+                        {
+                          selectedMachine.lastReading.temperature && 
+                            (<>
+                              <p>Temperatura: </p>
+                              <p>Lectura: {selectedMachine.lastReading.temperature.measure} | Fecha: {formatDateTimeForInput(selectedMachine.lastReading.temperature.date)}</p>
+                            </>)
+                        }
+                        {
+                          selectedMachine.lastReading.voltage && 
+                            (<>
+                              <p>Voltage: </p>
+                              <p>Lectura: {selectedMachine.lastReading.voltage.measure} | Fecha: {formatDateTimeForInput(selectedMachine.lastReading.voltage.date)}</p>
+                            </>)
+                        }
+                      </div>
+                    }
+                  </div>
+                  <br />
+                  <div className="machine-info">
+
+                    <div className="machine-info-status">
+                      <p>Status: <span className={selectedMachine.status === 'active' ? 'active-status' : 'sleeping-status'}>{selectedMachine.status}</span></p>
+                      <p>
+                        {selectedMachine.status === 'active' ? 'Apagar' : 'Encender' } maquina: 
+                        <Switch
+                          onChange={handleStatusChange}
+                          checked={selectedMachine.status === 'active'}
+                          sx={{
+                            '& .MuiSwitch-switchBase': {
+                              top: 3,
+                            },
+                            '& .MuiSwitch-switchBase.Mui-checked': {
+                              color: '#00c917',
+                              '& + .MuiSwitch-track': {
+                                backgroundColor: '#048f14d0', 
+                                opacity: 1
+                              },
+                            },
+                            '& .MuiSwitch-track': {
+                              borderRadius: 13, 
+                              backgroundColor: '#404258', 
+                              height: 20, 
+                            }
+                          }}
+                        />
+                      </p>
+                      {
+                        isUpdateingStatus && <CircularProgress/>
+                      }
+                    </div>
+
+                    <div className="machine-info-instalationdate">
+                      <p className="subtitle">Fecha de instalacion </p><span>{formatDateTimeForInput(selectedMachine.installationDate)}</span>
+                    </div>
+
+                  </div>
+
+                  <br /><hr /><br />
+
+                  <div className="maintenance-history-container">
+                      <details>
+                        <summary >Historial de mantenimiento: </summary>
                         {
                             selectedMachine.maintenanceHistory.length === 0 ? <p className="caution-message">No hay historial registrado</p> 
                             :
                             (
                                 selectedMachine.maintenanceHistory.map((maintenance, index) => (
-                                    <div key={index}>
+                                    <div key={index} className="history-container">
+                                        <br />
                                         <p>Descripcion: <span>{maintenance.description}</span></p>
                                         <p>Fecha: <span>{formatDateTimeForInput(maintenance.date)}</span></p>
                                     </div>
                                 ))
                             )
                         }
-                        
-                        </details>
-                    </div>
-                    <p>
-                      {selectedMachine.status === 'active' ? 'Apagar' : 'Encender' } maquina: 
-                    <Switch
-                      name="machine-status"
-                      onChange={handleStatusChange}
-                      checked={selectedMachine.status === 'active'}
-                      sx={{
-                        '& .MuiSwitch-switchBase': {
-                          top: 3,
-                        },
-                        '& .MuiSwitch-switchBase.Mui-checked': {
-                          color: '#00c917',
-                          '& + .MuiSwitch-track': {
-                            backgroundColor: '#048f14d0', 
-                            opacity: 1
-                          },
-                        },
-                        '& .MuiSwitch-track': {
-                          borderRadius: 13, 
-                          backgroundColor: '#404258', 
-                          height: 20, 
-                        }
-                      }}
-                    />
-                    </p>
-                    {
-                      isUpdateingStatus && <CircularProgress/>
-                    }
-                    <div className="last-reading-container">
-                      {
-                        selectedMachine.readings.temperatures.length === 0 ? <p className="caution-message">No hay lecturas registradas aun</p>
-                        : <div className="last-reading-info">
-                          <p>Ultima medicion: </p>
-                          {
-                            selectedMachine.lastReading.temperature && 
-                              (<>
-                                <p>Temperatura: </p>
-                                <p>Lectura: {selectedMachine.lastReading.temperature.measure} | Fecha: {formatDateTimeForInput(selectedMachine.lastReading.temperature.date)}</p>
-                              </>)
-                          }
-                          {
-                            selectedMachine.lastReading.voltage && 
-                              (<>
-                                <p>Voltage: </p>
-                                <p>Lectura: {selectedMachine.lastReading.voltage.measure} | Fecha: {formatDateTimeForInput(selectedMachine.lastReading.voltage.date)}</p>
-                              </>)
-                          }
-                        </div>
-                      }
-                    </div>
-                  </div>
-          }
-          
                       
-        </div>
+                      </details>
+                  </div>
+                  
+                </div>
+        }
         
-        <br />
-        <br />
-        <hr />
-        <br />
-        <div className="explore-buttons-container">
-          <Link to={`/machine/list/${globalUser.workingAt}`}>
-            <button>Ver maquinas registradas</button>
-          </Link>
-          {
-            (globalUser.userType === 'admin' || globalUser.userType === 'company-owner') &&
-            <Link to={`/user/list/${globalUser.workingAt}`}>
-              <button>Ver usuarios registrados</button>
-            </Link>
-          }
-          {
-            globalUser.userType === 'admin' &&
-            <Link to={`/company/list`}>
-              <button>Ver compañias registradas</button>
-            </Link>
-          }
-        </div>
-
+                    
       </div>
       
-      </>
+      <br />
+      <br />
+      <hr />
+      <br />
+      <div className="explore-buttons-container">
+        <Link to={`/machine/list/${globalUser.workingAt}`}>
+          <button>Ver maquinas registradas</button>
+        </Link>
+        {
+          (globalUser.userType === 'admin' || globalUser.userType === 'company-owner') &&
+          <Link to={`/user/list/${globalUser.workingAt}`}>
+            <button>Ver usuarios registrados</button>
+          </Link>
+        }
+        {
+          globalUser.userType === 'admin' &&
+          <Link to={`/company/list`}>
+            <button>Ver compañias registradas</button>
+          </Link>
+        }
+      </div>
+
+    </div>
+    
+    </>
   )
 }

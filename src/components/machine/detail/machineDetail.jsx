@@ -178,67 +178,20 @@ function MachineDetail () {
                 isReady ? 
                     <>
                     <div className="machine-card" key={machine._id}>
-                        <h2>
-                            {machine.name}
-                        </h2>
-                        <strong>
-                        {
-                            machine.description ? machine.description : 'Sin descripcion'
-                        }
-                        </strong>
-                        {
-                            machine.location && <p>Ubicacion: <span>{machine.location}</span></p>
-                        }
-                        <p>Status: <span>{machine.status}</span></p>
-                        <p>Fecha de instalacion: <span>{formatDateTimeForInput(machine.installationDate)}</span></p>
-
-                        <div className="maintenance-history-container">
-                            <details>
-                            <summary>Historial de mantenimiento: </summary>
+                        <div className="principal-info-container">
+                            <h2>
+                                {machine.name}
+                            </h2>
+                            <strong>
                             {
-                                machine.maintenanceHistory.length === 0 ? <p className="caution-message">No hay historial registrado</p> 
-                                :
-                                (
-                                    machine.maintenanceHistory.map((maintenance, index) => (
-                                        <div key={index}>
-                                            <p>Descripcion: <span>{maintenance.description}</span></p>
-                                            <p>Fecha: <span>{formatDateTimeForInput(maintenance.date)}</span></p>
-                                        </div>
-                                    ))
-                                )
+                                machine.description ? machine.description : 'Sin descripcion'
                             }
-                            
-                            </details>
+                            </strong><br />
+                            {
+                                machine.location && <p>Ubicacion: <span>{machine.location}</span></p>
+                            }
                         </div>
-
-                        <p>
-                            {machine.status === 'active' ? 'Apagar' : 'Encender' } maquina: 
-                        <Switch
-                            name="machine-status"
-                            onChange={handleStatusChange}
-                            checked={machine.status === 'active'}
-                            sx={{
-                            '& .MuiSwitch-switchBase': {
-                                top: 3,
-                            },
-                            '& .MuiSwitch-switchBase.Mui-checked': {
-                                color: '#00c917',
-                                '& + .MuiSwitch-track': {
-                                backgroundColor: '#048f14d0', 
-                                opacity: 1
-                                },
-                            },
-                            '& .MuiSwitch-track': {
-                                borderRadius: 13, 
-                                backgroundColor: '#404258', 
-                                height: 20, 
-                            }
-                            }}
-                        />
-                        </p>
-                        {
-                            isUpdateingStatus && <CircularProgress/>
-                        }
+                        <br /><hr /><br />
                         <div className="last-reading-container">
                             {
                                 machine.readings.temperatures.length === 0 ? <p className="caution-message">No hay lecturas registradas aun</p>
@@ -261,7 +214,65 @@ function MachineDetail () {
                                 </div>
                             }
                         </div>
+                        <br />
+                        <div className="machine-info">
 
+
+                            <div className="machine-info-status">
+                                <p>Status: <span className={machine.status === 'active' ? 'active-status' : 'sleeping-status'}>{machine.status}</span></p>
+
+                                <p>
+                                    {machine.status === 'active' ? 'Apagar' : 'Encender' } maquina: 
+                                <Switch
+                                    onChange={handleStatusChange}
+                                    checked={machine.status === 'active'}
+                                    sx={{
+                                    '& .MuiSwitch-switchBase': {
+                                        top: 3,
+                                    },
+                                    '& .MuiSwitch-switchBase.Mui-checked': {
+                                        color: '#00c917',
+                                        '& + .MuiSwitch-track': {
+                                        backgroundColor: '#048f14d0', 
+                                        opacity: 1
+                                        },
+                                    },
+                                    '& .MuiSwitch-track': {
+                                        borderRadius: 13, 
+                                        backgroundColor: '#404258', 
+                                        height: 20, 
+                                    }
+                                    }}
+                                />
+                                </p>
+                                {
+                                    isUpdateingStatus && <CircularProgress/>
+                                }
+                            </div>
+                            <div className="machine-info-instalationdate">
+                                <p className="subtitle">Fecha de instalacion </p><span>{formatDateTimeForInput(machine.installationDate)}</span>
+                            </div>
+                        </div>
+                        <br /><hr /><br />
+                        <div className="maintenance-history-container">
+                            <details>
+                            <summary>Historial de mantenimiento: </summary>
+                            {
+                                machine.maintenanceHistory.length === 0 ? <p className="caution-message">No hay historial registrado</p> 
+                                :
+                                (
+                                    machine.maintenanceHistory.map((maintenance, index) => (
+                                        <div key={index} className="history-container">
+                                            <br />
+                                            <p>Descripcion: <span>{maintenance.description}</span></p>
+                                            <p>Fecha: <span>{formatDateTimeForInput(maintenance.date)}</span></p>
+                                        </div>
+                                    ))
+                                )
+                            }
+                            
+                            </details>
+                        </div>
                     </div>
                     
                     </>
