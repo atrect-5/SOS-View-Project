@@ -175,7 +175,7 @@ export const deleteCompanyService = async (companyId) => {
                 error: response.data.error
             }
         }
-        // Si la respuesta es válida, retorna los datos de la maquina
+        // Si la respuesta es válida, retorna los datos de la compañia
         if (response.data){
             return response.data.data
         }
