@@ -16,6 +16,13 @@
         margin-bottom: 45px;
         .form-card{
             width: 60%;
+            .delete-company-button{
+                color: consts.$red;
+                border: 2px solid consts.$gray;
+                &:hover{
+                    border: 2px solid consts.$red;
+                }
+            }
         }
     }
 }

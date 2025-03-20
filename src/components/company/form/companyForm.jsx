@@ -5,7 +5,7 @@ import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { CircularProgress, TextField } from '@mui/material'
 
 import { useUserContext } from '../../../providers/userContext'
-import { createCompanyService, updateCompanyService, getCompanyByIdService } from '../../../services/services'
+import { createCompanyService, updateCompanyService, getCompanyByIdService, deleteCompanyService } from '../../../services/services'
 import { Header } from '../../components'
 
 import './companyForm.scss'
@@ -62,7 +62,11 @@ function CompanyRegister() {
 
         const setCompanyWithId = async () => {
             const companyData = await getCompanyByIdService(companyId)
-            setCompany(companyData)
+            if (companyData.hasError){
+                toast.error(`Hubo un error: ${companyData.error}`)
+            }else{
+                setCompany(companyData)
+            }
         }
         const setCompanyEmpty = () => {
             setCompany({
@@ -152,7 +156,33 @@ function CompanyRegister() {
         }
         
 
-      }
+    }
+
+    // Maneja la eliminacion de una commpañia
+    const handleDelete = async () => {
+        // Si se da clic en eliminar, se pregunta si se esta seguro
+        if (!window.confirm(`Esta seguro de eliminar la compañia ${company.name}? (Esto eliminara los usuarios y maquinas registrados en esta compañia)`))
+        {
+            return
+        }
+
+        try {
+            // Se llama al servicio que se encarga de eliinar peliculas
+            const result = await deleteCompanyService(company._id)
+
+            if (!result.hasError){
+                toast.success(`Se ha eliminado la Compañia ${company.name}`)  
+                navigate(`/company/list`)     
+            }else{
+                // Si el servidor respondio con algun error
+                toast.error(`Hubo un error al eliminar Compañia -> ${result.error}`)
+            }
+    
+        }catch(error){
+            toast.error(`Error del servidor`)
+            console.log(error)            
+        }
+    }
 
     return (
         <>
@@ -251,6 +281,10 @@ function CompanyRegister() {
                         <Link to={'/company/list'}>
                             <button>Ver compañias registradas</button>
                         </Link>
+                    }
+                    {
+                        (globalUser.userType === 'admin' && location.pathname !== '/company/create' && location.pathname !== '/company/edit') &&
+                            <button className='delete-company-button' onClick={handleDelete}>Eliminar Compañia</button>
                     }
                     <br />
                     <Link onClick={handleBack}>Volver</Link>
