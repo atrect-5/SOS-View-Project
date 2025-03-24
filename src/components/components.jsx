@@ -1,6 +1,7 @@
 
 import UserLogin from "./login/login"
 import HomePage from "./homepage/homepage"
+import PasswordChangeForm from "./user/form/passwordChangeForm"
 
 import UserRegister from "./user/form/userForm"
 import CompanyRegister from "./company/form/companyForm"
@@ -25,6 +26,8 @@ export {
     UserRegister,
     UserList, 
     UserDetail,
+    
+    PasswordChangeForm,
     
     CompanyRegister,
     CompanyList, 
