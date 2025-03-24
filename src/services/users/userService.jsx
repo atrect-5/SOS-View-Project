@@ -194,3 +194,41 @@ export const updateUserService = async (userId, userData) => {
         }
     }
 }
+
+/**
+ * Servicio para actualizar la contraseña de un usuario
+ * @param {string} userId - ID del usuario a actualizar
+ * @param {Object} userData - Objeto que contiene los datos actualizados del usuario
+ * @returns {Object} - Datos del usuario actualizado o mensaje de error
+ */
+export const updateUserPasswordService = async (userId, userData) => {
+    try{
+        // Solicitud PUT para actualizar un usuario existente
+        const response = await axios.put(`${API_URL}${userEndpoint}password/${userId}`, userData,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': API_ACCESS_TOKEN
+                }
+            }
+        )
+        
+        // Verifica si hay un error en la respuesta del servidor
+        if(response.data.error){
+            return {
+                hasError: true,
+                error: response.data.error
+            }
+        }
+        // Si la respuesta es válida, retorna los datos del usuario
+        if (response.data){
+            return response.data.data
+        }
+    }catch(error){
+        // Manejo de errores externos
+        return {
+            hasError: true,
+            error: error.message
+        }
+    }
+}

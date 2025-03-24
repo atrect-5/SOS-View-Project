@@ -224,6 +224,7 @@ function MachineDetail () {
                                 <p>
                                     {machine.status === 'active' ? 'Apagar' : 'Encender' } maquina: 
                                 <Switch
+                                    name="Switch-status"
                                     onChange={handleStatusChange}
                                     checked={machine.status === 'active'}
                                     sx={{

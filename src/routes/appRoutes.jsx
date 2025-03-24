@@ -11,7 +11,8 @@ import { UserLogin,
     UserDetail, 
     CompanyDetail, 
     MachineDetail, 
-    MaintenanceForm } from "../components/components"
+    MaintenanceForm, 
+    PasswordChangeForm} from "../components/components"
 
 
 // Declaramos las rutas de la app
@@ -22,6 +23,7 @@ const RoutesOfApp = () => (
 
         <Route exact path="/user/create" element={<UserRegister/>}/>
         <Route exact path="/user/edit" element={<UserRegister/>}/>
+        <Route exact path="/user/edit/password" element={<PasswordChangeForm/>}/>
         <Route exact path="/user/list/:companyId" element={<UserList/>}/>
         <Route exact path="/user/detail/:userId" element={<UserDetail/>}/>
 

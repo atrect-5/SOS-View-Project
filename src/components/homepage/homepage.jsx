@@ -257,6 +257,7 @@ export default function HomePage() {
                       <p>
                         {selectedMachine.status === 'active' ? 'Apagar' : 'Encender' } maquina: 
                         <Switch
+                            name="Switch-status"
                           onChange={handleStatusChange}
                           checked={selectedMachine.status === 'active'}
                           sx={{

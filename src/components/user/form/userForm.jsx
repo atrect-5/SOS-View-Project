@@ -85,7 +85,7 @@ function UserRegister() {
         setError('')
 
         // Validación de campos vacíos
-        if (!user.name || !user.lastName || !user.workingAt || !user.email || (location.pathname === '/user/create' && !user.password)){
+        if (!user.name || !user.lastName || !user.workingAt || !user.email || (location.pathname === '/user/create' && !user.password.trim())){
             setHasError(true)
             setError('Faltan datos')
             toast.error('Faltan datos')
@@ -97,6 +97,14 @@ function UserRegister() {
             setHasError(true)
             setError('Contraseña y confirmar contraseña deben ser iguales')
             toast.error('Contraseña y confirmar contraseña deben ser iguales')
+            return
+        }
+
+        // Validación de longitud de contraseña
+        if (location.pathname === '/user/create' && user.password.length < 8){
+            setHasError(true)
+            setError('La contraseña debe tener al menos 8 caracteres')
+            toast.error('La contraseña debe tener al menos 8 caracteres')
             return
         }
         
@@ -276,6 +284,14 @@ function UserRegister() {
                 (<>
                 <Link to={`/user/list/${globalUser.workingAt}`}>
                     <button>Ver usuarios registradas</button>
+                </Link>
+                </>)
+            }
+            {
+                location.pathname === '/user/edit' &&
+                (<>
+                <Link to={`/user/edit/password`}>
+                    <button>Cambiar Contraseña</button>
                 </Link>
                 </>)
             }

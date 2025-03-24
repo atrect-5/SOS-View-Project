@@ -5,7 +5,8 @@ import {
     createUserService, 
     updateUserService, 
     getUsersByCompanyService, 
-    getUserByIdService 
+    getUserByIdService ,
+    updateUserPasswordService
 } from "./users/userService"
 
 import { createCompanyService, 
@@ -32,6 +33,7 @@ export {
     updateUserService,
     getUsersByCompanyService,
     getUserByIdService,
+    updateUserPasswordService,
     
     createCompanyService,
     getCompaniesService,
