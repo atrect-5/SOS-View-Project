@@ -73,7 +73,7 @@ function MachineList() {
     // Ajustamos dinamicamente el margin top del contenido para que el header no cubre el contenido
     useEffect(() => {
         const header = document.querySelector('.header-fixed')
-        const content = document.querySelector('.title-container')
+        const content = document.querySelector('.top')
         const adjustPadding = () => {
           content.style.paddingTop = `${header.offsetHeight}px`
         }
@@ -88,14 +88,17 @@ function MachineList() {
             <div className="header-fixed">
                 <Header />
             </div>
-            <h1 className="title-container">
-                {location.pathname === '/machine/list/unregistered' 
-                            ? 'Maquinas sin registrar'
-                            : <>
-                                Maquinas registradas en: {isReady ? company.name : hasError  ? 'Hubo un error' : <CircularProgress/>} 
-                              </> 
-                }
-            </h1>
+            <div className="top"></div>
+            <div className="form-card">
+                <h1 className="title-container">
+                    {location.pathname === '/machine/list/unregistered' 
+                                ? 'Maquinas sin registrar'
+                                : <>
+                                    Maquinas registradas en: {isReady ? company.name : hasError  ? 'Hubo un error' : <CircularProgress/>} 
+                                </> 
+                    }
+                </h1>
+            </div>
 
             {
                 isReady ? 
@@ -147,22 +150,31 @@ function ListComponent({machines}) {
                     <h2>
                         {machine.name}
                     </h2>
-                    {
-                        location.pathname === '/machine/list/unregistered' ?
-                        <>
-                            <p>Id para registro: <span>{machine._id}</span></p>
-                        </>
-                        :
-                        <>
-                        <strong>
+                    <strong>
                             {machine.description ? machine.description : 'Sin descripción'}
-                        </strong>
-                        <p>Ubicacion: <span>{machine.location ? machine.location : 'Sin locación'}</span></p>
+                    </strong>
+                    {
+                        location.pathname !== '/machine/list/unregistered' &&
+                        <>
+                            <p>Ubicacion: <span>{machine.location ? machine.location : 'Sin locación'}</span></p>
                         </>
                     }
                     
-                    <p>Status: <span>{machine.status}</span></p>
-                    <p>Fecha de instalacion: <span>{formatDateTimeForInput(machine.installationDate)}</span></p>
+                    <p>Status: <span className={machine.status === 'active' ? 'active-status' : 'sleeping-status'}>{machine.status}</span></p>
+                    <br />
+                    <div className="container-date-id">
+                        <div className="date-container">
+                            <p className="contacto">Fecha de instalacion</p>
+                            <span>{formatDateTimeForInput(machine.installationDate)}</span>
+                        </div>
+                        {
+                            location.pathname === '/machine/list/unregistered' &&
+                            <div className="id-container">
+                                <p className="contacto">Id para registro</p>
+                                <span>{machine._id}</span>
+                            </div>
+                        }
+                    </div>
 
                     <br />
                         <hr />

@@ -15,6 +15,10 @@
     box-sizing: border-box;
     overflow-x: hidden;
     word-break: break-word;
+    .form-card{
+        margin-top: 25px;
+        padding: 15px 100px;
+    }
     .machine-list-container{
         width: 95%;
         padding-top: 20px;
@@ -63,6 +67,20 @@
                         text-decoration: underline;
                     }
                 }
+                span.sleeping-status{
+                    height: fit-content;
+                    width:fit-content;
+                    padding: 0 8px;
+                    background-color: consts.$orange;
+                    border-radius: 3px;
+                }
+                span.active-status{
+                    height: fit-content;
+                    width:fit-content;
+                    padding: 0 8px;
+                    background-color: consts.$green;
+                    border-radius: 3px;
+                }
             }
             
             hr{
@@ -81,6 +99,16 @@
                     }
                 }
             }
+            .container-date-id{
+                display: flex;
+                justify-content: space-between;
+                .id-container{
+                    width: 50%;
+                    text-align: end;
+                    border-left: 1px solid consts.$gray-variant2;
+                }
+            }
+            
         }
 
         

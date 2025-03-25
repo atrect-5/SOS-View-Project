@@ -51,7 +51,7 @@ function UserList() {
     // Ajustamos dinamicamente el margin top del contenido para que el header no cubre el contenido
     useEffect(() => {
         const header = document.querySelector('.header-fixed')
-        const content = document.querySelector('.title-container')
+        const content = document.querySelector('.top')
         const adjustPadding = () => {
           content.style.paddingTop = `${header.offsetHeight}px`
         }
@@ -66,7 +66,10 @@ function UserList() {
         <div className="header-fixed">
             <Header/>
         </div>
-        <h1 className="title-container">Usuarios registrados en: {isReady ? company.name : hasError  ? 'Hubo un error' : <CircularProgress/>}</h1>
+        <div className="top"></div>
+        <div className="form-card">
+            <h1 className="title-container">Usuarios registrados en: {isReady ? company.name : hasError  ? 'Hubo un error' : <CircularProgress/>}</h1>
+        </div>
             {
                 isReady ? 
                     <ListComponent
@@ -104,7 +107,10 @@ function ListComponent({users}) {
                     <p>Correo: <span><a target="_blank" href={`https://mail.google.com/mail/?view=cm&fs=1&to=${user.email}`}>{user.email}</a></span></p>
                     {
                         globalUser.userType === 'admin' && 
-                        <p>Tipo de usuario: <span>{user.userType}</span></p>
+                        <>
+                            <p className="contacto">Tipo de usuario</p>
+                            <span>{user.userType}</span>
+                        </>
                     }
                 </div>
                 )
