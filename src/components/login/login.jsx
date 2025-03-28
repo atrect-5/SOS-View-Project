@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { toast } from 'react-toastify'
 import { Link, useNavigate } from 'react-router-dom'
-import { TextField } from '@mui/material'
+import { InputAdornment, TextField } from '@mui/material'
 
 import { useUserToggleContext, useUserContext } from '../../providers/userContext'
 import { getUserLoginService } from '../../services/services'
@@ -21,6 +21,13 @@ function UserLogin() {
     const [hasError, setHasError] = useState(false)
     const [isReady, setIsReady] = useState(false)
     const [error, setError] = useState('')
+
+    const [showPassword, setShowPassword] = useState(false)
+
+    // Maneja la visibilidad de la conntraseña
+    const togglePasswordVisibility = () => {
+        setShowPassword((prev) => !prev);
+    }
 
     // Redirige a la página principal si el usuario ya está registrado
     useEffect(() => {
@@ -67,7 +74,7 @@ function UserLogin() {
     return (
         <>
         <div className="login-container">
-            <img src="../../../public/servicios-soluciones-logo.png" alt="logo" />
+            <img className='img-background' src="/servicios-soluciones-logo.png" alt="logo" />
 
             <div className='form-card'>
                 <h1>Login</h1>
@@ -83,12 +90,33 @@ function UserLogin() {
                 <br />
                 <TextField
                     className='text-field'
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     name='password'
                     label='Password'
                     value={password}
                     size="small"
                     onChange={(e) => setPassword(e.target.value)}
+                    slotProps={{
+                        input: {
+                            endAdornment: (
+                                <InputAdornment position="end" onClick={togglePasswordVisibility}>
+                                    {showPassword ? (
+                                            <img 
+                                                src="/dont_show_icon.png" 
+                                                alt="Ocultar contraseña" 
+                                                style={{ border: '20px', height: '20px' }}
+                                            />
+                                        ) : (
+                                            <img 
+                                                src="/show_icon.png" 
+                                                alt="Mostrar contraseña" 
+                                                style={{ width: '20px', height: '20px' }}
+                                            />
+                                        )}
+                                </InputAdornment>
+                            ),
+                        },
+                    }}
                     />
                 {
                     hasError ? 

@@ -232,3 +232,40 @@ export const updateUserPasswordService = async (userId, userData) => {
         }
     }
 }
+
+/**
+ * Servicio para eliminar un usuario
+ * @param {string} userId - ID del usuario a eliminar
+ * @returns {Object} - Id del usuario eliminado o mensaje de error
+ */
+export const deleteUserService = async (userId) => {
+    try{
+        // Solicitud DELETE para eliminar un usuario existente
+        const response = await axios.delete(`${API_URL}${userEndpoint}${userId}`,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': API_ACCESS_TOKEN
+                }
+            }
+        )
+        
+        // Verifica si hay un error en la respuesta del servidor
+        if(response.data.error){
+            return {
+                hasError: true,
+                error: response.data.error
+            }
+        }
+        // Si la respuesta es válida, retorna los datos del usuario
+        if (response.data){
+            return response.data.data
+        }
+    }catch(error){
+        // Manejo de errores externos
+        return {
+            hasError: true,
+            error: error.message
+        }
+    }
+}

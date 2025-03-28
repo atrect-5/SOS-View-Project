@@ -3,10 +3,11 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CircularProgress } from "@mui/material";
 import PropTypes from "prop-types";
+import { toast } from "react-toastify";
 
 import { Header } from "../../components";
 import { useUserContext } from "../../../providers/userContext";
-import { getCompaniesService } from "../../../services/services";
+import { getCompaniesService, deleteCompanyService } from "../../../services/services";
 
 import './companyList.scss'
 
@@ -71,6 +72,7 @@ function CompanyList() {
             isReady ? 
                 <ListComponent
                     companies={companies}
+                    setCompanies={setCompanies}
                 />
                 :
                 hasError ?
@@ -89,8 +91,25 @@ function CompanyList() {
     )
 }
 
-function ListComponent({companies}) {
+function ListComponent({companies, setCompanies}) {
     const navigate = useNavigate()
+    const { user: globalUser} = useUserContext()
+    
+    // Maneja la eliminacion de una compañia
+    const handleDeleteCompany = (company) => {
+        if (window.confirm(`Esta seguro de eliminar la compañia ${company.name}? (Esto eliminara los usuarios y maquinas registrados en esta compañia)`)) {
+            deleteCompanyService(company._id)
+                .then(() => {
+                    // Actualizar el estado eliminando la compañia de la lista
+                    setCompanies((prevcompanys) => prevcompanys.filter((c) => c._id !== company._id))
+                    toast.success(`Compañia ${company.name} eliminada`)
+                })
+                .catch((error) => {
+                    console.error('Error al eliminar la copañia:', error)
+                    toast.error('Error al eliminar la copañia:', error)
+                })
+        }
+    }
     return (
         <div className={companies.length <= 1 ? 'company-list-container single-item' : 'company-list-container'}>
             {
@@ -124,6 +143,12 @@ function ListComponent({companies}) {
                         <button onClick={() => navigate(`/user/list/${company._id}`)}>Ver usuarios</button>
                         <button onClick={() => navigate(`/machine/list/${company._id}`)}>Ver maquinas</button>
                         <button onClick={() => navigate(`/company/edit/${company._id}`)}>Editar informacion</button>
+                        {
+                            (globalUser.userType === 'admin' ) && 
+                            <div className="button-container">
+                                <img onClick={() => handleDeleteCompany(company)} src="../../../../trash_icon.png" alt="delete"/>
+                            </div>
+                        }
                     </div>
                 </div>
                 )
@@ -132,7 +157,8 @@ function ListComponent({companies}) {
     )
 }
 ListComponent.propTypes = {
-    companies: PropTypes.array.isRequired
+    companies: PropTypes.array.isRequired,
+    setCompanies: PropTypes.array.isRequired
 }
 
 

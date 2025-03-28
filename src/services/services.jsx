@@ -6,7 +6,8 @@ import {
     updateUserService, 
     getUsersByCompanyService, 
     getUserByIdService ,
-    updateUserPasswordService
+    updateUserPasswordService,
+    deleteUserService
 } from "./users/userService"
 
 import { createCompanyService, 
@@ -23,7 +24,8 @@ import { createMachineService,
     getMachinesByCompanyService, 
     getMachineWhithoutCompanyService,
     saveMaintenanceService, 
-    updateMachineStatusService
+    updateMachineStatusService,
+    deleteMachineService
 } from "./machines/machineService"
 
 
@@ -34,6 +36,7 @@ export {
     getUsersByCompanyService,
     getUserByIdService,
     updateUserPasswordService,
+    deleteUserService,
     
     createCompanyService,
     getCompaniesService,
@@ -49,4 +52,5 @@ export {
     getMachineWhithoutCompanyService,
     saveMaintenanceService,
     updateMachineStatusService,
+    deleteMachineService
 }

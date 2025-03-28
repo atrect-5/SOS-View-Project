@@ -5,10 +5,11 @@ import { CircularProgress } from "@mui/material"
 import PropTypes from "prop-types"
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { toast } from "react-toastify"
 
 import { Header } from "../../components"
 import { useUserContext } from "../../../providers/userContext"
-import { getMachinesByCompanyService, getCompanyByIdService, getMachineWhithoutCompanyService } from "../../../services/services"
+import { getMachinesByCompanyService, getCompanyByIdService, getMachineWhithoutCompanyService, deleteMachineService } from "../../../services/services"
 
 import './machineList.scss'
 
@@ -104,6 +105,7 @@ function MachineList() {
                 isReady ? 
                     <ListComponent
                         machines={machines}
+                        setMachines={setMachines}
                     />
                     :
                     hasError ?
@@ -122,8 +124,26 @@ function MachineList() {
     )
 }
 
-function ListComponent({machines}) {
+function ListComponent({machines, setMachines}) {
     const navigate = useNavigate()
+    const { user: globalUser} = useUserContext()
+
+    // Maneja la eliminacion de una maquina
+    const handleDeleteMachine = (machine) => {
+        if (window.confirm(`¿Estás seguro de que deseas eliminar a ${machine.name} | ${machine.location ? machine.location : 'Sin ubicacion'}?`)) {
+            deleteMachineService(machine._id)
+                .then(() => {
+                    // Actualizar el estado eliminando la maquina de la lista
+                    setMachines((prevmachines) => prevmachines.filter((m) => m._id !== machine._id))
+                    toast.success(`Maquina ${machine.name} | ${machine.location ? machine.location : 'Sin ubicacion'} eliminado`)
+                })
+                .catch((error) => {
+                    console.error('Error al eliminar la maquina:', error)
+                    toast.error('Error al eliminar la maquina:', error)
+                })
+        }
+    }
+
     // Función para convertir la fecha al formato requerido por el campo datetime-local
     const formatDateTimeForInput = (datetime) => {
         try {
@@ -182,6 +202,12 @@ function ListComponent({machines}) {
                         <button onClick={() => navigate(`/machine/detail/${machine._id}`)}>Ver</button>
                         <button onClick={() => navigate(`/machine/maintenance/create/${machine._id}`)}>Agregar Mantenimiento</button>
                         <button onClick={() => navigate(`/machine/edit/${machine._id}`)}>Editar</button>
+                        {
+                            (globalUser.userType === 'admin' || globalUser.userType === 'company-owner' ) && 
+                            <div className="button-container">
+                                <img onClick={() => handleDeleteMachine(machine)} src="../../../../trash_icon.png" alt="delete"/>
+                            </div>
+                        }
                     </div>
                 </div>
                 )
@@ -190,7 +216,8 @@ function ListComponent({machines}) {
     )
 }
 ListComponent.propTypes = {
-    machines: PropTypes.array.isRequired
+    machines: PropTypes.array.isRequired,
+    setMachines: PropTypes.array.isRequired
 }
 
 

@@ -302,3 +302,41 @@ export const registerMachineService = async (companyId, machineId) => {
         }
     }
 }
+
+
+/**
+ * Servicio para eliminar una maquina 
+ * @param {String} machineId - Id de la maquina a eliminar
+ * @returns {Object} - Id de la maquina eliminada o mensaje de error
+ */
+export const deleteMachineService = async (machineId) => {
+    try{
+        // Solicitud DELETE para eliminar la maquina
+        const response = await axios.delete(`${API_URL}${machineEndpoint}${machineId}`,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': API_ACCESS_TOKEN
+                }
+            }
+        )
+
+        // Verifica si hay un error en la respuesta del servidor
+        if(response.data.error){
+            return {
+                hasError: true,
+                error: response.data.error
+            }
+        }
+        // Si la respuesta es válida, retorna los datos de la maquina
+        if (response.data){     
+            return response.data.data
+        }
+    }catch(error){
+        // Manejo de errores externos
+        return {
+            hasError: true,
+            error: error.message
+        }
+    }
+}

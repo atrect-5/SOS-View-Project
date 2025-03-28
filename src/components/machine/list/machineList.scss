@@ -18,6 +18,8 @@
     .form-card{
         margin-top: 25px;
         padding: 15px 100px;
+        margin-left: 25px;
+        margin-right: 25px;
     }
     .machine-list-container{
         width: 95%;
@@ -91,11 +93,22 @@
                 display:inline-flex;
                 justify-content: center;
                 justify-items: center;
+                align-items: center;
                 button{
                     background-color: consts.$gray;
                     transition: all .2s;
                     &:hover{
                         background-color: consts.$gray-variant;
+                    }
+                }
+                img{
+                    width: 30px;
+                    height: 30px;
+                    margin: 8px;
+                    transition: all .2s;
+                    cursor: pointer; 
+                    &:hover{
+                        filter: drop-shadow(0 0 5px consts.$red);
                     }
                 }
             }

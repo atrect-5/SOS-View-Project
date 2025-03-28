@@ -3,10 +3,11 @@ import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import PropTypes from "prop-types"
 import { CircularProgress } from "@mui/material"
+import { toast } from "react-toastify"
 
 import { useUserContext } from "../../../providers/userContext"
 import { Header } from "../../components"
-import { getUsersByCompanyService, getCompanyByIdService } from "../../../services/services"
+import { getUsersByCompanyService, getCompanyByIdService, deleteUserService } from "../../../services/services"
 
 import './userList.scss'
 
@@ -74,6 +75,7 @@ function UserList() {
                 isReady ? 
                     <ListComponent
                         users={users}
+                        setUsers={setUsers}
                     />
                     :
                     hasError ?
@@ -91,14 +93,31 @@ function UserList() {
     )
 }
 
-function ListComponent({users}) {
+function ListComponent({users, setUsers}) {
     const { user: globalUser} = useUserContext()
+
+    // Maneja la eliminacion de un usuario
+    const handleDeleteUser = (user) => {
+        if (window.confirm(`¿Estás seguro de que deseas eliminar a ${user.name} ${user.lastName}?`)) {
+            deleteUserService(user._id)
+                .then(() => {
+                    // Actualizar el estado eliminando el usuario de la lista
+                    setUsers((prevUsers) => prevUsers.filter((u) => u._id !== user._id))
+                    toast.success(`Usuario ${user.name} ${user.lastName} eliminado`)
+                })
+                .catch((error) => {
+                    console.error('Error al eliminar el usuario:', error)
+                    toast.error('Error al eliminar el usuario:', error)
+                })
+        }
+    }
+
     return (
         <div className={users.length <= 1 ? 'user-list-container single-item' : 'user-list-container'}>
             {
                 users.length === 0 ? <p className="error-message">No hay usuarios registradas</p> : (
-                users.map(user => (
-                <div className="user-card" key={user._id}>
+                users.map((user, index) => (
+                <div className="user-card" key={index}>
                     <h2>
                         {user.name} {user.lastName}
                     </h2>
@@ -112,6 +131,13 @@ function ListComponent({users}) {
                             <span>{user.userType}</span>
                         </>
                     }
+                    {
+                        (globalUser.userType === 'admin' || globalUser.userType === 'company-owner' ) && 
+                        <div className="button-container">
+                            <br /><hr />
+                            <img onClick={() => handleDeleteUser(user)} src="../../../../trash_icon.png" alt="delete"/>
+                        </div>
+                    }
                 </div>
                 )
             ))}
@@ -119,7 +145,8 @@ function ListComponent({users}) {
     )
 }
 ListComponent.propTypes = {
-    users: PropTypes.array.isRequired
+    users: PropTypes.array.isRequired,
+    setUsers: PropTypes.array.isRequired
 }
 
 
