@@ -33,6 +33,7 @@ export default function HomePage() {
   const [machineList, setMachineList] = useState([])
   const [selectedMachine, setSelectedMachine] = useState(initialState)
   const [isUpdateingStatus, setIsUpdateingStatus] = useState(false)
+  const [refreshingMachines, setIsRefreshingMachines] = useState(false)
 
   // Redirige al login si el usuario no esta registrado
   useEffect(() => {
@@ -103,6 +104,27 @@ export default function HomePage() {
     }
   }
 
+  // Maneja el refresco de la lista de maquinas
+  const handleRefreshMachinesList = async () => {
+    setIsRefreshingMachines(true)
+
+    const machineListData = await getMachinesByCompanyService(globalUser.workingAt)
+    if (machineListData.error){
+      toast.error(`Hubo un error al refrescar la lista de maquinas: ${machineListData.error}`)
+      setIsRefreshingMachines(false)
+      return
+    }
+
+    // Actualiza la lista de máquinas
+    setMachineList( machineListData )
+    setSelectedMachine({
+      ...machineListData[0]
+    })
+
+    toast.success('Lista de maquinas actualizada')
+    setIsRefreshingMachines(false)
+  }
+
   // Ajustamos dinamicamente el margin top del contenido para que el header no cubre el contenido
   useEffect(() => {
     const header = document.querySelector('.header-fixed')
@@ -144,23 +166,26 @@ export default function HomePage() {
           
           <div className="select-machine-container">
             <p className="info-message">Selecciona la maquina para visualizar</p>
-            <select
+            <div className="select-machines-img-refresh-container">
+              <select
                 name="index"
                 disabled={machineList.length === 0}
                 value={selectedMachine.index || 0}
                 onChange={handleChange}
-                >
-                    {
-                      machineList.length === 0 
-                        ? <option value={0} disabled>No hay maquinas registradas</option> 
-                        :
-                        machineList.map((machine, index) => (
-                            <option key={index} value={index}>
-                            {`${machine.name} | ${machine.location ? machine.location : 'Sin locación'}`}
-                            </option>
-                        ))
-                    }
-            </select>
+              >
+                {
+                  machineList.length === 0 
+                  ? <option value={0} disabled>No hay maquinas registradas</option> 
+                  :
+                  machineList.map((machine, index) => (
+                    <option key={index} value={index}>
+                        {`${machine.name} | ${machine.location ? machine.location : 'Sin locación'}`}
+                        </option>
+                    ))
+                  }
+              </select>
+              <img className={`refresh-icon ${refreshingMachines ? 'rotation' : ''}`} onClick={handleRefreshMachinesList} alt="refresh" src="/refresh_icon.png"/>
+            </div>
           </div>
           
           {loadingMachines ? <CircularProgress/> :

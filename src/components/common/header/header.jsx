@@ -50,10 +50,10 @@ function Header () {
 
 
       <div className="next-back-buttons">
-        <img onClick={toggleOpenMenu} id="menu-button" className={`${isMenuOpen ? 'img-menu-despleyed' : ''}`} src="../../../../menu_icon.png" alt="menu" />
-        <img className={canGoBack ? '' : 'no-next-back'} onClick={() => navigate(-1)} src="../../../../back_icon.png" alt="back" />
-        <img onClick={() => navigate('/')} src="../../../../home_icon.png" alt="home" />
-        <img className={canGoForward ? '' : 'no-next-back'} onClick={() => navigate(+1)} src="../../../../next_icon.png" alt="next" /> 
+        <img onClick={toggleOpenMenu} id="menu-button" className={`${isMenuOpen ? 'img-menu-despleyed' : ''}`} src="/menu_icon.png" alt="menu" />
+        <img className={canGoBack ? '' : 'no-next-back'} onClick={() => navigate(-1)} src="/back_icon.png" alt="back" />
+        <img onClick={() => navigate('/')} src="/home_icon.png" alt="home" />
+        <img className={canGoForward ? '' : 'no-next-back'} onClick={() => navigate(+1)} src="/next_icon.png" alt="next" /> 
       </div>
 
       <div className={`menu ${isMenuOpen ? "open" : ''}`}>
@@ -115,7 +115,7 @@ function Header () {
 
       <div className="profile-content">
 
-        <img onClick={() => navigate(isLoading ? '#' : '/user/edit')} src="../../../../profile_icon.png" alt="profile" />
+        <img onClick={() => navigate(isLoading ? '#' : '/user/edit')} src="/profile_icon.png" alt="profile" />
       </div>
     </div>
   )
