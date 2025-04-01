@@ -34,6 +34,7 @@ export default function HomePage() {
   const [selectedMachine, setSelectedMachine] = useState(initialState)
   const [isUpdateingStatus, setIsUpdateingStatus] = useState(false)
   const [refreshingMachines, setIsRefreshingMachines] = useState(false)
+  const [isRefreshingTemperatures, setIsRefreshingTemperatures] = useState(false)
   const [refreshTemperatures, setRefreshTemperatures] = useState(false)
   const lastReadingRef = useRef(null)
 
@@ -65,6 +66,7 @@ export default function HomePage() {
   useEffect(() => {
 
     console.log(`Se escogio la maquina con id: ${selectedMachine._id}`)
+    setIsRefreshingTemperatures(true)
 
     // Actualiza el status al actual de la maquina
     const getStatus = async (machineId) => {
@@ -98,10 +100,12 @@ export default function HomePage() {
         .then((data) => {
           if (data.error){
             toast.error(`Hubo un error al obtener las lecturas: ${data.error}`)
+            setIsRefreshingTemperatures(false)
             return
           }
           if(data.length === 0){
             console.log('No hay temperaturas registradas')
+            setIsRefreshingTemperatures(false)
             return          
           }
 
@@ -157,8 +161,7 @@ export default function HomePage() {
                 : machine
             )
           )
-
-
+          setIsRefreshingTemperatures(false)
       })
     }
   }, [selectedMachine._id, refreshTemperatures])
@@ -219,6 +222,12 @@ export default function HomePage() {
   /****************************** Maneja el refresco de la lista de maquinas **************************/
   const handleRefreshMachinesList = async () => {
     setIsRefreshingMachines(true)
+
+    // Actualiza la referencia con la nueva última lectura
+    lastReadingRef.current = {
+      temperature: null,
+      voltage: null,
+    }
 
     const actualId = selectedMachine._id
 
@@ -330,6 +339,7 @@ export default function HomePage() {
                     <br /><hr /><br />
                     <div className="last-reading-container">
                       {
+                        isRefreshingTemperatures ? <CircularProgress/> :
                         !selectedMachine.lastReading ? <p className="caution-message">No hay lecturas registradas aun</p>
                         : <div className="last-reading-info">
                           <p className="last-message">Ultima medicion: </p>
