@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -35,8 +35,9 @@ export default function HomePage() {
   const [isUpdateingStatus, setIsUpdateingStatus] = useState(false)
   const [refreshingMachines, setIsRefreshingMachines] = useState(false)
   const [refreshTemperatures, setRefreshTemperatures] = useState(false)
+  const lastReadingRef = useRef(null)
 
-  // Redirige al login si el usuario no esta registrado
+  /************* Redirige al login si el usuario no esta registrado **************/
   useEffect(() => {
     const fetchUser = async () => {
       // Esperamos a que carguen los datos del usuario del localStorage
@@ -60,7 +61,7 @@ export default function HomePage() {
     fetchUser()
   }, [globalUser, navigate, isLoading])
 
-  // Guarda la lista de temperaturas cuando se cambia la selectedMachine y obtiene el status actual
+  /************* Guarda la lista de temperaturas cuando se cambia la selectedMachine y obtiene el status actual *************/
   useEffect(() => {
 
     console.log(`Se escogio la maquina con id: ${selectedMachine._id}`)
@@ -89,79 +90,95 @@ export default function HomePage() {
 
       getStatus(selectedMachine._id)
 
+      // Referencia para obtener la última lectura
+      const lastReadingDate = lastReadingRef.current?.temperature?.date || "";
+
       // Se obtinen las temperaturas mas recientes de la maquina
-      getReadingsByMachineService(selectedMachine._id).then((data) => {
-        if (data.error){
-          toast.error(`Hubo un error al obtener las lecturas: ${data.error}`)
-          return
-        }
-        if(data.length === 0){
-          console.log('No hay temperaturas registradas')
-          return          
-        }
-
-        const temperatureList = []
-        const voltageList = []
-
-        // Recorremos los datos y los guardamos en la lista de temperaturas y voltajes
-        data.forEach((reading) => {
-          if (reading.field === 'temperature'){
-            temperatureList.push({measure: reading.value, date: reading.time})
-          } else if (reading.field === 'voltage') {
-            voltageList.push({measure: reading.value, date: reading.time})
+      getReadingsByMachineService(selectedMachine._id, lastReadingDate)
+        .then((data) => {
+          if (data.error){
+            toast.error(`Hubo un error al obtener las lecturas: ${data.error}`)
+            return
           }
-        })
+          if(data.length === 0){
+            console.log('No hay temperaturas registradas')
+            return          
+          }
 
-        // Ordena las listas cronológicamente
-        temperatureList.sort((a, b) => new Date(b.date) - new Date(a.date))
-        voltageList.sort((a, b) => new Date(b.date) - new Date(a.date))
+          const temperatureList = []
+          const voltageList = []
 
-        // Toma la lectura más reciente de cada lista
-        const lastTemperatureReading = temperatureList[0] || null
-        const lastVoltageReading = voltageList[0] || null
-        
-        // Guardamos la lista de temperaturas y voltajes en el estado de la maquina seleccionada
-        setSelectedMachine((prevState) => ({
-          ...prevState,
-          readings: {
-            temperatures: temperatureList,
-            voltages: voltageList
-          },
-          lastReading: {
+          // Recorremos los datos y los guardamos en la lista de temperaturas y voltajes
+          data.forEach((reading) => {
+            if (reading.field === 'temperature'){
+              temperatureList.push({measure: reading.value, date: reading.time})
+            } else if (reading.field === 'voltage') {
+              voltageList.push({measure: reading.value, date: reading.time})
+            }
+          })
+
+          // Ordena las listas cronológicamente
+          temperatureList.sort((a, b) => new Date(b.date) - new Date(a.date))
+          voltageList.sort((a, b) => new Date(b.date) - new Date(a.date))
+
+          // Toma la lectura más reciente de cada lista
+          const lastTemperatureReading = temperatureList[0] || null
+          const lastVoltageReading = voltageList[0] || null
+
+          // Actualiza la referencia con la nueva última lectura
+          lastReadingRef.current = {
             temperature: lastTemperatureReading,
-            voltage: lastVoltageReading
+            voltage: lastVoltageReading,
           }
-        }))
+          
+          // Guardamos la lista de temperaturas y voltajes en el estado de la maquina seleccionada
+          setSelectedMachine((prevState) => ({
+            ...prevState,
+            readings: {
+              temperatures: [...temperatureList, ...prevState.readings.temperatures],
+              voltages: [...voltageList, ...prevState.readings.temperatures]
+            },
+            lastReading: {
+              temperature: lastTemperatureReading,
+              voltage: lastVoltageReading
+            }
+          }))
 
-        // Guardamos los datos en state de la lista de las maquinas
-        setMachineList((prevList) =>
-          prevList.map((machine) =>
-            machine._id === selectedMachine._id
-              ? { ...machine, 
-                  readings: 
-                  { temperatures: temperatureList, voltages: voltageList },
-                  lastReading: 
-                  { temperature: lastTemperatureReading, voltage: lastVoltageReading }          
-                }
-              : machine
+          // Guardamos los datos en state de la lista de las maquinas
+          setMachineList((prevList) =>
+            prevList.map((machine) =>
+              machine._id === selectedMachine._id
+                ? { ...machine, 
+                    readings: 
+                    { temperatures: [...temperatureList, ...machine.readings.temperatures], voltages: [...voltageList, ...machine.readings.voltages] },
+                    lastReading: 
+                    { temperature: lastTemperatureReading, voltage: lastVoltageReading }          
+                  }
+                : machine
+            )
           )
-        )
 
 
       })
     }
   }, [selectedMachine._id, refreshTemperatures])
 
-  // Maneja los cambios
+  /**************************** Maneja los cambios del select ************************************/
   const handleChange = e => {
     const { name, value } = e.target
     setSelectedMachine({
         ...machineList[value],
         [name]:value
     })
+    
+    // Actualiza la referencia con la última lectura de la nueva máquina
+    lastReadingRef.current = {
+      temperature: machineList[value].lastReading?.temperature || null,
+      voltage: machineList[value].lastReading?.voltage || null,
+  }
   }
 
-  // Maneja el cambio del el Status de la maquina
+  /***************************** Maneja el cambio del el Status de la maquina *********************/
   const handleStatusChange = async () => {
     try {
       setIsUpdateingStatus(true)
@@ -199,7 +216,7 @@ export default function HomePage() {
     }
   }
 
-  // Maneja el refresco de la lista de maquinas
+  /****************************** Maneja el refresco de la lista de maquinas **************************/
   const handleRefreshMachinesList = async () => {
     setIsRefreshingMachines(true)
 
@@ -229,7 +246,7 @@ export default function HomePage() {
     setIsRefreshingMachines(false)
   }
 
-  // Ajustamos dinamicamente el margin top del contenido para que el header no cubre el contenido
+  /**************************** Ajustamos dinamicamente el margin top del contenido para que el header no cubre el contenido *****************/
   useEffect(() => {
     const header = document.querySelector('.header-fixed')
     const content = document.querySelector('.body-home-page-container')
@@ -242,7 +259,7 @@ export default function HomePage() {
     return () => window.removeEventListener('resize', adjustPadding)
   }, [])
 
-  // Función para convertir la fecha al formato requerido por el campo datetime-local
+  /******************** Función para convertir la fecha al formato requerido por el campo datetime-local *********************/
   const formatDateTimeForInput = (datetime, dateFormat) => {
     try {
         const date = new Date(datetime)
@@ -315,7 +332,7 @@ export default function HomePage() {
                       {
                         !selectedMachine.lastReading ? <p className="caution-message">No hay lecturas registradas aun</p>
                         : <div className="last-reading-info">
-                          <p>Ultima medicion: </p>
+                          <p className="last-message">Ultima medicion: </p>
                           <div className="last-reading-detail">
                             {
                               selectedMachine.lastReading.temperature && 
