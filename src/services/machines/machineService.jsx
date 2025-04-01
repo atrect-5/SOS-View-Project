@@ -151,6 +151,81 @@ export const getMachinesByCompanyService = async (companyId) => {
 }
 
 /**
+ * Servicio para obtener las lecturas de una maquina
+ * @param {String} machineId - Id de la maquina a obtener las lecturas
+ * @param {String} lastDate - Fecha de las lecturas a obtener (opcional)
+ * @return {Object} - Datos de las lecturas de la maquina o mensaje de error
+ */
+export const getReadingsByMachineService = async (machineId, lastDate) => {
+    try{
+        // Solicitud GET para obtener las lecturas de la maquina
+        const response = await axios.get(`${API_URL}${machineEndpoint}influx/${machineId}${lastDate? `?lastDate=${encodeURIComponent(lastDate)}` : ''}`,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': API_ACCESS_TOKEN
+                }
+            }
+        )
+
+        // Verifica si hay un error en la respuesta del servidor
+        if(response.data.error){
+            return {
+                hasError: true,
+                error: response.data.error
+            }
+        }
+        // Si la respuesta es válida, retorna los datos de las lecturas de la maquina
+        if (response.data){     
+            return response.data.data
+        }
+    }catch(error){
+        // Manejo de errores externos
+        return {
+            hasError: true,
+            error: error.message
+        }
+    }
+}
+
+/**
+ * Servicio para obtener el status de una maquina
+ * @param {String} machineId - Id de la maquina a obtener las lecturas
+ * @return {Sting} - Status de la maquina o mensaje de error
+ */
+export const getStatusOfMachineService = async (machineId) => {
+    try{
+        // Solicitud GET para obtener el status
+        const response = await axios.get(`${API_URL}${machineEndpoint}status/${machineId}`,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': API_ACCESS_TOKEN
+                }
+            }
+        )
+
+        // Verifica si hay un error en la respuesta del servidor
+        if(response.data.error){
+            return {
+                hasError: true,
+                error: response.data.error
+            }
+        }
+        // Si la respuesta es válida, retorna el status de la maquina
+        if (response.data){     
+            return response.data.data
+        }
+    }catch(error){
+        // Manejo de errores externos
+        return {
+            hasError: true,
+            error: error.message
+        }
+    }
+}
+
+/**
  * Servicio para guardar una entrada de mantenimiento en una maquina
  * @param {String} machineId - Id de la maquina 
  * @param {Object} machineData - Objeto que contiene los datos de la entrada de mantenimiento ({date: Date, description: String})

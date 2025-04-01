@@ -9,7 +9,7 @@ import { toast } from "react-toastify"
 
 import { useUserContext } from "../../providers/userContext"
 import { Header } from "../components"
-import { getMachinesByCompanyService, updateMachineStatusService } from "../../services/services"
+import { getMachinesByCompanyService, updateMachineStatusService, getReadingsByMachineService, getStatusOfMachineService } from "../../services/services"
 
 import './homepage.scss'
 
@@ -34,6 +34,7 @@ export default function HomePage() {
   const [selectedMachine, setSelectedMachine] = useState(initialState)
   const [isUpdateingStatus, setIsUpdateingStatus] = useState(false)
   const [refreshingMachines, setIsRefreshingMachines] = useState(false)
+  const [refreshTemperatures, setRefreshTemperatures] = useState(false)
 
   // Redirige al login si el usuario no esta registrado
   useEffect(() => {
@@ -47,15 +48,109 @@ export default function HomePage() {
           // Si cargo el usuario, obtenemos la lista de las maquinas de su empresa
           const machineListData = await getMachinesByCompanyService(globalUser.workingAt)
           setMachineList( machineListData )
-          setSelectedMachine({
-            ...machineListData[0]
-          })
+          if(machineListData.length > 0){
+            setSelectedMachine({
+              ...machineListData[0]
+            })
+          }
           setLoadingMachines(false)
         }
       }
     }
     fetchUser()
   }, [globalUser, navigate, isLoading])
+
+  // Guarda la lista de temperaturas cuando se cambia la selectedMachine y obtiene el status actual
+  useEffect(() => {
+
+    console.log(`Se escogio la maquina con id: ${selectedMachine._id}`)
+
+    // Actualiza el status al actual de la maquina
+    const getStatus = async (machineId) => {
+
+      const newStatus = await getStatusOfMachineService(machineId)      
+
+      // Actualiza el estado localmente
+      setSelectedMachine((prevState) => ({
+        ...prevState,
+        status: newStatus.status,
+      }))
+      // Actualiza el status en la lista de maquinas
+      setMachineList((prevList) =>
+        prevList.map((machine) =>
+          machine._id === selectedMachine._id
+            ? { ...machine, status: newStatus.status }
+            : machine
+        )
+      )
+    }
+
+    if (selectedMachine._id){
+
+      getStatus(selectedMachine._id)
+
+      // Se obtinen las temperaturas mas recientes de la maquina
+      getReadingsByMachineService(selectedMachine._id).then((data) => {
+        if (data.error){
+          toast.error(`Hubo un error al obtener las lecturas: ${data.error}`)
+          return
+        }
+        if(data.length === 0){
+          console.log('No hay temperaturas registradas')
+          return          
+        }
+
+        const temperatureList = []
+        const voltageList = []
+
+        // Recorremos los datos y los guardamos en la lista de temperaturas y voltajes
+        data.forEach((reading) => {
+          if (reading.field === 'temperature'){
+            temperatureList.push({measure: reading.value, date: reading.time})
+          } else if (reading.field === 'voltage') {
+            voltageList.push({measure: reading.value, date: reading.time})
+          }
+        })
+
+        // Ordena las listas cronológicamente
+        temperatureList.sort((a, b) => new Date(b.date) - new Date(a.date))
+        voltageList.sort((a, b) => new Date(b.date) - new Date(a.date))
+
+        // Toma la lectura más reciente de cada lista
+        const lastTemperatureReading = temperatureList[0] || null
+        const lastVoltageReading = voltageList[0] || null
+        
+        // Guardamos la lista de temperaturas y voltajes en el estado de la maquina seleccionada
+        setSelectedMachine((prevState) => ({
+          ...prevState,
+          readings: {
+            temperatures: temperatureList,
+            voltages: voltageList
+          },
+          lastReading: {
+            temperature: lastTemperatureReading,
+            voltage: lastVoltageReading
+          }
+        }))
+
+        // Guardamos los datos en state de la lista de las maquinas
+        setMachineList((prevList) =>
+          prevList.map((machine) =>
+            machine._id === selectedMachine._id
+              ? { ...machine, 
+                  readings: 
+                  { temperatures: temperatureList, voltages: voltageList },
+                  lastReading: 
+                  { temperature: lastTemperatureReading, voltage: lastVoltageReading }          
+                }
+              : machine
+          )
+        )
+
+
+      })
+    }
+  }, [selectedMachine._id, refreshTemperatures])
 
   // Maneja los cambios
   const handleChange = e => {
@@ -66,7 +161,7 @@ export default function HomePage() {
     })
   }
 
-  // Maneja el cambio el el Status de ma maquina
+  // Maneja el cambio del el Status de la maquina
   const handleStatusChange = async () => {
     try {
       setIsUpdateingStatus(true)
@@ -108,6 +203,8 @@ export default function HomePage() {
   const handleRefreshMachinesList = async () => {
     setIsRefreshingMachines(true)
 
+    const actualId = selectedMachine._id
+
     const machineListData = await getMachinesByCompanyService(globalUser.workingAt)
     if (machineListData.error){
       toast.error(`Hubo un error al refrescar la lista de maquinas: ${machineListData.error}`)
@@ -117,9 +214,16 @@ export default function HomePage() {
 
     // Actualiza la lista de máquinas
     setMachineList( machineListData )
-    setSelectedMachine({
-      ...machineListData[0]
-    })
+    if (machineListData.length > 0){
+      setSelectedMachine({
+        ...machineListData[0]
+      })
+    }
+
+    // Si el id es el mismo, obtiene las temperaturas
+    if (actualId === selectedMachine._id){
+      setRefreshTemperatures((prev) => !prev)
+    }
 
     toast.success('Lista de maquinas actualizada')
     setIsRefreshingMachines(false)
@@ -139,7 +243,7 @@ export default function HomePage() {
   }, [])
 
   // Función para convertir la fecha al formato requerido por el campo datetime-local
-  const formatDateTimeForInput = (datetime) => {
+  const formatDateTimeForInput = (datetime, dateFormat) => {
     try {
         const date = new Date(datetime)
         if (isNaN(date.getTime())) {
@@ -149,7 +253,7 @@ export default function HomePage() {
         const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
         const zonedDate = new Date(date.toLocaleString('en-US', { timeZone }))
         // Busca por expresion regular la primer letra y la convierte en mayuscula, dandole un formato parecido a:  Jueves 6 de marzo 2025 a las 10:19 PM
-        return format(zonedDate, "EEEE',' d 'de' MMMM 'del' yyyy 'a las' h:mm a", { locale: es }).replace(/(^\w{1})/g, letter => letter.toUpperCase())
+        return format(zonedDate, dateFormat, { locale: es }).replace(/(^\w{1})/g, letter => letter.toUpperCase())
     } catch (error) {
         console.error('Error formateando la fecha:', error)
         return 'Fecha no disponible'
@@ -209,23 +313,31 @@ export default function HomePage() {
                     <br /><hr /><br />
                     <div className="last-reading-container">
                       {
-                        selectedMachine.readings.temperatures.length === 0 ? <p className="caution-message">No hay lecturas registradas aun</p>
+                        !selectedMachine.lastReading ? <p className="caution-message">No hay lecturas registradas aun</p>
                         : <div className="last-reading-info">
                           <p>Ultima medicion: </p>
-                          {
-                            selectedMachine.lastReading.temperature && 
-                              (<>
-                                <p>Temperatura: </p>
-                                <p>Lectura: {selectedMachine.lastReading.temperature.measure} | Fecha: {formatDateTimeForInput(selectedMachine.lastReading.temperature.date)}</p>
-                              </>)
-                          }
-                          {
-                            selectedMachine.lastReading.voltage && 
-                              (<>
-                                <p>Voltage: </p>
-                                <p>Lectura: {selectedMachine.lastReading.voltage.measure} | Fecha: {formatDateTimeForInput(selectedMachine.lastReading.voltage.date)}</p>
-                              </>)
-                          }
+                          <div className="last-reading-detail">
+                            {
+                              selectedMachine.lastReading.temperature && 
+                                (<div className="last-reading-detail-temperature-voltage">
+                                  <p>Temperatura: </p>
+                                  <div className="measure-card">
+                                    {selectedMachine.lastReading.temperature.measure}
+                                  </div>
+                                  <p className="measure-message">{formatDateTimeForInput(selectedMachine.lastReading.temperature.date, "d'/'MMMM'/'yyyy '-' h:mm:ss a")}</p>
+                                </div>)
+                            }
+                            {
+                              selectedMachine.lastReading.voltage && 
+                                (<div className="last-reading-detail-temperature-voltage">
+                                  <p>Voltage: </p>
+                                  <div className="measure-card">
+                                    {selectedMachine.lastReading.voltage.measure}
+                                  </div>
+                                  <p className="measure-message">{formatDateTimeForInput(selectedMachine.lastReading.voltage.date, "d'/'MMMM'/'yyyy '-' h:mm:ss a")}</p>
+                                </div>)
+                            }
+                          </div>
                         </div>
                       }
                     </div>
@@ -265,7 +377,7 @@ export default function HomePage() {
                       </div>
 
                       <div className="machine-info-instalationdate">
-                        <p className="subtitle">Fecha de instalacion </p><span>{formatDateTimeForInput(selectedMachine.installationDate)}</span>
+                        <p className="subtitle">Fecha de instalacion </p><span>{formatDateTimeForInput(selectedMachine.installationDate, "EEEE',' d 'de' MMMM 'del' yyyy 'a las' h:mm a")}</span>
                       </div>
 
                     </div>
@@ -283,7 +395,7 @@ export default function HomePage() {
                                       <div key={index} className="history-container">
                                           <br />
                                           <p>Descripcion: <span>{maintenance.description}</span></p>
-                                          <p>Fecha: <span>{formatDateTimeForInput(maintenance.date)}</span></p>
+                                          <p>Fecha: <span>{formatDateTimeForInput(maintenance.date, "EEEE',' d 'de' MMMM 'del' yyyy 'a las' h:mm a")}</span></p>
                                       </div>
                                   ))
                               )

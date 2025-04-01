@@ -28,7 +28,7 @@
     .machine-card{
         width: 90%;
         margin-top: 20px;
-        word-break: break-all;
+        word-break: break-word;
         border: 1px solid consts.$gray;
         background-color: rgba(consts.$gray-variant2, .5);
         box-shadow: 5px 5px 7px rgba($color: consts.$black, $alpha: .2);

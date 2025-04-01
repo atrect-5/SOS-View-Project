@@ -23,9 +23,11 @@ import { createMachineService,
     getMachineByIdService, 
     getMachinesByCompanyService, 
     getMachineWhithoutCompanyService,
+    getStatusOfMachineService,
     saveMaintenanceService, 
     updateMachineStatusService,
-    deleteMachineService
+    deleteMachineService,
+    getReadingsByMachineService
 } from "./machines/machineService"
 
 
@@ -49,8 +51,10 @@ export {
     createMachineService,
     getMachineByIdService,
     getMachinesByCompanyService,
+    getStatusOfMachineService,
     getMachineWhithoutCompanyService,
     saveMaintenanceService,
     updateMachineStatusService,
-    deleteMachineService
+    deleteMachineService,
+    getReadingsByMachineService
 }

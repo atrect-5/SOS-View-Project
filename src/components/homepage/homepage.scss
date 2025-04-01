@@ -60,7 +60,7 @@
         .machine-card{
             width: 90%;
             margin-top: 20px;
-            word-break: break-all;
+            word-break: break-word;
             border: 1px solid consts.$gray;
             background-color: rgba(consts.$gray-variant2, .3);
             box-shadow: 5px 5px 7px rgba($color: consts.$black, $alpha: .2);
@@ -104,6 +104,42 @@
                 width: 100%;
                 padding: 0 5%;
                 justify-items: center;
+                .last-reading-info{
+                    width: 100%;
+                    text-align: center;
+                    .last-reading-detail{
+                        width: 100%;
+                        display: flex;
+                        justify-content: space-evenly;
+                        align-items: center;
+                        .last-reading-detail-temperature-voltage{
+                            display: flex;
+                            flex-direction: column;
+                            justify-content: center;
+                            align-items: center;
+                            .measure-card{
+                                display: flex;
+                                flex-direction: column;
+                                width: 80%;
+                                justify-content: center;
+                                align-items: center;
+                                font-size: 1.5em;
+                                border-radius: 20px;
+                                height: 55px;
+                                background-color: rgba(consts.$gray-variant2, .4);
+                                margin: 5px;
+                                border: 1px solid consts.$gray;
+                                box-shadow: 5px 5px 7px rgba($color: consts.$black, $alpha: .2);
+                                transition: all .3s ease;
+                                &:hover{
+                                    cursor: pointer;
+                                    background-color: rgba(consts.$gray-variant2, .6);
+                                    border: 1px solid consts.$white;
+                                }
+                            }
+                        }
+                    }
+                }
             }
             .maintenance-history-container{
                 width: 100%;
@@ -111,7 +147,9 @@
                 margin-bottom: 45px;
                 summary{
                     font-weight: 700;
+                    width: fit-content;
                     text-decoration: underline;
+                    cursor: pointer;
                 }
                 .history-container{
                     padding: 0 2%;
@@ -135,6 +173,16 @@
     text-align: center;
     color: consts.$white;
     background-color: consts.$red;
+}
+
+.measure-message{
+    height: fit-content;
+    width:fit-content;
+    padding: 5px;
+    border-radius: 8px;
+    text-align: center;
+    color: consts.$white;
+    background-color: rgba(consts.$blue, .3);
 }
 
 .caution-message {
