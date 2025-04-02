@@ -1,9 +1,6 @@
 
 import { useEffect, useRef, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import { format } from 'date-fns'
-import { es } from 'date-fns/locale'
-import { Switch } from "@mui/material"
 import CircularProgress from '@mui/material/CircularProgress'
 import { toast } from "react-toastify"
 
@@ -12,6 +9,7 @@ import { Header } from "../components"
 import { getMachinesByCompanyService, updateMachineStatusService, getReadingsByMachineService, getStatusOfMachineService } from "../../services/services"
 
 import './homepage.scss'
+import MachineCard from "../machine/card/machineCard"
 
 // Pagina principal de la app 
 export default function HomePage() {
@@ -268,23 +266,6 @@ export default function HomePage() {
     return () => window.removeEventListener('resize', adjustPadding)
   }, [])
 
-  /******************** Función para convertir la fecha al formato requerido por el campo datetime-local *********************/
-  const formatDateTimeForInput = (datetime, dateFormat) => {
-    try {
-        const date = new Date(datetime)
-        if (isNaN(date.getTime())) {
-            throw new Error('Invalid date')
-        }
-        // Convierte la fecha a la zona horaria local del usuario
-        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
-        const zonedDate = new Date(date.toLocaleString('en-US', { timeZone }))
-        // Busca por expresion regular la primer letra y la convierte en mayuscula, dandole un formato parecido a:  Jueves 6 de marzo 2025 a las 10:19 PM
-        return format(zonedDate, dateFormat, { locale: es }).replace(/(^\w{1})/g, letter => letter.toUpperCase())
-    } catch (error) {
-        console.error('Error formateando la fecha:', error)
-        return 'Fecha no disponible'
-    }
-  }
 
   return (
       <>
@@ -321,117 +302,12 @@ export default function HomePage() {
           {loadingMachines ? <CircularProgress/> :
             machineList.length === 0 ? <p className="error-message">No hay maquinas registradas</p>
               : !selectedMachine.installationDate ? <CircularProgress/> 
-                : <div className="machine-card">
-                    <div className="principal-info-container">
-                      <h2>
-                          Nombre: {selectedMachine.name}
-                      </h2>
-                      <strong>
-                        {
-                          selectedMachine.description ? selectedMachine.description : 'Sin descripcion'
-                        }
-                      </strong><br />
-                      {
-                        selectedMachine.location && <p>Ubicacion: <span>{selectedMachine.location}</span></p>
-                      }
-                    </div>
-
-                    <br /><hr /><br />
-                    <div className="last-reading-container">
-                      {
-                        isRefreshingTemperatures ? <CircularProgress/> :
-                        !selectedMachine.lastReading ? <p className="caution-message">No hay lecturas registradas aun</p>
-                        : <div className="last-reading-info">
-                          <p className="last-message">Ultima medicion: </p>
-                          <div className="last-reading-detail">
-                            {
-                              selectedMachine.lastReading.temperature && 
-                                (<div className="last-reading-detail-temperature-voltage">
-                                  <p>Temperatura: </p>
-                                  <div className="measure-card">
-                                    {selectedMachine.lastReading.temperature.measure}
-                                  </div>
-                                  <p className="measure-message">{formatDateTimeForInput(selectedMachine.lastReading.temperature.date, "d'/'MMMM'/'yyyy '-' h:mm:ss a")}</p>
-                                </div>)
-                            }
-                            {
-                              selectedMachine.lastReading.voltage && 
-                                (<div className="last-reading-detail-temperature-voltage">
-                                  <p>Voltage: </p>
-                                  <div className="measure-card">
-                                    {selectedMachine.lastReading.voltage.measure}
-                                  </div>
-                                  <p className="measure-message">{formatDateTimeForInput(selectedMachine.lastReading.voltage.date, "d'/'MMMM'/'yyyy '-' h:mm:ss a")}</p>
-                                </div>)
-                            }
-                          </div>
-                        </div>
-                      }
-                    </div>
-                    <br />
-                    <div className="machine-info">
-
-                      <div className="machine-info-status">
-                        <p>Status: <span className={selectedMachine.status === 'active' ? 'active-status' : 'sleeping-status'}>{selectedMachine.status}</span></p>
-                        <p>
-                          {selectedMachine.status === 'active' ? 'Apagar' : 'Encender' } maquina: 
-                          <Switch
-                            name="Switch-status"
-                            onChange={handleStatusChange}
-                            checked={selectedMachine.status === 'active'}
-                            sx={{
-                              '& .MuiSwitch-switchBase': {
-                                top: 3,
-                              },
-                              '& .MuiSwitch-switchBase.Mui-checked': {
-                                color: '#00c917',
-                                '& + .MuiSwitch-track': {
-                                  backgroundColor: '#048f14d0', 
-                                  opacity: 1
-                                },
-                              },
-                              '& .MuiSwitch-track': {
-                                borderRadius: 13, 
-                                backgroundColor: '#404258', 
-                                height: 20, 
-                              }
-                            }}
-                          />
-                        </p>
-                        {
-                          isUpdateingStatus && <CircularProgress/>
-                        }
-                      </div>
-
-                      <div className="machine-info-instalationdate">
-                        <p className="subtitle">Fecha de instalacion </p><span>{formatDateTimeForInput(selectedMachine.installationDate, "EEEE',' d 'de' MMMM 'del' yyyy 'a las' h:mm a")}</span>
-                      </div>
-
-                    </div>
-
-                    <br /><hr /><br />
-
-                    <div className="maintenance-history-container">
-                        <details>
-                          <summary >Historial de mantenimiento: </summary>
-                          {
-                              selectedMachine.maintenanceHistory.length === 0 ? <p className="caution-message">No hay historial registrado</p> 
-                              :
-                              (
-                                  selectedMachine.maintenanceHistory.map((maintenance, index) => (
-                                      <div key={index} className="history-container">
-                                          <br />
-                                          <p>Descripcion: <span>{maintenance.description}</span></p>
-                                          <p>Fecha: <span>{formatDateTimeForInput(maintenance.date, "EEEE',' d 'de' MMMM 'del' yyyy 'a las' h:mm a")}</span></p>
-                                      </div>
-                                  ))
-                              )
-                          }
-                        
-                        </details>
-                    </div>
-                    
-                  </div>
+                : <MachineCard
+                    machine={selectedMachine}
+                    isRefreshingTemperatures={isRefreshingTemperatures}
+                    onStatusChange={handleStatusChange}
+                    isUpdateingStatus={isUpdateingStatus}
+                  />
           }
           
                       

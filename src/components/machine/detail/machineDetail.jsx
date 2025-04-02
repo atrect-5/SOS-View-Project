@@ -1,16 +1,15 @@
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { CircularProgress, Switch } from "@mui/material"
-import { format } from 'date-fns'
-import { es } from 'date-fns/locale'
+import { CircularProgress } from "@mui/material"
 import { toast } from "react-toastify"
 
 import { useUserContext } from "../../../providers/userContext"
-import { getCompanyByIdService, getMachineByIdService, updateMachineStatusService } from "../../../services/services"
+import { getCompanyByIdService, getMachineByIdService, getReadingsByMachineService, updateMachineStatusService } from "../../../services/services"
 import { Header } from "../../components"
 
 import './machineDetail.scss'
+import MachineCard from "../card/machineCard"
 
 function MachineDetail () {
     const { machineId } = useParams()
@@ -23,6 +22,8 @@ function MachineDetail () {
     const [machine, setMachine] = useState([])
     const [company, setCompany] = useState({})
     const [isUpdateingStatus, setIsUpdateingStatus] = useState(false)
+    const [isRefreshingTemperatures, setIsRefreshingTemperatures] = useState(false)
+    const hasFetchedData = useRef(false)
 
     const navigate = useNavigate()
 
@@ -52,7 +53,7 @@ function MachineDetail () {
             console.error('Error al cambiar el estado de la máquina:', error)
             toast.error('No se pudo cambiar el estado de la máquina. Inténtalo de nuevo.')
         }
-      }
+    }
 
     useEffect(() => {
         const fetchMachine = async () => {
@@ -70,9 +71,65 @@ function MachineDetail () {
                     setHasError(true)
                     setError(machineData.error || companyData.error)
                 }else{
-                    setMachine(machineData)
                     setCompany(companyData)
+                    setMachine(machineData)
                     setIsReady(true)
+
+                    if (hasFetchedData.current) return
+                    hasFetchedData.current = true
+
+                    setIsRefreshingTemperatures(true)                    
+
+                    // Se obtinen las temperaturas mas recientes de la maquina
+                    getReadingsByMachineService(machineId)
+                    .then((data) => {
+                        if (data.error){
+                        toast.error(`Hubo un error al obtener las lecturas: ${data.error}`)
+                        setHasError(true)
+                        setError(machineData.error)
+                        return
+                        }
+                        if(data.length === 0){
+                        console.log('No hay temperaturas registradas')
+                        return          
+                        }
+
+                        const temperatureList = []
+                            const voltageList = []
+
+                            // Recorremos los datos y los guardamos en la lista de temperaturas y voltajes
+                            data.forEach((reading) => {
+                            if (reading.field === 'temperature'){
+                                temperatureList.push({measure: reading.value, date: reading.time})
+                            } else if (reading.field === 'voltage') {
+                                voltageList.push({measure: reading.value, date: reading.time})
+                            }
+                            })
+
+                            // Ordena las listas cronológicamente
+                            temperatureList.sort((a, b) => new Date(b.date) - new Date(a.date))
+                            voltageList.sort((a, b) => new Date(b.date) - new Date(a.date))
+
+                            // Toma la lectura más reciente de cada lista
+                            const lastTemperatureReading = temperatureList[0] || null
+                            const lastVoltageReading = voltageList[0] || null
+
+                            // Guardamos la lista de temperaturas y voltajes en el estado de la maquina seleccionada
+                            setMachine((prevState) => ({
+                                ...prevState,
+                                readings: {
+                                temperatures: [...temperatureList, ...prevState.readings.temperatures],
+                                voltages: [...voltageList, ...prevState.readings.temperatures]
+                                },
+                                lastReading: {
+                                temperature: lastTemperatureReading,
+                                voltage: lastVoltageReading
+                                }
+                            }))
+                        })
+                        .finally(() => {
+                            setIsRefreshingTemperatures(false)
+                        })
                 }
             } else {
                 // Obtenemos el posible error del backend
@@ -98,132 +155,18 @@ function MachineDetail () {
         
     }, [globalUser, navigate, isLoading, machineId])
 
-
-    // Función para convertir la fecha al formato requerido por el campo datetime-local
-    const formatDateTimeForInput = (datetime) => {
-        try {
-            const date = new Date(datetime)
-            if (isNaN(date.getTime())) {
-                throw new Error('Invalid date')
-            }
-            // Convierte la fecha a la zona horaria local del usuario
-            const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
-            const zonedDate = new Date(date.toLocaleString('en-US', { timeZone }))
-            // Busca por expresion regular la primer letra y la convierte en mayuscula, dandole un formato parecido a:  Jueves 6 de marzo 2025 a las 10:19 PM
-            return format(zonedDate, "EEEE',' d 'de' MMMM 'del' yyyy 'a las' h:mm a", { locale: es }).replace(/(^\w{1})/g, letter => letter.toUpperCase())
-        } catch (error) {
-            console.error('Error formateando la fecha:', error)
-            return 'Fecha no disponible'
-        }
-    }
-
     return(
         <div className="machine-detail-main-container">
             <Header/>
             <h1 className="company-title">Compañia: {company.name}</h1>
             {
                 isReady ? 
-                    <>
-                    <div className="machine-card" key={machine._id}>
-                        <div className="principal-info-container">
-                            <h2>
-                                {machine.name}
-                            </h2>
-                            <strong>
-                            {
-                                machine.description ? machine.description : 'Sin descripcion'
-                            }
-                            </strong><br />
-                            {
-                                machine.location && <p>Ubicacion: <span>{machine.location}</span></p>
-                            }
-                        </div>
-                        <br /><hr /><br />
-                        <div className="last-reading-container">
-                            {
-                                machine.readings.temperatures.length === 0 ? <p className="caution-message">No hay lecturas registradas aun</p>
-                                : <div className="last-reading-info">
-                                <p>Ultima medicion: </p>
-                                {
-                                    machine.lastReading.temperature && 
-                                    (<>
-                                        <p>Temperatura: </p>
-                                        <p>Lectura: {machine.lastReading.temperature.measure} | Fecha: {formatDateTimeForInput(machine.lastReading.temperature.date)}</p>
-                                    </>)
-                                }
-                                {
-                                    machine.lastReading.voltage && 
-                                    (<>
-                                        <p>Voltage: </p>
-                                        <p>Lectura: {machine.lastReading.voltage.measure} | Fecha: {formatDateTimeForInput(machine.lastReading.voltage.date)}</p>
-                                    </>)
-                                }
-                                </div>
-                            }
-                        </div>
-                        <br />
-                        <div className="machine-info">
-
-
-                            <div className="machine-info-status">
-                                <p>Status: <span className={machine.status === 'active' ? 'active-status' : 'sleeping-status'}>{machine.status}</span></p>
-
-                                <p>
-                                    {machine.status === 'active' ? 'Apagar' : 'Encender' } maquina: 
-                                <Switch
-                                    name="Switch-status"
-                                    onChange={handleStatusChange}
-                                    checked={machine.status === 'active'}
-                                    sx={{
-                                    '& .MuiSwitch-switchBase': {
-                                        top: 3,
-                                    },
-                                    '& .MuiSwitch-switchBase.Mui-checked': {
-                                        color: '#00c917',
-                                        '& + .MuiSwitch-track': {
-                                        backgroundColor: '#048f14d0', 
-                                        opacity: 1
-                                        },
-                                    },
-                                    '& .MuiSwitch-track': {
-                                        borderRadius: 13, 
-                                        backgroundColor: '#404258', 
-                                        height: 20, 
-                                    }
-                                    }}
-                                />
-                                </p>
-                                {
-                                    isUpdateingStatus && <CircularProgress/>
-                                }
-                            </div>
-                            <div className="machine-info-instalationdate">
-                                <p className="subtitle">Fecha de instalacion </p><span>{formatDateTimeForInput(machine.installationDate)}</span>
-                            </div>
-                        </div>
-                        <br /><hr /><br />
-                        <div className="maintenance-history-container">
-                            <details>
-                            <summary>Historial de mantenimiento: </summary>
-                            {
-                                machine.maintenanceHistory.length === 0 ? <p className="caution-message">No hay historial registrado</p> 
-                                :
-                                (
-                                    machine.maintenanceHistory.map((maintenance, index) => (
-                                        <div key={index} className="history-container">
-                                            <br />
-                                            <p>Descripcion: <span>{maintenance.description}</span></p>
-                                            <p>Fecha: <span>{formatDateTimeForInput(maintenance.date)}</span></p>
-                                        </div>
-                                    ))
-                                )
-                            }
-                            
-                            </details>
-                        </div>
-                    </div>
-                    
-                    </>
+                    <MachineCard
+                        machine={machine}
+                        isRefreshingTemperatures={isRefreshingTemperatures}
+                        onStatusChange={handleStatusChange}
+                        isUpdateingStatus={isUpdateingStatus}
+                    />
                     :
                     hasError ?
                         <p className="error-message">Ha ocurrido un error: {error}</p>
