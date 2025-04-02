@@ -13,6 +13,17 @@
         width: 100%;
         padding: 0 2%;
     }
+
+    .all-readings-container{
+        .readings-container{
+            display: flex;
+            justify-content: space-evenly;
+            .temperature-voltage-container{
+                box-shadow: 5px 5px 7px rgba($color: consts.$black, $alpha: .2);
+            }
+        }
+    }
+
     .machine-info{
         display: flex;
         justify-content: space-around;

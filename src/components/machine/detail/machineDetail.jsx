@@ -7,9 +7,9 @@ import { toast } from "react-toastify"
 import { useUserContext } from "../../../providers/userContext"
 import { getCompanyByIdService, getMachineByIdService, getReadingsByMachineService, updateMachineStatusService } from "../../../services/services"
 import { Header } from "../../components"
+import MachineCard from "../card/machineCard"
 
 import './machineDetail.scss'
-import MachineCard from "../card/machineCard"
 
 function MachineDetail () {
     const { machineId } = useParams()

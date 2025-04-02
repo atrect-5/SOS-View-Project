@@ -47,37 +47,74 @@ const MachineCard = ({
         </div>
 
         <br /><hr /><br />
-        <div className="last-reading-container">
-            {
+        {
             isRefreshingTemperatures ? <div id="center-circular-progres-readings"> <CircularProgress/> </div> :
-            !machine.lastReading ? <p className="caution-message">No hay lecturas registradas aun</p>
-            : <div className="last-reading-info">
-                <p className="last-message">Ultima medicion: </p>
-                <div className="last-reading-detail">
-                {
-                    machine.lastReading.temperature && 
-                    (<div className="last-reading-detail-temperature-voltage">
-                        <p>Temperatura: </p>
-                        <div className="measure-card">
-                        {machine.lastReading.temperature.measure}
-                        </div>
-                        <p className="measure-message">{formatDateTimeForInput(machine.lastReading.temperature.date, "d'/'MMMM'/'yyyy '-' h:mm:ss a")}</p>
-                    </div>)
-                }
-                {
-                    machine.lastReading.voltage && 
-                    (<div className="last-reading-detail-temperature-voltage">
-                        <p>Voltage: </p>
-                        <div className="measure-card">
-                        {machine.lastReading.voltage.measure}
-                        </div>
-                        <p className="measure-message">{formatDateTimeForInput(machine.lastReading.voltage.date, "d'/'MMMM'/'yyyy '-' h:mm:ss a")}</p>
-                    </div>)
-                }
+            <>
+            <div className="all-readings-container">
+                <p className="last-message">Mediciones:</p>
+                <div className="readings-container">
+                    <div className="temperature-voltage-container">
+                        Temperatura:
+                        {machine.readings.temperatures.map((measure, index) => (
+                            <div key={index}>
+                                <p>
+                                    medicion: {measure.measure}
+                                </p>
+                                <p>
+                                    fecha: {formatDateTimeForInput(measure.date, "d'/'MMMM'/'yyyy '-' h:mm:ss a")}
+                                </p>
+                            <br />
+                            </div>
+                        ))}
+                    </div>
+                    <div className="temperature-voltage-container">
+                        Voltajes:
+                        {machine.readings.voltages.map((measure, index) => (
+                            <div key={index}>
+                                <p>
+                                    medicion: {measure.measure}
+                                </p>
+                                <p>
+                                    fecha: {formatDateTimeForInput(measure.date, "d'/'MMMM'/'yyyy '-' h:mm:ss a")}
+                                </p>
+                            <br />
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
-            }
-        </div>
+            <div className="last-reading-container">
+                {
+                !machine.lastReading ? <p className="caution-message">No hay lecturas registradas aun</p>
+                : <div className="last-reading-info">
+                    <p className="last-message">Ultima medicion: </p>
+                    <div className="last-reading-detail">
+                    {
+                        machine.lastReading.temperature && 
+                        (<div className="last-reading-detail-temperature-voltage">
+                            <p>Temperatura: </p>
+                            <div className="measure-card">
+                            {machine.lastReading.temperature.measure}
+                            </div>
+                            <p className="measure-message">{formatDateTimeForInput(machine.lastReading.temperature.date, "d'/'MMMM'/'yyyy '-' h:mm:ss a")}</p>
+                        </div>)
+                    }
+                    {
+                        machine.lastReading.voltage && 
+                        (<div className="last-reading-detail-temperature-voltage">
+                            <p>Voltage: </p>
+                            <div className="measure-card">
+                            {machine.lastReading.voltage.measure}
+                            </div>
+                            <p className="measure-message">{formatDateTimeForInput(machine.lastReading.voltage.date, "d'/'MMMM'/'yyyy '-' h:mm:ss a")}</p>
+                        </div>)
+                    }
+                    </div>
+                </div>
+                }
+            </div>
+            </>
+        }
         <br />
         <div className="machine-info">
 
@@ -158,15 +195,25 @@ MachineCard.propTypes = {
                 date: PropTypes.string.isRequired,
             })
         ).isRequired,
+        readings: PropTypes.shape({
+            temperatures: PropTypes.shape([{
+                measure: PropTypes.number.isRequired,
+                date: PropTypes.string.isRequired,
+            }]),
+            voltages: PropTypes.shape([{
+                measure: PropTypes.number.isRequired,
+                date: PropTypes.string.isRequired,
+            }]),
+        }),
         lastReading: PropTypes.shape({
-        temperature: PropTypes.shape({
-            measure: PropTypes.number.isRequired,
-            date: PropTypes.string.isRequired,
-        }),
-        voltage: PropTypes.shape({
-            measure: PropTypes.number.isRequired,
-            date: PropTypes.string.isRequired,
-        }),
+            temperature: PropTypes.shape({
+                measure: PropTypes.number.isRequired,
+                date: PropTypes.string.isRequired,
+            }),
+            voltage: PropTypes.shape({
+                measure: PropTypes.number.isRequired,
+                date: PropTypes.string.isRequired,
+            }),
         }),
     }).isRequired,
     isRefreshingTemperatures: PropTypes.bool,

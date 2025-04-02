@@ -6,10 +6,10 @@ import { toast } from "react-toastify"
 
 import { useUserContext } from "../../providers/userContext"
 import { Header } from "../components"
+import MachineCard from "../machine/card/machineCard"
 import { getMachinesByCompanyService, updateMachineStatusService, getReadingsByMachineService, getStatusOfMachineService } from "../../services/services"
 
 import './homepage.scss'
-import MachineCard from "../machine/card/machineCard"
 
 // Pagina principal de la app 
 export default function HomePage() {
