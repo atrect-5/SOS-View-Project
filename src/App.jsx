@@ -8,8 +8,9 @@ import { ThemeProvider } from '@mui/material/styles';
 //import viteLogo from '/vite.svg'
 
 import { UserProvider } from './providers/userProvider'
-import { theme } from './consts';
+import { theme } from './consts'
 import RoutesOfApp from './routes/appRoutes'
+import Footer from './components/common/footer/footer'
 
 import 'react-toastify/ReactToastify.css'
 import './App.css'
@@ -27,6 +28,7 @@ function App() {
           </div>
           <ToastContainer/>
         </Router>
+        <Footer/>
       </ThemeProvider>
     </UserProvider>
     </>

@@ -155,7 +155,7 @@ function MachineRegister() {
                 toast.success(`Maquina registrada con id: ${createdMachine._id}`)
             }else if(location.pathname === '/machine/register'){
                 toast.success(`Maquina ${createdMachine._id} registrada a la compañia ${createdMachine.belongsTo}`)
-                navigate(`/machine/detail/${createdMachine._id}`)
+                navigate(`/machine/edit/${createdMachine._id}`)
             }else{
                 toast.success(`Maquina actualizada`)
                 navigate(`/machine/detail/${createdMachine._id}`)

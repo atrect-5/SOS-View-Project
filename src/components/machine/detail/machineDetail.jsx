@@ -3,9 +3,11 @@ import { useState, useEffect, useRef } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { CircularProgress } from "@mui/material"
 import { toast } from "react-toastify"
+import mqtt from "mqtt"
 
 import { useUserContext } from "../../../providers/userContext"
 import { getCompanyByIdService, getMachineByIdService, getReadingsByMachineService, updateMachineStatusService } from "../../../services/services"
+import { MQTT_BROKER_PASSWORD, MQTT_BROKER_URL, MQTT_BROKER_USER } from "../../../consts"
 import { Header } from "../../components"
 import MachineCard from "../card/machineCard"
 
@@ -27,7 +29,7 @@ function MachineDetail () {
 
     const navigate = useNavigate()
 
-    // Maneja el cambio el el Status de ma maquina
+    /***************** Maneja el cambio el el Status de ma maquina *****************/
       const handleStatusChange = async () => {
         try {
             setIsUpdateingStatus(true)
@@ -55,6 +57,7 @@ function MachineDetail () {
         }
     }
 
+    /***************** Obtiene los datos de la maquina que se visualizara *****************/
     useEffect(() => {
         const fetchMachine = async () => {
             const machineData = await getMachineByIdService(machineId)
@@ -154,6 +157,73 @@ function MachineDetail () {
         }
         
     }, [globalUser, navigate, isLoading, machineId])
+
+    /**************************** Hace la conexion a MQTT ****************************/
+    useEffect(()=>{
+        if(isLoading) return
+            if (!globalUser._id) return
+            if (!machine._id) return
+        
+            const clientMQTT = mqtt.connect(MQTT_BROKER_URL, {
+            username: MQTT_BROKER_USER,
+            password: MQTT_BROKER_PASSWORD,
+            clientId: `mqtt_${globalUser._id}_${Math.random().toString(16).slice(3)}`,
+            reconnectPeriod: 5000,
+            clean: true, 
+            })
+        
+            // Manejar eventos del cliente MQTT
+            clientMQTT.on("connect", () => {
+            console.log("Conectado al broker MQTT (HiveMQ Cloud)")
+            // Suscribirse a un topic
+            clientMQTT.subscribe(`atrect5/machines/${machine._id}/reading`, (err) => {
+                if (err) {
+                console.error("Error al suscribirse al topic:", err)
+                } else {
+                console.log(`atrect5/machines/${machine._id}/reading`)
+                }
+            })
+            })
+        
+            clientMQTT.on("message", (topic, message) => {
+            console.log(`Mensaje recibido en el topic ${topic}:`, message.toString())
+            
+            // eslint-disable-next-line no-unused-vars
+            const [_, __, machineId, subTopic] = topic.split('/')
+
+            const messageData = JSON.parse(message.toString())
+            const temperatureData = { date: new Date().toISOString(), measure: parseFloat( messageData.temperature ) }
+            const voltageData = { date: new Date().toISOString(), measure: parseFloat( messageData.voltage ) }
+
+            // Se agrega la lectura a la lista
+            setMachine( (prevState) => ({
+                ...prevState,
+                readings: {
+                    temperatures: [temperatureData, ...prevState.readings.temperatures],
+                    voltages: [voltageData, ...prevState.readings.voltages]
+                },
+                lastReading: {
+                    temperature: temperatureData,
+                    voltage: voltageData
+                }
+            }))
+            })
+        
+            clientMQTT.on("error", (err) => {
+            console.error("Error en la conexión MQTT:", err)
+            })
+        
+            clientMQTT.on("close", () => {
+            console.log("Conexión MQTT cerrada")
+            })
+        
+            // Limpiar la conexión al desmontar el componente
+            return () => {
+            if (clientMQTT) {
+                clientMQTT.end()
+            }
+            }
+    },[globalUser, machine._id, isLoading])
 
     return(
         <div className="machine-detail-main-container">

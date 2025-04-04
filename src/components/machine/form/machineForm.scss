@@ -3,7 +3,7 @@
 
 .maintenance-body-container{
     width: 100%;
-    min-height: 100vh;
+    min-height: calc(100vh - 25px);
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -20,7 +20,7 @@
 
 .body-machine-form-container{
     width: 100%;
-    min-height: 100vh;
+    min-height: calc(100vh - 25px);
     height: 100%;
     display: flex;
     flex-direction: column;

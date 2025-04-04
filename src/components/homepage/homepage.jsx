@@ -3,11 +3,13 @@ import { useEffect, useRef, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import CircularProgress from '@mui/material/CircularProgress'
 import { toast } from "react-toastify"
+import mqtt from "mqtt"
 
 import { useUserContext } from "../../providers/userContext"
 import { Header } from "../components"
 import MachineCard from "../machine/card/machineCard"
 import { getMachinesByCompanyService, updateMachineStatusService, getReadingsByMachineService, getStatusOfMachineService } from "../../services/services"
+import { MQTT_BROKER_PASSWORD, MQTT_BROKER_URL, MQTT_BROKER_USER } from "../../consts"
 
 import './homepage.scss'
 
@@ -91,7 +93,7 @@ export default function HomePage() {
       getStatus(selectedMachine._id)
 
       // Referencia para obtener la última lectura
-      const lastReadingDate = lastReadingRef.current?.temperature?.date || "";
+      const lastReadingDate = lastReadingRef.current?.temperature?.date || ""
 
       // Se obtinen las temperaturas mas recientes de la maquina
       getReadingsByMachineService(selectedMachine._id, lastReadingDate)
@@ -138,7 +140,7 @@ export default function HomePage() {
             ...prevState,
             readings: {
               temperatures: [...temperatureList, ...prevState.readings.temperatures],
-              voltages: [...voltageList, ...prevState.readings.temperatures]
+              voltages: [...voltageList, ...prevState.readings.voltages]
             },
             lastReading: {
               temperature: lastTemperatureReading,
@@ -152,7 +154,10 @@ export default function HomePage() {
               machine._id === selectedMachine._id
                 ? { ...machine, 
                     readings: 
-                    { temperatures: [...temperatureList, ...machine.readings.temperatures], voltages: [...voltageList, ...machine.readings.voltages] },
+                    { 
+                      temperatures: [...temperatureList, ...machine.readings.temperatures], 
+                      voltages: [...voltageList, ...machine.readings.voltages] 
+                    },
                     lastReading: 
                     { temperature: lastTemperatureReading, voltage: lastVoltageReading }          
                   }
@@ -163,6 +168,91 @@ export default function HomePage() {
       })
     }
   }, [selectedMachine._id, refreshTemperatures])
+
+  /**************************** Hace la conexion a MQTT ****************************/
+  useEffect(() => {
+    if(isLoading) return
+    if (!globalUser._id) return
+    if (!selectedMachine._id) return
+
+    const clientMQTT = mqtt.connect(MQTT_BROKER_URL, {
+      username: MQTT_BROKER_USER,
+      password: MQTT_BROKER_PASSWORD,
+      clientId: `mqtt_${globalUser._id}_${Math.random().toString(16).slice(3)}`,
+      reconnectPeriod: 5000,
+      clean: true, 
+    })
+
+    // Manejar eventos del cliente MQTT
+    clientMQTT.on("connect", () => {
+      console.log("Conectado al broker MQTT (HiveMQ Cloud)")
+      // Suscribirse a un topic
+      clientMQTT.subscribe(`atrect5/machines/${selectedMachine._id}/reading`, (err) => {
+        if (err) {
+          console.error("Error al suscribirse al topic:", err)
+        } else {
+          console.log(`atrect5/machines/${selectedMachine._id}/reading`)
+        }
+      })
+    })
+
+    clientMQTT.on("message", (topic, message) => {
+      console.log(`Mensaje recibido en el topic ${topic}:`, message.toString())
+      // eslint-disable-next-line no-unused-vars
+      const [_, __, machineId, subTopic] = topic.split('/')
+
+      const messageData = JSON.parse(message.toString())
+      const temperatureData = { date: new Date().toISOString(), measure: parseFloat( messageData.temperature ) }
+      const voltageData = { date: new Date().toISOString(), measure: parseFloat( messageData.voltage ) }
+      
+      // Se agregan las nuevas temperaturas a la lista
+      setSelectedMachine( (prevState) => ({
+          ...prevState,
+          readings: {
+              temperatures: [temperatureData, ...prevState.readings.temperatures],
+              voltages: [voltageData, ...prevState.readings.voltages]
+          },
+          lastReading: {
+              temperature: temperatureData,
+              voltage: voltageData
+          }
+      }))
+
+
+      setMachineList((prevList) =>
+        prevList.map((machine) =>
+          machine._id === selectedMachine._id
+            ? { ...machine, 
+                readings: 
+                { 
+                  temperatures: [temperatureData, ...machine.readings.temperatures], 
+                  voltages: [voltageData, ...machine.readings.voltages] 
+                },
+                lastReading: 
+                { temperature: temperatureData, voltage: voltageData }          
+              }
+            : machine
+      ))
+
+
+
+    })
+
+    clientMQTT.on("error", (err) => {
+      console.error("Error en la conexión MQTT:", err)
+    })
+
+    clientMQTT.on("close", () => {
+      console.log("Conexión MQTT cerrada")
+    })
+
+    // Limpiar la conexión al desmontar el componente
+    return () => {
+      if (clientMQTT) {
+        clientMQTT.end()
+      }
+    }
+  }, [globalUser, selectedMachine._id, isLoading])
 
   /**************************** Maneja los cambios del select ************************************/
   const handleChange = e => {
@@ -334,6 +424,7 @@ export default function HomePage() {
             </Link>
           }
         </div>
+        <br /><br />
 
       </div>
       

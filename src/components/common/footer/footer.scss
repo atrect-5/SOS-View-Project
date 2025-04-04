@@ -1,0 +1,10 @@
+
+@use '../../../consts/index.scss' as consts;
+
+.footer-container{
+    height: 25px;
+    background-color: consts.$gray-variant;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
