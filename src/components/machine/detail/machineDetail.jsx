@@ -26,15 +26,23 @@ function MachineDetail () {
     const [isUpdateingStatus, setIsUpdateingStatus] = useState(false)
     const [isRefreshingTemperatures, setIsRefreshingTemperatures] = useState(false)
     const hasFetchedData = useRef(false)
+    const clientMQTTRef = useRef(null)
+
 
     const navigate = useNavigate()
 
-    /***************** Maneja el cambio el el Status de ma maquina *****************/
+    /***************** Maneja el cambio en el Status de la maquina *****************/
       const handleStatusChange = async () => {
         try {
             setIsUpdateingStatus(true)
             // Alterna el estado entre 'active' y 'sleeping'
             const newStatus = machine.status === 'active' ? 'sleeping' : 'active'
+
+            if (!clientMQTTRef.current){
+                toast.error('Hubo un error al intentar cambiar el status')
+                setIsUpdateingStatus(false)
+                return
+              }
         
             // Se actualiza el status en la base de datos 
             const updatedMachine = await updateMachineStatusService(machine._id, {status:newStatus})   
@@ -43,6 +51,22 @@ function MachineDetail () {
                 toast.error(`Hubo un error al cambiar el status: ${updatedMachine.error}`)
                 setIsUpdateingStatus(false)
                 return
+            }
+
+            // Publica el nuevo estado en MQTT
+            const topic = `atrect5/machines/${machine._id}/status`
+            const message = JSON.stringify({ status: updatedMachine.status })
+
+            if (clientMQTTRef.current){
+                clientMQTTRef.current.publish(topic, message, { qos: 1 }, (err) => {
+                if (err) {
+                    console.error(`Error al publicar en el topic ${topic}:`, err)
+                } else {
+                    console.log(`Publicado en el topic ${topic}: ${message}`)
+                }
+                })
+            } else {
+                console.error("El cliente MQTT no está disponible")
             }
         
             // Actualiza el estado localmente
@@ -174,39 +198,59 @@ function MachineDetail () {
         
             // Manejar eventos del cliente MQTT
             clientMQTT.on("connect", () => {
-            console.log("Conectado al broker MQTT (HiveMQ Cloud)")
-            // Suscribirse a un topic
-            clientMQTT.subscribe(`atrect5/machines/${machine._id}/reading`, (err) => {
-                if (err) {
-                console.error("Error al suscribirse al topic:", err)
-                } else {
-                console.log(`atrect5/machines/${machine._id}/reading`)
-                }
+                console.log("Conectado al broker MQTT (HiveMQ Cloud)")
+                // Suscribirse al topic de mediciones
+                clientMQTT.subscribe(`atrect5/machines/${machine._id}/reading`, (err) => {
+                    if (err) {
+                    console.error("Error al suscribirse al topic readings:", err)
+                    } else {
+                    console.log(`atrect5/machines/${machine._id}/reading`)
+                    }
+                })
+                // Suscribirse al topic de status
+                clientMQTT.subscribe(`atrect5/machines/${machine._id}/status`, (err) => {
+                    if (err) {
+                    console.error("Error al suscribirse al topic status:", err)
+                    } else {
+                    console.log(`atrect5/machines/${machine._id}/status`)
+                    }
+                })
             })
-            })
+
+            // Se almacena el cliente MQTT en la referencia
+            clientMQTTRef.current = clientMQTT
         
             clientMQTT.on("message", (topic, message) => {
-            console.log(`Mensaje recibido en el topic ${topic}:`, message.toString())
-            
-            // eslint-disable-next-line no-unused-vars
-            const [_, __, machineId, subTopic] = topic.split('/')
+                console.log(`Mensaje recibido en el topic ${topic}:`, message.toString())
+                
+                // eslint-disable-next-line no-unused-vars
+                const [_, __, machineId, subTopic] = topic.split('/')
 
-            const messageData = JSON.parse(message.toString())
-            const temperatureData = { date: new Date().toISOString(), measure: parseFloat( messageData.temperature ) }
-            const voltageData = { date: new Date().toISOString(), measure: parseFloat( messageData.voltage ) }
+                if (subTopic === 'reading'){
+                    const messageData = JSON.parse(message.toString())
+                    const temperatureData = { date: new Date().toISOString(), measure: parseFloat( messageData.temperature ) }
+                    const voltageData = { date: new Date().toISOString(), measure: parseFloat( messageData.voltage ) }
 
-            // Se agrega la lectura a la lista
-            setMachine( (prevState) => ({
-                ...prevState,
-                readings: {
-                    temperatures: [temperatureData, ...prevState.readings.temperatures],
-                    voltages: [voltageData, ...prevState.readings.voltages]
-                },
-                lastReading: {
-                    temperature: temperatureData,
-                    voltage: voltageData
+                    // Se agrega la lectura a la lista
+                    setMachine( (prevState) => ({
+                        ...prevState,
+                        readings: {
+                            temperatures: [temperatureData, ...prevState.readings.temperatures],
+                            voltages: [voltageData, ...prevState.readings.voltages]
+                        },
+                        lastReading: {
+                            temperature: temperatureData,
+                            voltage: voltageData
+                        }
+                    }))
+                } else if (subTopic === 'status') {
+                    const messageData = JSON.parse(message.toString())
+                    // Actualiza el estado localmente
+                    setMachine((prevState) => ({
+                        ...prevState,
+                        status: messageData.status,
+                    }))
                 }
-            }))
             })
         
             clientMQTT.on("error", (err) => {
